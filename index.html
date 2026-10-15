@@ -73,6 +73,37 @@
   .help b { color:var(--acc); }
   #over h2 { font-size:clamp(32px, 7vw, 56px); margin:0 0 6px; } #over .stats { margin:12px 0; line-height:1.8; font-size:17px; }
   #pause { background:rgba(4,8,16,0.82); }
+
+  /* ---- friends and online ---- */
+  #topbar { position:absolute; top:12px; right:12px; left:12px; display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap; z-index:5; }
+  .chip { font:inherit; font-size:14px; padding:8px 14px; border-radius:999px; border:1px solid rgba(255,255,255,0.22); background:rgba(10,16,30,0.78); color:var(--ink); cursor:pointer; }
+  .chip.static { cursor:default; font-size:13px; opacity:0.9; }
+  .chip b { background:var(--red); color:#fff; border-radius:999px; padding:1px 7px; margin-left:6px; font-size:12px; }
+  .chip b[hidden] { display:none; }
+  #nameScreen, #friends, #waitScreen { background:rgba(4,8,18,0.96); z-index:20; }
+  #nameScreen input, .addrow input { width:100%; font:inherit; font-size:22px; padding:12px 14px; border-radius:12px; border:2px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.08); color:#fff; outline:none; text-align:center; }
+  #nameScreen input:focus, .addrow input:focus { border-color:var(--acc); }
+  #nameErr, .err { color:#ff8a8a; min-height:20px; margin:8px 0; font-size:14px; }
+  .hintline { font-size:13px; opacity:0.75; margin-top:8px; }
+  .panel { max-height:92vh; overflow-y:auto; text-align:left; width:min(580px,100%); padding:14px 16px; }
+  #fHead { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; } #fHead h2 { margin:0; font-size:22px; }
+  #fTabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; } #fTabs button { font:inherit; font-size:14px; padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.06); color:var(--ink); cursor:pointer; }
+  #fTabs button.on { background:var(--acc); color:#1d1300; font-weight:800; border-color:var(--acc); } #fTabs b { background:var(--red); color:#fff; border-radius:999px; padding:0 6px; margin-left:3px; font-size:12px; }
+  #fBody h3 { margin:14px 0 6px; font-size:15px; opacity:0.85; }
+  .frow { display:flex; align-items:center; gap:10px; padding:9px 10px; margin-bottom:7px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:12px; }
+  .av { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; font-weight:800; font-size:18px; flex:none; color:#fff; }
+  .finfo { flex:1; min-width:0; display:flex; flex-direction:column; } .finfo b { font-size:16px; overflow:hidden; text-overflow:ellipsis; } .finfo small, .st { font-size:12.5px; opacity:0.85; }
+  .st.on { color:#5cf08a; } .st.match { color:#ffc247; } .st.off { color:#8a94a8; }
+  .fbtns { display:flex; gap:6px; flex-wrap:wrap; } .fbtns button, #fBody .btn2, .card2 button, .addrow button, .toast button { font:inherit; font-size:13.5px; padding:7px 12px; border-radius:9px; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.08); color:var(--ink); cursor:pointer; }
+  button.go { background:linear-gradient(180deg,#ffc24a,#ff9d00) !important; color:#241600 !important; font-weight:800; border:0 !important; } button.danger { color:#ff8a8a !important; border-color:rgba(255,100,100,0.5) !important; } button:disabled { opacity:0.5; cursor:default; }
+  .empty { text-align:center; padding:22px 10px; opacity:0.8; line-height:1.6; } .empty.small { padding:8px; font-size:14px; } .note { font-size:12.5px; opacity:0.7; margin-top:10px; line-height:1.5; }
+  .addrow { display:flex; gap:8px; } .addrow input { font-size:18px; text-align:left; } .card2 { margin-top:12px; padding:14px; background:rgba(255,255,255,0.07); border-radius:14px; border:1px solid rgba(255,255,255,0.14); line-height:1.5; } .card2 .go { margin-top:10px; }
+  .mecard { display:flex; align-items:center; gap:12px; } .mecard .av { width:54px; height:54px; font-size:24px; }
+  .stats3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:12px 0; text-align:center; } .stats3 div { background:rgba(255,255,255,0.07); border-radius:10px; padding:8px 4px; } .stats3 b { font-size:22px; display:block; } .stats3 small { opacity:0.7; }
+  .chk { display:flex; gap:8px; align-items:center; margin:10px 0; font-size:14px; }
+  #toasts { position:fixed; left:50%; top:10px; transform:translateX(-50%); z-index:60; display:flex; flex-direction:column; gap:8px; width:min(440px,94vw); pointer-events:none; }
+  .toast { pointer-events:auto; background:rgba(14,22,42,0.96); border:1px solid rgba(255,255,255,0.25); border-radius:14px; padding:12px 14px; box-shadow:0 8px 24px rgba(0,0,0,0.5); font-size:14.5px; line-height:1.45; animation:pop .25s ease-out; }
+  .toast .trow { display:flex; gap:8px; margin-top:9px; } @keyframes pop { from { transform:translateY(-14px); opacity:0; } to { transform:none; opacity:1; } }
   /* touch */
   #touch { position:fixed; inset:0; display:none; pointer-events:none; }
   #touch.on { display:block; }
@@ -105,7 +136,7 @@ window.addEventListener('error', function (e) { if (document.getElementById('boo
   <div id="dmg"></div><div id="ring"><i></i></div><div id="scope"></div>
   <div id="xh"><i class="l"></i><i class="r"></i><i class="u"></i><i class="d"></i><i class="dot"></i></div>
   <div id="hm"></div>
-  <div class="hud" id="top"><div id="score"><span class="you">YOU</span> <b id="sYou">0</b> : <b id="sBot">0</b> <span class="bot">BOT</span></div><div id="roundInfo"></div></div>
+  <div class="hud" id="top"><div id="score"><span class="you" id="lblYou">YOU</span> <b id="sYou">0</b> : <b id="sBot">0</b> <span class="bot" id="lblBot">BOT</span></div><div id="roundInfo"></div></div>
   <div class="hud" id="msg"></div>
   <div class="hud" id="reloadTxt">RELOADING</div>
   <div class="hud" id="feed"></div>
@@ -123,6 +154,7 @@ window.addEventListener('error', function (e) { if (document.getElementById('boo
 <div id="rotate"><div>📱↻</div>Turn your phone sideways to play</div>
 
 <div class="screen on" id="menu">
+  <div id="topbar"><span class="chip static" id="netState">⚪ Offline</span><button class="chip" id="btnProfile">👤 <span id="meName">Set your name</span></button><button class="chip" id="btnFriends">👥 Friends <b id="friendBadge" hidden>0</b></button></div>
   <h1>DUEL <em>ARENA</em></h1>
   <div class="sub">First to win the rounds takes the match. Random guns every round.</div>
   <div class="card">
@@ -138,10 +170,17 @@ window.addEventListener('error', function (e) { if (document.getElementById('boo
   <div class="help" id="help"><b>W A S D</b> move · <b>Mouse</b> look · <b>Click</b> shoot · <b>Right-click</b> aim · <b>Shift</b> sprint · <b>Space</b> jump · <b>C</b> crouch · <b>R</b> reload · <b>1 2 3</b> weapons · <b>Esc</b> pause</div>
 </div>
 
-<div class="screen" id="pause"><h1 style="font-size:clamp(34px,7vw,60px)">PAUSED</h1><button class="play" id="resumeBtn">RESUME</button><button class="btn2" id="quitBtn" style="margin-top:14px">Quit to menu</button></div>
+<div class="screen" id="pause"><h1 style="font-size:clamp(34px,7vw,60px)">PAUSED</h1><button class="play" id="resumeBtn">RESUME</button><button class="btn2" id="quitBtn" style="margin-top:14px">Quit to menu</button><div id="pauseNote" style="margin-top:12px;opacity:.8;font-size:14px"></div></div>
 
 <div class="screen" id="over"><h2 id="overTitle">YOU WIN</h2><div id="overScore" style="font-size:26px;font-weight:800"></div><div class="stats" id="overStats"></div><button class="play" id="againBtn">PLAY AGAIN</button><button class="btn2" id="menuBtn" style="margin-top:14px">Menu</button></div>
 
+<div class="screen" id="nameScreen"><h1 style="font-size:clamp(28px,6vw,48px)">Choose your player name</h1><div class="sub">This is how your friends will find you.</div>
+  <div class="card"><input id="nameInput" maxlength="16" placeholder="e.g. SuperAimer" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="hintline">3 to 16 letters, numbers or _ · no spaces · pick something that doesn't show your real name</div><div id="nameErr"></div><button class="play" id="nameGo" style="margin-top:4px;font-size:20px;padding:12px 36px">CONTINUE</button><br><button class="btn2" id="nameSkip" style="margin-top:12px">Not now</button></div></div>
+<div class="screen" id="friends"><div class="card panel"><div id="fHead"><h2>Friends</h2><button class="btn2" id="friendsClose">✕ Close</button></div><div id="fTabs"></div><div id="fBody"></div></div></div>
+<div class="screen" id="waitScreen"><h2 id="waitTxt" style="font-size:clamp(22px,5vw,34px)"></h2><button class="btn2" id="waitCancel" style="margin-top:14px">Cancel</button></div>
+<div id="toasts"></div>
+
+<script src="vendor/peerjs.min.js"></script>
 <script src="vendor/three.min.js" onerror="bootErr('The file <b>vendor/three.min.js</b> is missing. Keep the <b>vendor</b> folder next to index.html.')"></script>
 <script>
 'use strict';
@@ -154,7 +193,8 @@ const $ = id => document.getElementById(id);
   let ok = false; try { const c = document.createElement('canvas'); ok = !!(c.getContext('webgl2') || c.getContext('webgl') || c.getContext('experimental-webgl')); } catch (e) {}
   if (!ok) { bootErr('Your browser could not start 3D graphics (WebGL).<br>In Chrome or Edge: Settings → System → turn ON <b>"Use graphics acceleration when available"</b>, then restart the browser. Or try a different browser.'); throw new Error('WebGL not available'); }
 })();
-const TOUCH = /[?&]touch=1/.test(location.search) || ('ontouchstart' in window) || matchMedia('(pointer: coarse)').matches;
+const TOUCH_FORCED = /[?&]touch=1/.test(location.search);
+let TOUCH = TOUCH_FORCED || matchMedia('(hover: none) and (pointer: coarse)').matches;       // true only on phones and tablets
 const rand = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -597,7 +637,7 @@ class Bot {
 }
 
 // ---------- game state ----------
-const G = { phase: 'menu', t: 0, roundTime: 0, score: { you: 0, bot: 0 }, round: 0, stats: null, paused: false, over: false };
+const G = { phase: 'menu', t: 0, roundTime: 0, score: { you: 0, bot: 0 }, round: 0, stats: null, paused: false, over: false, online: false, menuOpen: false, oppName: 'BOT' };
 function newStats() { return { fired: 0, hit: 0, head: 0, kills: 0, dmg: 0, taken: 0 }; }
 function setMsg(html, ms = 0) { const m = $('msg'); m.innerHTML = html; m.classList.add('on'); clearTimeout(setMsg.t); if (ms) setMsg.t = setTimeout(() => m.classList.remove('on'), ms); }
 function feed(txt) { const d = document.createElement('div'); d.innerHTML = txt; $('feed').appendChild(d); setTimeout(() => d.remove(), 4100); while ($('feed').children.length > 4) $('feed').firstChild.remove(); }
@@ -606,9 +646,10 @@ function hurtPlayer(n, fx, fz, head) {
   const d = $('dmg'); d.style.transition = 'none'; d.style.opacity = clamp(0.5 + n / 80, 0.5, 1); void d.offsetWidth; d.style.transition = 'opacity .8s'; d.style.opacity = 0;
   const ax = fx - P.x, az = fz - P.z, fwdX = -Math.sin(P.yaw), fwdZ = -Math.cos(P.yaw), rtX = Math.cos(P.yaw), rtZ = -Math.sin(P.yaw);
   $('ring').style.transform = 'rotate(' + (Math.atan2(ax * rtX + az * rtZ, ax * fwdX + az * fwdZ) * 180 / Math.PI) + 'deg)'; $('ring').style.transition = 'none'; $('ring').style.opacity = 1; void $('ring').offsetWidth; $('ring').style.transition = 'opacity 1.2s'; $('ring').style.opacity = 0;
-  if (P.hp <= 0) { P.hp = 0; P.dead = true; P.deadT = 0; feed('<b style="color:#ff8a8a">BOT</b> ▸ You' + (head ? ' 🎯' : '')); }
+  if (P.hp <= 0) { P.hp = 0; P.dead = true; P.deadT = 0; feed('<b style="color:#ff8a8a">' + G.oppName + '</b> ▸ You' + (head ? ' 🎯' : '')); if (G.online && window.Online) Online.iDied(); }
 }
 function startMatch() {
+  G.paused = false; looking = false; G.online = false; G.oppName = 'BOT'; G.menuOpen = false; $('lblBot').textContent = 'BOT'; $('againBtn').style.display = ''; $('pauseNote').textContent = '';
   document.body.classList.add('playing');
   audioInit(); G.score = { you: 0, bot: 0 }; G.round = 0; G.stats = newStats(); G.over = false; $('over').classList.remove('on'); $('menu').classList.remove('on'); $('pause').classList.remove('on'); $('hud').classList.add('on');
   nextRound();
@@ -634,7 +675,7 @@ function showMatchOver() {
   $('overStats').innerHTML = 'Kills: <b>' + s.kills + '</b> · Headshots: <b>' + s.head + '</b><br>Accuracy: <b>' + acc + '%</b> · Damage dealt: <b>' + Math.round(s.dmg) + '</b>';
   $('hud').classList.remove('on'); $('over').classList.add('on'); if (won) sfxWin(); else sfxLose();
 }
-function toMenu() { document.body.classList.remove('playing'); G.phase = 'menu'; $('hud').classList.remove('on'); $('over').classList.remove('on'); $('pause').classList.remove('on'); $('menu').classList.add('on'); if (bot) { scene.remove(bot.mesh); bot = null; } document.exitPointerLock && document.exitPointerLock(); }
+function toMenu() { if (G.online && window.Online) Online.cleanup(); G.menuOpen = false; document.body.classList.remove('playing'); G.phase = 'menu'; $('hud').classList.remove('on'); $('over').classList.remove('on'); $('pause').classList.remove('on'); $('menu').classList.add('on'); if (bot) { scene.remove(bot.mesh); bot = null; } document.exitPointerLock && document.exitPointerLock(); }
 
 // ---------- shooting ----------
 function camForward(pitch, yaw) { const cp = Math.cos(pitch); return [-Math.sin(yaw) * cp, Math.sin(pitch), -Math.cos(yaw) * cp]; }
@@ -647,25 +688,27 @@ function playerFire() {
   const ex = P.x, ey = P.y + P.eye, ez = P.z; const [fx, fy, fz] = camForward(P.pitch + P.recoilP, P.yaw + P.recoilY);
   const rx = Math.cos(P.yaw + P.recoilY), rz = -Math.sin(P.yaw + P.recoilY);                      // right vector
   const ux = -Math.sin(P.pitch) * -Math.sin(P.yaw), uz = -Math.sin(P.pitch) * -Math.cos(P.yaw);
-  let hitSomething = false, headHit = false, killed = false; const targets = bot && !bot.dead ? [bot.target] : [];
+  let hitSomething = false, headHit = false, killed = false, onDmg = 0, onHead = false, firstEnd = null; const targets = G.online ? (Online.target() ? [Online.target()] : []) : (bot && !bot.dead ? [bot.target] : []);
   for (let i = 0; i < w.pellets; i++) {
     let dx = fx + (Math.random() * 2 - 1) * spreadBase, dy = fy + (Math.random() * 2 - 1) * spreadBase, dz = fz + (Math.random() * 2 - 1) * spreadBase; const l = Math.hypot(dx, dy, dz); dx /= l; dy /= l; dz /= l;
     const hit = traceRay(ex, ey, ez, dx, dy, dz, 250, targets), hx = ex + dx * hit.t, hy = ey + dy * hit.t, hz = ez + dz * hit.t;
-    if (i < 3) addTracer(ex + fx * 0.8 + rx * 0.16, ey - 0.14 + fy * 0.8, ez + fz * 0.8 + rz * 0.16, hx, hy, hz);
+    if (i < 3) addTracer(ex + fx * 0.8 + rx * 0.16, ey - 0.14 + fy * 0.8, ez + fz * 0.8 + rz * 0.16, hx, hy, hz); if (i === 0) firstEnd = [hx, hy, hz];
     if (hit.kind === 'wall') { burst(hx, hy, hz, hit.nx, hit.ny, hit.nz, 4, 0xffd9a0, 2.6); addDecal(hx, hy, hz, hit.nx, hit.ny, hit.nz); }
     else if (hit.kind === 'body' || hit.kind === 'head') {
       const head = hit.kind === 'head', fall = 1 - 0.35 * clamp((hit.t - w.rng[0]) / (w.rng[1] - w.rng[0]), 0, 1), dmg = w.dmg * (head ? w.hs : 1) * fall;
-      burst(hx, hy, hz, -dx, 0.3, -dz, head ? 8 : 5, 0xd62a2a, 2.2); hitSomething = true; if (head) headHit = true; G.stats.dmg += Math.min(dmg, bot.hp); if (bot.damage(dmg, head)) { killed = true; }
+      burst(hx, hy, hz, -dx, 0.3, -dz, head ? 8 : 5, 0xd62a2a, 2.2); hitSomething = true; if (head) headHit = true;
+      if (G.online) { onDmg += dmg; if (head) onHead = true; } else { G.stats.dmg += Math.min(dmg, bot.hp); if (bot.damage(dmg, head)) { killed = true; } }
     }
   }
-  if (hitSomething) { G.stats.hit++; if (headHit) G.stats.head++; showHitMarker(killed ? 'kill' : headHit ? 'head' : ''); sfxHit(headHit); if (killed) { G.stats.kills++; sfxKill(); feed('<b style="color:#7fd0ff">You</b> ▸ BOT' + (headHit ? ' 🎯' : '')); } }
+  if (G.online) { if (onDmg > 0) { G.stats.dmg += Math.min(onDmg, Online.hp()); killed = Online.sendHit(onDmg, onHead); } Online.sendShot(P.inv[P.cur].id, ex + fx * 0.8, ey - 0.1 + fy * 0.8, ez + fz * 0.8, firstEnd); }
+  if (hitSomething) { G.stats.hit++; if (headHit) G.stats.head++; showHitMarker(killed ? 'kill' : headHit ? 'head' : ''); sfxHit(headHit); if (killed) { G.stats.kills++; sfxKill(); feed('<b style="color:#7fd0ff">You</b> ▸ ' + G.oppName + (headHit ? ' 🎯' : '')); } }
   sfxShot(P.inv[P.cur].id, 1, 0); VM.kick = 1; VM.kickR = 1; VM.flashT = 0.045; muzzleLight.position.set(ex + fx * 1.2, ey + fy * 1.2, ez + fz * 1.2); muzzleLight.intensity = 6;
   P.recoilP += (w.kick * (0.85 + Math.random() * 0.3) * (1 - P.ads * 0.35)) * Math.PI / 180; P.recoilY += rand(-0.35, 0.35) * w.kick * Math.PI / 180 * 0.6; P.bloom = Math.min(P.bloom + 1, 10);
 }
 function meleeAttack(w) {
-  P.cdT = 60 / w.rpm; sfxShot('knife', 1, 0); const [fx, fy, fz] = camForward(P.pitch, P.yaw); const targets = bot && !bot.dead ? [bot.target] : [];
-  const hit = traceRay(P.x, P.y + P.eye, P.z, fx, fy, fz, w.reach, targets); G.stats.fired++;
-  if (hit.kind === 'body' || hit.kind === 'head') { const dmg = w.dmg; G.stats.hit++; G.stats.dmg += Math.min(dmg, bot.hp); burst(P.x + fx * hit.t, P.y + P.eye + fy * hit.t, P.z + fz * hit.t, -fx, 0.2, -fz, 6, 0xd62a2a, 2); const k = bot.damage(dmg, false); showHitMarker(k ? 'kill' : ''); sfxHit(false); if (k) { G.stats.kills++; sfxKill(); feed('<b style="color:#7fd0ff">You</b> ▸ BOT 🔪'); } }
+  P.cdT = 60 / w.rpm; sfxShot('knife', 1, 0); const [fx, fy, fz] = camForward(P.pitch, P.yaw); const targets = G.online ? (Online.target() ? [Online.target()] : []) : (bot && !bot.dead ? [bot.target] : []);
+  const hit = traceRay(P.x, P.y + P.eye, P.z, fx, fy, fz, w.reach, targets); G.stats.fired++; if (G.online) Online.sendShot('knife', P.x, P.y + P.eye, P.z, null);
+  if (hit.kind === 'body' || hit.kind === 'head') { const dmg = w.dmg; G.stats.hit++; burst(P.x + fx * hit.t, P.y + P.eye + fy * hit.t, P.z + fz * hit.t, -fx, 0.2, -fz, 6, 0xd62a2a, 2); let k; if (G.online) { G.stats.dmg += Math.min(dmg, Online.hp()); k = Online.sendHit(dmg, false); } else { G.stats.dmg += Math.min(dmg, bot.hp); k = bot.damage(dmg, false); } showHitMarker(k ? 'kill' : ''); sfxHit(false); if (k) { G.stats.kills++; sfxKill(); feed('<b style="color:#7fd0ff">You</b> ▸ ' + G.oppName + ' 🔪'); } }
   else if (hit.kind === 'wall') { burst(P.x + fx * hit.t, P.y + P.eye + fy * hit.t, P.z + fz * hit.t, hit.nx, hit.ny, hit.nz, 3, 0xffffff, 2); }
 }
 function startReload() { const w = curWeapon(), a = curAmmo(); if (w.melee || P.reloadT > 0 || a.mag >= w.mag) return; P.reloadT = w.reload; P.ads = Math.min(P.ads, 0.4); sfxReload(); }
@@ -676,7 +719,9 @@ function renderSlots() { const names = { primary: 1, pistol: 2, knife: 3 }; $('s
 // ---------- input ----------
 function lockPointer() { if (TOUCH) return; const c = renderer.domElement; if (c.requestPointerLock) { try { const r = c.requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch (e) {} } }
 let looking = false;                                  // true while the right mouse button is held (hold-to-look mode)
-function pauseGame() { if (G.paused || G.over || !(G.phase === 'live' || G.phase === 'countdown' || G.phase === 'roundover')) return; G.paused = true; looking = false; P.fire = false; $('pause').classList.add('on'); }
+function pauseGame() {
+  if (G.online) { if (G.menuOpen || G.over || G.phase === 'menu') return; G.menuOpen = true; looking = false; P.fire = false; $('pauseNote').textContent = 'The match keeps going while this menu is open!'; $('pause').classList.add('on'); return; }
+  if (G.paused || G.over || !(G.phase === 'live' || G.phase === 'countdown' || G.phase === 'roundover')) return; G.paused = true; looking = false; P.fire = false; $('pause').classList.add('on'); }
 document.addEventListener('pointerlockchange', () => {
   locked = document.pointerLockElement === renderer.domElement;
   if (!locked && !TOUCH) { if (CFG.look === 'lock') pauseGame(); else looking = false; }
@@ -692,6 +737,7 @@ addEventListener('keydown', e => {
 addEventListener('keyup', e => { KEYS[e.code] = false; });
 addEventListener('mousedown', e => {
   if (G.phase === 'menu' || G.over || G.paused || TOUCH) return; audioInit();
+  if (e.button === 0) P.clickAt = performance.now();                  // remember the click even if it ends before the next frame
   if (CFG.look === 'lock') { if (!locked) lockPointer(); if (e.button === 0) P.fire = true; if (e.button === 2) P.wantAds = true; }
   else { if (e.button === 0) P.fire = true; if (e.button === 2) { looking = true; lockPointer(); } }            // hold right-click: look around
 });
@@ -702,7 +748,7 @@ addEventListener('mouseup', e => {
 addEventListener('blur', () => { looking = false; P.fire = false; if (CFG.look === 'rmb' && document.pointerLockElement) document.exitPointerLock(); });
 addEventListener('contextmenu', e => e.preventDefault());
 addEventListener('wheel', e => { if (!P.inv || G.paused || G.phase === 'menu') return; const order = ['primary', 'pistol', 'knife'], i = order.indexOf(P.cur); switchTo(order[(i + (e.deltaY > 0 ? 1 : 2)) % 3]); }, { passive: true });
-document.addEventListener('visibilitychange', () => { if (document.hidden && (G.phase === 'live' || G.phase === 'countdown') && !G.paused) { G.paused = true; $('pause').classList.add('on'); document.exitPointerLock && document.exitPointerLock(); } });
+document.addEventListener('visibilitychange', () => { if (document.hidden && !G.online && (G.phase === 'live' || G.phase === 'countdown') && !G.paused) { G.paused = true; $('pause').classList.add('on'); document.exitPointerLock && document.exitPointerLock(); } });
 
 // touch controls
 if (TOUCH) {
@@ -718,7 +764,7 @@ if (TOUCH) {
   const hold = (id, on, off) => { const el = $(id); el.addEventListener('pointerdown', e => { try { el.setPointerCapture(e.pointerId); } catch (_) {} el.classList.add('down'); on(); audioInit(); e.preventDefault(); }); const up = () => { el.classList.remove('down'); off && off(); }; el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up); };
   hold('tFire', () => { P.fire = true; }, () => { P.fire = false; }); hold('tAds', () => { P.wantAds = !P.wantAds; }); hold('tJump', () => { KEYS.Space = true; }, () => { KEYS.Space = false; });
   hold('tReload', () => startReload()); hold('tCrouch', () => { KEYS.ControlLeft = !KEYS.ControlLeft; }); hold('tSwap', () => { const order = ['primary', 'pistol', 'knife']; switchTo(order[(order.indexOf(P.cur) + 1) % 3]); });
-  hold('tPause', () => { G.paused = true; $('pause').classList.add('on'); });
+  hold('tPause', () => pauseGame());
 }
 
 // ---------- menus ----------
@@ -730,13 +776,16 @@ const HELP = {
   lock: '<b>W A S D</b> move · <b>Mouse</b> look · <b>Click</b> shoot · <b>Right-click</b> aim · <b>Shift</b> sprint · <b>Space</b> jump · <b>C</b> crouch · <b>R</b> reload · <b>1 2 3</b> weapons · <b>Esc</b> pause' };
 function updateHelp() { if (!TOUCH) $('help').innerHTML = HELP[CFG.look] || HELP.rmb; }
 setSeg('segLook', CFG.look, v => { CFG.look = v; looking = false; updateHelp(); }); updateHelp(); if (TOUCH) $('rowLook').style.display = 'none';
+// if a real mouse is used (touch-screen laptop, tablet with a mouse), switch the touch buttons off and use the mouse
+function switchToMouse() { if (!TOUCH || TOUCH_FORCED) return; TOUCH = false; document.body.classList.remove('touchmode'); $('touch').classList.remove('on'); $('rowLook').style.display = ''; updateHelp(); }
+addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') switchToMouse(); }, true);
 setSeg('segQ', CFG.quality, v => { CFG.quality = v; applyQuality(); }); setSeg('segSnd', CFG.sound, v => { CFG.sound = +v; });
 $('rngSens').value = CFG.sens; $('rngSens').oninput = e => { CFG.sens = +e.target.value; saveCfg(); };
 $('rngFov').value = CFG.fov; $('rngFov').oninput = e => { CFG.fov = +e.target.value; saveCfg(); };
 $('playBtn').onclick = () => { startMatch(); if (CFG.look === 'lock') lockPointer(); };
 $('againBtn').onclick = () => { startMatch(); if (CFG.look === 'lock') lockPointer(); }; $('menuBtn').onclick = toMenu;
-$('resumeBtn').onclick = () => { G.paused = false; $('pause').classList.remove('on'); if (CFG.look === 'lock') lockPointer(); }; $('quitBtn').onclick = () => { G.paused = false; toMenu(); };
-addEventListener('keydown', e => { if (e.code === 'Escape' && TOUCH && G.phase !== 'menu' && !G.over) { G.paused = true; $('pause').classList.add('on'); } });
+$('resumeBtn').onclick = () => { G.paused = false; G.menuOpen = false; $('pause').classList.remove('on'); if (CFG.look === 'lock') lockPointer(); }; $('quitBtn').onclick = () => { G.paused = false; G.menuOpen = false; toMenu(); };
+addEventListener('keydown', e => { if (e.code === 'Escape' && TOUCH && G.phase !== 'menu' && !G.over) pauseGame(); });
 
 // ---------- main loop ----------
 let last = performance.now(), hudT = 0, camShake = 0;
@@ -745,10 +794,11 @@ function step(dt) {
   // flow
   if (G.phase === 'countdown') { G.t -= dt; const n = Math.ceil(G.t); if (n !== G.last && n >= 1 && n <= 3) { G.last = n; setMsg(String(n)); sfxBeep(false); } if (G.t <= 0) { G.phase = 'live'; G.roundTime = 80; setMsg('FIGHT!', 900); sfxBeep(true); } }
   else if (G.phase === 'live') {
-    G.roundTime -= dt; if (P.dead) endRound('bot'); else if (bot && bot.dead) endRound('you'); else if (G.roundTime <= 0) endRound(P.hp > bot.hp ? 'you' : bot.hp > P.hp ? 'bot' : 'draw');
-  } else if (G.phase === 'roundover') { G.t -= dt; if (G.t <= 0) { if (G.matchEnd) showMatchOver(); else nextRound(); } }
+    if (G.online) Online.liveTick(dt);
+    else { G.roundTime -= dt; if (P.dead) endRound('bot'); else if (bot && bot.dead) endRound('you'); else if (G.roundTime <= 0) endRound(P.hp > bot.hp ? 'you' : bot.hp > P.hp ? 'bot' : 'draw'); }
+  } else if (G.phase === 'roundover' && !G.online) { G.t -= dt; if (G.t <= 0) { if (G.matchEnd) showMatchOver(); else nextRound(); } }
   // player
-  const frozen = G.phase === 'countdown' || G.phase === 'matchover';
+  const frozen = G.phase === 'countdown' || G.phase === 'matchover' || G.menuOpen;
   const w = P.inv ? curWeapon() : WEAPONS.pistol;
   let ix = 0, iz = 0; if (!frozen && !P.dead) { ix = (KEYS.KeyD ? 1 : 0) - (KEYS.KeyA ? 1 : 0) + MOVE.x; iz = (KEYS.KeyS ? 1 : 0) - (KEYS.KeyW ? 1 : 0) + MOVE.z; const l = Math.hypot(ix, iz); if (l > 1) { ix /= l; iz /= l; } }
   P.crouch = !frozen && !P.dead && (KEYS.KeyC || KEYS.ControlLeft); const wantSprint = (KEYS.ShiftLeft || MOVE.sprint) && iz < -0.1 && !P.crouch && P.ads < 0.2 && P.reloadT <= 0; P.sprint = wantSprint;
@@ -766,10 +816,14 @@ function step(dt) {
   if (P.reloadT > 0) { P.reloadT -= dt; if (P.reloadT <= 0) curAmmo().mag = w.mag; }
   else if (P.inv && !w.melee && curAmmo().mag <= 0 && P.cdT <= 0 && P.switchT <= 0 && !P.dead && !frozen) startReload();   // empty magazine: reload by itself
   P.ads = lerp(P.ads, ((P.wantAds || (CFG.look === 'rmb' && !TOUCH && KEYS.KeyE)) && !P.dead && !w.melee && P.reloadT <= 0 && !P.sprint && !frozen) ? 1 : 0, Math.min(1, dt * 11));
-  if (P.inv && !frozen && !P.dead && (P.fire && (w.auto || !P.firePrev || w.melee))) { if (!G.paused) playerFire(); } P.firePrev = P.fire;
+  const queuedClick = !!P.clickAt && performance.now() - P.clickAt < 160;
+  if (P.inv && !frozen && !P.dead && ((P.fire && (w.auto || !P.firePrev || w.melee)) || queuedClick)) { if (!G.paused) { const f0 = G.stats.fired; playerFire(); if (G.stats.fired !== f0) P.clickAt = 0; } }
+  if (P.clickAt && !queuedClick) P.clickAt = 0;
+  P.firePrev = P.fire;
   P.recoilP = lerp(P.recoilP, 0, Math.min(1, dt * 5)); P.recoilY = lerp(P.recoilY, 0, Math.min(1, dt * 5)); mouseD.x *= 0.7; mouseD.y *= 0.7;
   if (P.dead) P.deadT += dt;
   if (bot) bot.update(dt);
+  if (G.online) Online.update(dt);
   updateEffects(dt);
   P.moving = moving;
 }
@@ -792,7 +846,7 @@ function hud(dt) {
   $('hpNum').firstChild.nodeValue = Math.ceil(P.hp); $('hpFill').style.width = P.hp + '%'; $('hpFill').style.background = P.hp > 50 ? 'linear-gradient(90deg,#3ddc84,#b5f542)' : P.hp > 25 ? 'linear-gradient(90deg,#ffb020,#ffd966)' : 'linear-gradient(90deg,#ff3344,#ff7a66)';
   const w = curWeapon(), a = curAmmo(); $('wname').textContent = w.name; $('ammo').innerHTML = w.melee ? '—' : a.mag + '<span> / ' + w.mag + '</span>'; $('ammo').style.color = (!w.melee && a.mag <= Math.ceil(w.mag * 0.25)) ? '#ff7a7a' : '';
   $('reloadTxt').style.opacity = P.reloadT > 0 ? 1 : 0;
-  if (G.phase === 'live') { const t = Math.max(0, Math.ceil(G.roundTime)); $('roundInfo').textContent = 'Round ' + G.round + '  ·  first to ' + CFG.rounds + '  ·  ' + Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
+  if (G.phase === 'live') { const t = Math.max(0, Math.ceil(G.roundTime)); $('roundInfo').textContent = 'Round ' + G.round + '  ·  first to ' + (G.online ? Online.rounds : CFG.rounds) + '  ·  ' + Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
 }
 function loop(now) {
   requestAnimationFrame(loop); let dt = Math.min(0.05, (now - last) / 1000); last = now;
@@ -801,6 +855,528 @@ function loop(now) {
 }
 requestAnimationFrame(loop);
 $('boot').remove();
+</script>
+<script>
+(function () {
+'use strict';
+// ---------- tiny crypto (SHA-256 + HMAC): friends use it to prove who they are, so nobody can pretend to be your friend ----------
+const K256 = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+  0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+  0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+  0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2];
+const ror = (x, n) => (x >>> n) | (x << (32 - n));
+function sha256(data) {
+  const H = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19], l = data.length, padLen = ((l + 9 + 63) >> 6) << 6;
+  const buf = new Uint8Array(padLen); buf.set(data); buf[l] = 0x80; const dv = new DataView(buf.buffer); dv.setUint32(padLen - 4, (l * 8) >>> 0); dv.setUint32(padLen - 8, Math.floor(l * 8 / 4294967296));
+  const w = new Uint32Array(64);
+  for (let off = 0; off < padLen; off += 64) {
+    for (let i = 0; i < 16; i++) w[i] = dv.getUint32(off + i * 4);
+    for (let i = 16; i < 64; i++) { const s0 = ror(w[i - 15], 7) ^ ror(w[i - 15], 18) ^ (w[i - 15] >>> 3), s1 = ror(w[i - 2], 17) ^ ror(w[i - 2], 19) ^ (w[i - 2] >>> 10); w[i] = (w[i - 16] + s0 + w[i - 7] + s1) >>> 0; }
+    let [a, b, c, d, e, f, g, h] = H;
+    for (let i = 0; i < 64; i++) {
+      const S1 = ror(e, 6) ^ ror(e, 11) ^ ror(e, 25), ch = (e & f) ^ (~e & g), t1 = (h + S1 + ch + K256[i] + w[i]) >>> 0, S0 = ror(a, 2) ^ ror(a, 13) ^ ror(a, 22), maj = (a & b) ^ (a & c) ^ (b & c), t2 = (S0 + maj) >>> 0;
+      h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+    }
+    H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0; H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+  }
+  const out = new Uint8Array(32), o = new DataView(out.buffer); H.forEach((v, i) => o.setUint32(i * 4, v)); return out;
+}
+const toHex = u8 => Array.from(u8, b => b.toString(16).padStart(2, '0')).join('');
+const cat = (a, b) => { const r = new Uint8Array(a.length + b.length); r.set(a); r.set(b, a.length); return r; };
+function sha256Hex(str) { return toHex(sha256(new TextEncoder().encode(str))); }
+function hmacHex(key, msg) {
+  const enc = new TextEncoder(); let k = enc.encode(key); if (k.length > 64) k = sha256(k); const kp = new Uint8Array(64); kp.set(k);
+  const ipad = kp.map(b => b ^ 0x36), opad = kp.map(b => b ^ 0x5c); return toHex(sha256(cat(opad, sha256(cat(ipad, enc.encode(msg))))));
+}
+function rnd(bytes) { const a = new Uint8Array(bytes); (self.crypto || window.crypto).getRandomValues(a); return toHex(a); }
+
+// =====================================================================
+//  The social engine. It is a plain object with no screen code, so it can be tested on its own.
+//  Players find each other through PeerJS. A player's online "address" is  duelarena1-<username>.
+//  Friendships are secrets that both devices remember; friends prove it with HMAC on every connection.
+// =====================================================================
+function createSocial(opts) {
+  const PRE = 'duelarena1-';
+  const ICE = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
+  const now = () => Date.now();
+  const A = { me: null, peer: null, state: 'offline', recs: new Map(), fstat: {}, ev: {}, myStatus: 'menu', lastTry: {}, waitConn: {}, timers: [], lastReq: 0, retryT: 0 };
+  const emit = (n, a) => (A.ev[n] || []).slice().forEach(f => { try { f(a); } catch (e) { console.error('social handler', n, e); } });
+  const on = (n, f) => { (A.ev[n] = A.ev[n] || []).push(f); };
+  const validName = n => typeof n === 'string' && /^[A-Za-z0-9_]{3,16}$/.test(n);
+  const BAD = /fuck|shit|bitch|porn|sex|nigg|dick|cock|pussy|rape|nazi|hitler|admin|moderator|nude|suicide/i;
+  const checkName = n => !validName(n) ? 'Use 3 to 16 letters, numbers or _ (no spaces).' : BAD.test(n) ? 'Please pick a different name.' : '';
+  const pid = l => PRE + l;
+  const num = v => Math.max(0, Math.min(1e6, Math.floor(Number(v) || 0)));
+  const cleanStats = s => s && typeof s === 'object' ? { matches: num(s.matches), wins: num(s.wins), losses: num(s.losses), kills: num(s.kills), headshots: num(s.headshots) } : null;
+  function normalize(m) {
+    m.friends = m.friends || {}; m.inReq = m.inReq || {}; m.outReq = m.outReq || {}; m.blocked = m.blocked || []; m.outbox = m.outbox || [];
+    m.stats = cleanStats(m.stats) || { matches: 0, wins: 0, losses: 0, kills: 0, headshots: 0 }; if (typeof m.allowReq !== 'boolean') m.allowReq = true; return m;
+  }
+  A.me = opts.store.load(); if (A.me) normalize(A.me);
+  const persist = () => { if (A.me) opts.store.save(A.me); };
+
+  // ---------- connecting to the signalling service ----------
+  function stopPeer() { if (A.peer) { try { A.peer.destroy(); } catch (e) {} A.peer = null; } A.recs.clear(); A.state = 'offline'; }
+  function start() {
+    if (!A.me || A.peer) return;
+    A.state = 'connecting'; emit('net');
+    let p; try { p = new opts.Peer(pid(A.me.lower), { debug: 0, config: ICE }); } catch (e) { A.state = 'offline'; emit('net'); return; }
+    A.peer = p;
+    p.on('open', () => { if (A.peer !== p) return; A.state = 'online'; emit('net'); maintain(); });
+    p.on('connection', c => adopt(c, false));
+    p.on('disconnected', () => { if (A.peer !== p) return; A.state = 'connecting'; emit('net'); setTimeout(() => { try { if (A.peer === p && !p.destroyed) p.reconnect(); } catch (e) {} }, 2500); });
+    p.on('close', () => { if (A.peer !== p) return; A.peer = null; A.recs.clear(); A.state = 'offline'; emit('net'); retryLater(4000); });
+    p.on('error', err => {
+      if (A.peer !== p) return;
+      if (err.type === 'unavailable-id') { A.peer = null; A.state = 'nameTaken'; emit('net'); retryLater(8000); }
+      else if (err.type === 'peer-unavailable') { const m = /peer\s+(\S+)/.exec(err.message || ''); if (m && A.waitConn[m[1]]) { const r = A.waitConn[m[1]]; delete A.waitConn[m[1]]; if (r.onFail) r.onFail(); } }
+      else if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(err.type)) { A.state = 'offline'; emit('net'); }
+    });
+    if (!A.timers.length) A.timers.push(setInterval(maintain, 6000), setInterval(deliver, 7000), setInterval(idle, 10000));
+  }
+  function retryLater(ms) { clearTimeout(A.retryT); A.retryT = setTimeout(() => { if (A.me && !A.peer) start(); }, ms); }
+  function dropProfile() { stopPeer(); A.timers.forEach(clearInterval); A.timers = []; clearTimeout(A.retryT); A.me = null; if (opts.store.clear) opts.store.clear(); emit('me'); emit('net'); emit('friends'); emit('requests'); }
+
+  function createProfile(name) {
+    const err = checkName(name); if (err) return Promise.resolve({ ok: false, error: err });
+    if (A.me) return Promise.resolve({ ok: false, error: 'You already have a name.' });
+    A.me = normalize({ name, lower: name.toLowerCase(), key: rnd(16), created: now() });
+    start();
+    return new Promise(res => {
+      let t = 0; const check = () => {
+        if (A.state === 'online') { persist(); emit('me'); return res({ ok: true }); }
+        if (A.state === 'nameTaken') { dropProfile(); return res({ ok: false, error: 'That name is online right now. Please pick another one.' }); }
+        if (++t > 40) { dropProfile(); return res({ ok: false, error: 'Could not reach the server. Check your internet and try again.' }); }
+        setTimeout(check, 250);
+      }; check();
+    });
+  }
+
+  // ---------- one connection to one other player ----------
+  const send = (rec, obj) => { try { if (rec.conn.open) { rec.conn.send(obj); return true; } } catch (e) {} return false; };
+  function adopt(conn, init) {
+    const m = /^duelarena1-([a-z0-9_]{3,16})$/.exec(conn.peer || '');
+    const rec = { conn, init, lower: m ? m[1] : '', name: null, ready: false, verified: false, ca: '', cb: '', last: now(), cbs: {}, onReady: null, onFail: null, dead: false };
+    if (!m || !A.me || A.me.blocked.includes(rec.lower) || rec.lower === A.me.lower) { rec.dead = true; setTimeout(() => { try { conn.close(); } catch (e) {} }, 0); return rec; }
+    conn.on('open', () => { if (init) { rec.ca = rnd(8); send(rec, { t: 'hi', n: A.me.name, c: rec.ca }); } });
+    conn.on('data', d => { try { onData(rec, d); } catch (e) { console.error('bad message', e); } });
+    conn.on('close', () => closed(rec)); conn.on('error', () => closed(rec));
+    setTimeout(() => { if (!rec.ready && !rec.dead) { try { conn.close(); } catch (e) {} closed(rec); } }, 9000);
+    return rec;
+  }
+  function onData(rec, d) {
+    if (!d || typeof d !== 'object' || typeof d.t !== 'string' || !A.me) return; rec.last = now(); const me = A.me;
+    if (d.t === 'hi' && !rec.init && !rec.ready && !rec.cb) {
+      if (!validName(d.n) || d.n.toLowerCase() !== rec.lower || typeof d.c !== 'string' || d.c.length > 40) return;
+      rec.name = d.n; rec.ca = d.c; rec.cb = rnd(8); const fr = me.friends[rec.lower];
+      send(rec, { t: 'hi2', n: me.name, c: rec.cb, fr: !!fr, p: fr ? hmacHex(fr.secret, 'R|' + rec.ca + '|' + rec.cb) : null });
+    } else if (d.t === 'hi2' && rec.init && !rec.ready && !rec.cb) {
+      if (!validName(d.n) || d.n.toLowerCase() !== rec.lower || typeof d.c !== 'string' || d.c.length > 40) return;
+      rec.name = d.n; rec.cb = d.c; const fr = me.friends[rec.lower];
+      rec.verified = !!(fr && d.fr && d.p === hmacHex(fr.secret, 'R|' + rec.ca + '|' + rec.cb));
+      send(rec, { t: 'au', fr: !!fr, p: fr ? hmacHex(fr.secret, 'I|' + rec.ca + '|' + rec.cb) : null }); ready(rec);
+    } else if (d.t === 'au' && !rec.init && !rec.ready && rec.cb) {
+      const fr = me.friends[rec.lower]; rec.verified = !!(fr && d.fr && d.p === hmacHex(fr.secret, 'I|' + rec.ca + '|' + rec.cb)); ready(rec);
+    } else if (rec.ready) handle(rec, d);
+  }
+  function ready(rec) {
+    rec.ready = true; const old = A.recs.get(rec.lower); if (!old || !old.verified || rec.verified || old.dead) A.recs.set(rec.lower, rec);
+    if (rec.verified) { A.fstat[rec.lower] = 'online'; send(rec, { t: 'st', s: A.myStatus }); const f = A.me.friends[rec.lower]; if (f) { f.name = rec.name; persist(); } }
+    flush(rec.lower); if (rec.onReady) rec.onReady(rec); emit('friends');
+  }
+  function closed(rec) {
+    if (rec.dead) return; rec.dead = true;
+    if (A.recs.get(rec.lower) === rec) { A.recs.delete(rec.lower); if (rec.verified) { A.fstat[rec.lower] = 'offline'; emit('peerLeft', { lower: rec.lower }); } emit('friends'); }
+    if (rec.onFail) rec.onFail();
+  }
+  function connectTo(l, timeout = 6000) {
+    return new Promise(resolve => {
+      const ex = A.recs.get(l); if (ex && ex.ready && !ex.dead && ex.conn.open && (ex.verified || !(A.me && A.me.friends[l]))) return resolve(ex);
+      if (!A.peer || A.state !== 'online') return resolve(null);
+      let conn; try { conn = A.peer.connect(pid(l), { serialization: 'json', reliable: true }); } catch (e) { return resolve(null); }
+      const rec = adopt(conn, true); let done = false;
+      const fin = r => { if (done) return; done = true; clearTimeout(tm); delete A.waitConn[pid(l)]; resolve(r); };
+      rec.onReady = () => fin(rec); rec.onFail = () => fin(null);
+      A.waitConn[pid(l)] = rec; const tm = setTimeout(() => { try { conn.close(); } catch (e) {} fin(null); }, timeout);
+    });
+  }
+
+  // ---------- what messages mean ----------
+  function handle(rec, d) {
+    const me = A.me, l = rec.lower;
+    switch (d.t) {
+      case 'st': if (rec.verified) { A.fstat[l] = d.s === 'match' ? 'match' : 'online'; emit('friends'); } break;
+      case 'prof': send(rec, { t: 'profR', st: A.myStatus, stats: me.stats, allow: me.allowReq }); break;
+      case 'profR': { const st = cleanStats(d.stats); if (rec.cbs.prof) { const f = rec.cbs.prof; rec.cbs.prof = null; f({ name: rec.name, status: d.st === 'match' ? 'match' : 'online', stats: st, allow: d.allow !== false, verified: rec.verified }); } if (rec.verified && me.friends[l] && st) { me.friends[l].stats = st; persist(); } break; }
+      case 'freq': onRequest(rec); break;
+      case 'facc': onAccepted(rec, d); break;
+      case 'fdec': if (me.outReq[l]) { delete me.outReq[l]; persist(); emit('requests'); emit('declined', { name: rec.name }); } break;
+      case 'fcan': if (me.inReq[l]) { delete me.inReq[l]; persist(); emit('requests'); } break;
+      case 'unf': { const fr = me.friends[l]; if (fr && Number.isFinite(d.ts) && d.p === hmacHex(fr.secret, 'UNF|' + l + '|' + d.ts)) { delete me.friends[l]; delete A.fstat[l]; persist(); emit('friends'); emit('unfriended', { name: rec.name }); } break; }   // signed with the friendship secret, so it can't be faked
+      default: if (rec.verified) emit('msg', { lower: l, name: rec.name, d });         // challenges and match traffic only between real friends
+    }
+  }
+  function onRequest(rec) {
+    const me = A.me, l = rec.lower;
+    if (me.blocked.includes(l) || !me.allowReq) { send(rec, { t: 'fdec' }); return; }
+    if (me.friends[l]) return;
+    if (me.outReq[l]) { if (me.lower < l) accept(l); return; }                  // we asked each other: the one with the smaller name makes the secret
+    if (me.inReq[l] || Object.keys(me.inReq).length >= 30 || now() - A.lastReq < 3000) return;
+    A.lastReq = now(); me.inReq[l] = { name: rec.name, at: now() }; persist(); emit('requests'); emit('newRequest', { name: rec.name, lower: l });
+  }
+  function onAccepted(rec, d) {
+    const me = A.me, l = rec.lower; if (!me.outReq[l] || typeof d.s !== 'string' || !/^[0-9a-f]{64}$/.test(d.s)) return;
+    me.friends[l] = { name: rec.name, secret: d.s, since: now(), stats: null }; delete me.outReq[l]; delete me.inReq[l]; persist();
+    emit('friends'); emit('requests'); emit('accepted', { name: rec.name, lower: l }); reverify(l);
+  }
+
+  // ---------- messages that must arrive later (friend answers) ----------
+  function queue(to, msg) { A.me.outbox.push({ to, msg, at: now() }); persist(); }
+  function reverify(l) {                      // after becoming friends, reconnect so the secret handshake can prove it
+    setTimeout(() => { const rec = A.recs.get(l); if (rec && !rec.verified && !rec.dead) { try { rec.conn.close(); } catch (e) {} closed(rec); } A.lastTry[l] = 0; maintain(); }, 500);
+  }
+  function flush(l) {
+    const me = A.me; if (!me) return; const rec = A.recs.get(l); if (!rec || !rec.ready || rec.dead) return;
+    const keep = []; for (const o of me.outbox) { if (o.to === l && send(rec, o.msg)) { if (o.msg.t === 'facc') reverify(l); continue; } keep.push(o); } if (keep.length !== me.outbox.length) { me.outbox = keep; persist(); }
+  }
+  function deliver() {
+    const me = A.me; if (!me || A.state !== 'online') return;
+    me.outbox = me.outbox.filter(o => now() - o.at < 14 * 864e5); const tos = [...new Set(me.outbox.map(o => o.to))].slice(0, 3);
+    tos.forEach(l => connectTo(l, 5000).then(r => { if (r) flush(l); }));
+  }
+  const deliverSoon = () => setTimeout(deliver, 50);
+  function maintain() {
+    if (!A.me || A.state !== 'online') return; let n = 0;
+    for (const l of Object.keys(A.me.friends)) {
+      const rec = A.recs.get(l); if (rec && rec.ready && rec.verified && !rec.dead && rec.conn.open) continue;
+      if (now() - (A.lastTry[l] || 0) < 14000) continue; if (n++ >= 3) break; A.lastTry[l] = now();
+      connectTo(l, 5000).then(r => { if (!r || !r.verified) { A.fstat[l] = 'offline'; emit('friends'); } });
+    }
+  }
+  function idle() { for (const [l, rec] of A.recs) if (!rec.verified && now() - rec.last > 20000 && !(A.me && (A.me.outReq[l] || A.me.outbox.some(o => o.to === l)))) { try { rec.conn.close(); } catch (e) {} closed(rec); } }
+
+  // ---------- things the screen can ask for ----------
+  function sendRequest(name) {
+    const me = A.me; if (!me) return { ok: false, error: 'Pick a name first.' };
+    if (checkName(name)) return { ok: false, error: 'That is not a valid username.' };
+    const l = name.toLowerCase();
+    if (l === me.lower) return { ok: false, error: 'That is you!' };
+    if (me.friends[l]) return { ok: false, error: 'You are already friends.' };
+    if (me.blocked.includes(l)) return { ok: false, error: 'You blocked this player. Unblock them first.' };
+    if (me.outReq[l]) return { ok: false, error: 'You already sent a request.' };
+    if (Object.keys(me.outReq).length >= 20) return { ok: false, error: 'You have too many waiting requests.' };
+    if (me.inReq[l]) { accept(l); return { ok: true, accepted: true }; }
+    me.outReq[l] = { name, at: now() }; queue(l, { t: 'freq' }); persist(); emit('requests'); deliverSoon(); return { ok: true };
+  }
+  function accept(l) {
+    const me = A.me, rq = me && (me.inReq[l] || me.outReq[l]); if (!rq || Object.keys(me.friends).length >= 40) return false;
+    me.friends[l] = { name: rq.name, secret: rnd(32), since: now(), stats: null }; const secret = me.friends[l].secret; delete me.inReq[l]; delete me.outReq[l];
+    queue(l, { t: 'facc', s: secret }); persist(); emit('requests'); emit('friends'); deliverSoon(); return true;
+  }
+  function decline(l) { const me = A.me; if (!me || !me.inReq[l]) return; delete me.inReq[l]; const rec = A.recs.get(l); if (rec && rec.ready && !rec.dead) send(rec, { t: 'fdec' }); else queue(l, { t: 'fdec' }); persist(); emit('requests'); deliverSoon(); }
+  function cancel(l) { const me = A.me; if (!me || !me.outReq[l]) return; delete me.outReq[l]; me.outbox = me.outbox.filter(o => !(o.to === l && o.msg.t === 'freq')); queue(l, { t: 'fcan' }); persist(); emit('requests'); deliverSoon(); }
+  function unfriend(l) {
+    const me = A.me, f = me && me.friends[l]; if (!f) return; const ts = now(), msg = { t: 'unf', ts, p: hmacHex(f.secret, 'UNF|' + me.lower + '|' + ts) }, rec = A.recs.get(l);
+    if (rec && rec.ready && !rec.dead && send(rec, msg)) { /* sent now */ } else queue(l, msg);
+    delete me.friends[l]; delete A.fstat[l]; persist(); emit('friends'); deliverSoon();
+  }
+  function block(l) { const me = A.me; if (!me || me.blocked.includes(l) || l === me.lower) return; unfriend(l); delete me.inReq[l]; delete me.outReq[l]; me.outbox = me.outbox.filter(o => o.to !== l); me.blocked.push(l); const rec = A.recs.get(l); if (rec) { try { rec.conn.close(); } catch (e) {} closed(rec); } persist(); emit('requests'); emit('friends'); }
+  function unblock(l) { const me = A.me; if (!me) return; me.blocked = me.blocked.filter(x => x !== l); persist(); emit('requests'); }
+  function setAllow(v) { if (A.me) { A.me.allowReq = !!v; persist(); emit('me'); } }
+  function lookup(name) {
+    if (!A.me) return Promise.resolve({ ok: false, error: 'Pick a name first.' });
+    if (checkName(name)) return Promise.resolve({ ok: false, error: 'That is not a valid username.' });
+    const l = name.toLowerCase(); if (l === A.me.lower) return Promise.resolve({ ok: false, error: 'That is you!' });
+    return connectTo(l, 6000).then(rec => !rec ? { ok: true, online: false, lower: l } : new Promise(res => {
+      rec.cbs.prof = p => res({ ok: true, online: true, lower: l, prof: p }); send(rec, { t: 'prof' });
+      setTimeout(() => { if (rec.cbs.prof) { rec.cbs.prof = null; res({ ok: true, online: true, lower: l, prof: { name: rec.name, status: 'online', stats: null, allow: true, verified: rec.verified } }); } }, 4000);
+    }));
+  }
+  function getProfile(l) { const rec = A.recs.get(l); return new Promise(res => { if (!rec || !rec.verified || !rec.ready) return res(null); rec.cbs.prof = res; send(rec, { t: 'prof' }); setTimeout(() => { if (rec.cbs.prof) { rec.cbs.prof = null; res(null); } }, 3000); }); }
+  function setStatus(s) { A.myStatus = s; for (const rec of A.recs.values()) if (rec.verified && rec.ready) send(rec, { t: 'st', s }); }
+  function sendTo(l, msg) { const rec = A.recs.get(l); return !!(rec && rec.verified && rec.ready && !rec.dead && send(rec, msg)); }
+  function recordMatch(win, st) { const s = A.me && A.me.stats; if (!s) return; s.matches++; if (win) s.wins++; else s.losses++; s.kills += num(st && st.kills); s.headshots += num(st && st.head); persist(); emit('me'); }
+  function friends() {
+    const me = A.me; if (!me) return []; const order = { match: 1, online: 0, offline: 2 };
+    return Object.keys(me.friends).map(l => ({ lower: l, name: me.friends[l].name, since: me.friends[l].since, stats: me.friends[l].stats, status: A.fstat[l] || 'offline' })).sort((a, b) => order[a.status] - order[b.status] || a.name.localeCompare(b.name));
+  }
+  function reset() { dropProfile(); }
+  return { on, start, createProfile, reset, me: () => A.me, state: () => A.state, friends, status: l => A.fstat[l] || 'offline', sendRequest, accept, decline, cancel, unfriend, block, unblock, setAllow, lookup, getProfile, setStatus, sendTo, recordMatch, checkName, persist, _A: A, _deliver: deliver, _maintain: maintain };
+}
+
+// =====================================================================
+//  Screens for friends, requests and challenges
+// =====================================================================
+const PEER_OK = typeof Peer !== 'undefined';
+const qs = new URLSearchParams(location.search);
+const SKEY = 'duelArenaProfile_v1' + (qs.get('p') ? '_' + qs.get('p').replace(/\W/g, '') : '');
+const store = {
+  load() { try { return JSON.parse(localStorage.getItem(SKEY) || 'null'); } catch (e) { return null; } },
+  save(m) { try { localStorage.setItem(SKEY, JSON.stringify(m)); } catch (e) {} },
+  clear() { try { localStorage.removeItem(SKEY); } catch (e) {} }
+};
+const Social = PEER_OK ? createSocial({ store, Peer }) : null;
+window.Social = Social;
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const avatar = n => '<span class="av" style="background:hsl(' + (Array.from(n).reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7)) + ' 55% 42%)">' + esc(n[0].toUpperCase()) + '</span>';
+const stText = s => s === 'match' ? '<span class="st match">● In a match</span>' : s === 'online' ? '<span class="st on">● Online</span>' : '<span class="st off">○ Offline</span>';
+const show = id => $(id).classList.add('on'), hide = id => $(id).classList.remove('on');
+const r2 = v => Math.round(v * 100) / 100, r3 = v => Math.round(v * 1000) / 1000;
+const fin = (v, lo, hi, def = 0) => { v = Number(v); return Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : def; };
+
+function notify(html, buttons, ms = 9000) {
+  const el = document.createElement('div'); el.className = 'toast'; const d = document.createElement('div'); d.innerHTML = html; el.appendChild(d);
+  if (buttons && buttons.length) { const row = document.createElement('div'); row.className = 'trow'; buttons.forEach(b => { const x = document.createElement('button'); x.textContent = b.label; x.className = b.cls || ''; x.onclick = () => { el.remove(); if (b.fn) b.fn(); }; row.appendChild(x); }); el.appendChild(row); }
+  $('toasts').appendChild(el); if (ms) setTimeout(() => el.remove(), ms); while ($('toasts').children.length > 3) $('toasts').firstChild.remove(); return el;
+}
+
+// ---------- top bar on the main menu ----------
+function renderTop() {
+  if (!Social) { $('meName').textContent = 'Friends unavailable'; $('netState').textContent = '⚠'; return; }
+  const me = Social.me(), st = Social.state();
+  $('meName').textContent = me ? me.name : 'Set your name';
+  $('netState').textContent = st === 'online' ? '🟢 Online' : st === 'connecting' ? '🟡 Connecting…' : st === 'nameTaken' ? '🔴 Name in use on another device' : '⚪ Offline';
+  const n = me ? Object.keys(me.inReq).length : 0; $('friendBadge').hidden = n === 0; $('friendBadge').textContent = n;
+}
+
+// ---------- choose a name ----------
+function openName() { $('nameErr').textContent = ''; show('nameScreen'); setTimeout(() => $('nameInput').focus(), 50); }
+let naming = false;
+async function submitName() {
+  if (naming) return; const v = $('nameInput').value.trim(); const err = Social.checkName(v); if (err) { $('nameErr').textContent = err; return; }
+  naming = true; $('nameGo').textContent = 'Checking…'; $('nameErr').textContent = '';
+  const r = await Social.createProfile(v); naming = false; $('nameGo').textContent = 'CONTINUE';
+  if (!r.ok) { $('nameErr').textContent = r.error; return; }
+  hide('nameScreen'); renderTop(); handleAddLink(); notify('Welcome, <b>' + esc(v) + '</b>! Your friends can now find you by this name. 🎉');
+}
+$('nameGo').onclick = submitName; $('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter') submitName(); });
+$('nameSkip').onclick = () => hide('nameScreen');
+
+// ---------- friends screen ----------
+let fTab = 'friends', fView = null;
+function openFriends(tab, prefill) {
+  if (!Social) { notify('Friends need the online library, which did not load. Check your internet and reload.'); return; }
+  if (!Social.me()) { openName(); return; }
+  fTab = tab || 'friends'; fView = null; show('friends'); renderFriends();
+  if (prefill) setTimeout(() => { const i = $('addInput'); if (i) { i.value = prefill; doSearch(); } }, 60);
+}
+function renderFriends() {
+  if (!Social || !$('friends').classList.contains('on')) return; const me = Social.me(); if (!me) return;
+  const nReq = Object.keys(me.inReq).length;
+  $('fTabs').innerHTML = [['friends', '👥 Friends'], ['requests', '📨 Requests' + (nReq ? ' <b>' + nReq + '</b>' : '')], ['add', '➕ Add friend'], ['me', '👤 Me']].map(([k, t]) => '<button data-tab="' + k + '" class="' + (fTab === k && !fView ? 'on' : '') + '">' + t + '</button>').join('');
+  const b = $('fBody');
+  if (fView) { renderProfile(b); return; }
+  if (fTab === 'friends') {
+    const list = Social.friends();
+    b.innerHTML = (list.length ? list.map(f => '<div class="frow" data-l="' + f.lower + '">' + avatar(f.name) + '<div class="finfo"><b>' + esc(f.name) + '</b>' + stText(f.status) + '</div><div class="fbtns">' +
+      (f.status === 'online' ? '<button data-act="challenge" class="go">⚔ 1v1</button>' : f.status === 'match' ? '<button disabled>In a match</button>' : '') + '<button data-act="profile">Profile</button></div></div>').join('')
+      : '<div class="empty">No friends yet.<br>Tap <b>➕ Add friend</b> and type a username!</div>') +
+      '<div class="note">You can see who is online while you are both playing at the same time.</div>';
+  } else if (fTab === 'requests') {
+    const inc = Object.keys(me.inReq), out = Object.keys(me.outReq);
+    b.innerHTML = '<h3>Friend requests for you</h3>' + (inc.length ? inc.map(l => '<div class="frow" data-l="' + l + '">' + avatar(me.inReq[l].name) + '<div class="finfo"><b>' + esc(me.inReq[l].name) + '</b><small>wants to be your friend</small></div><div class="fbtns"><button data-act="accept" class="go">Accept</button><button data-act="decline">Decline</button></div></div>').join('') : '<div class="empty small">No new requests.</div>') +
+      '<h3>Requests you sent</h3>' + (out.length ? out.map(l => '<div class="frow" data-l="' + l + '">' + avatar(me.outReq[l].name) + '<div class="finfo"><b>' + esc(me.outReq[l].name) + '</b><small>waiting for an answer…</small></div><div class="fbtns"><button data-act="cancel">Cancel</button></div></div>').join('') : '<div class="empty small">None waiting.</div>');
+  } else if (fTab === 'add') {
+    const keep = $('addInput') ? $('addInput').value : ''; const res = $('addResult') ? $('addResult').innerHTML : '';
+    b.innerHTML = '<div class="addrow"><input id="addInput" maxlength="16" placeholder="Type a username" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="go" data-act="search">Search</button></div><div id="addResult">' + res + '</div>' +
+      '<div class="note">Players can only be found while they have the game open.</div><button class="btn2" data-act="copylink" style="margin-top:10px">🔗 Copy my invite link</button>';
+    $('addInput').value = keep; $('addInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+  } else {
+    const s = me.stats, bl = me.blocked;
+    b.innerHTML = '<div class="mecard">' + avatar(me.name) + '<div><b style="font-size:20px">' + esc(me.name) + '</b><br><small>' + stText(Social.state() === 'online' ? 'online' : 'offline') + '</small></div></div>' +
+      '<div class="stats3"><div><b>' + s.matches + '</b><small>Matches</small></div><div><b>' + s.wins + '</b><small>Wins</small></div><div><b>' + s.kills + '</b><small>Kills</small></div></div>' +
+      '<label class="chk"><input type="checkbox" id="allowReq"' + (me.allowReq ? ' checked' : '') + '> Let other players send me friend requests</label>' +
+      '<h3>Blocked players</h3>' + (bl.length ? bl.map(l => '<div class="frow" data-l="' + l + '"><div class="finfo"><b>' + esc(l) + '</b></div><div class="fbtns"><button data-act="unblock">Unblock</button></div></div>').join('') : '<div class="empty small">Nobody blocked.</div>') +
+      '<div class="note">Tip for parents: there is no chat in this game. Players can only send friend requests and 1v1 challenges. Turn off the switch above to stop all new requests. Because players connect directly to each other, a player you search for or play with can see your internet (IP) address, like in most online games. Only add people you know.</div>' +
+      '<button class="btn2 danger" data-act="reset" style="margin-top:12px">Start over with a new name</button>';
+    $('allowReq').onchange = e => Social.setAllow(e.target.checked);
+  }
+}
+async function doSearch() {
+  const i = $('addInput'); if (!i) return; const name = i.value.trim(); const res = $('addResult'); if (!name) return;
+  res.innerHTML = '<div class="empty small">Searching…</div>'; const r = await Social.lookup(name); const out = $('addResult'); if (!out) return;
+  if (!r.ok) { out.innerHTML = '<div class="err">' + esc(r.error) + '</div>'; return; }
+  const me = Social.me(), why = me.friends[r.lower] ? 'You are already friends.' : me.outReq[r.lower] ? 'Request already sent.' : me.blocked.includes(r.lower) ? 'You blocked this player.' : '';
+  if (!r.online) { out.innerHTML = '<div class="card2"><b>' + esc(name) + '</b> is not online right now.<br><small>They need the game open for you to see them. You can still send a request. It arrives the next time you are both online.</small>' + (why ? '<div class="note">' + why + '</div>' : '<button class="go" data-act="sendreq" data-name="' + esc(name) + '">Send request anyway</button>') + '</div>'; return; }
+  const p = r.prof, s = p.stats;
+  out.innerHTML = '<div class="card2"><div class="mecard">' + avatar(p.name) + '<div><b style="font-size:19px">' + esc(p.name) + '</b><br>' + stText(p.status) + '</div></div>' + (s ? '<div class="stats3"><div><b>' + s.matches + '</b><small>Matches</small></div><div><b>' + s.wins + '</b><small>Wins</small></div><div><b>' + s.kills + '</b><small>Kills</small></div></div>' : '') +
+    (why ? '<div class="note">' + why + '</div>' : p.allow === false ? '<div class="note">This player is not accepting friend requests.</div>' : '<button class="go" data-act="sendreq" data-name="' + esc(p.name) + '">➕ Add friend</button>') + '</div>';
+}
+async function renderProfile(b) {
+  const l = fView, me = Social.me(), f = me.friends[l]; if (!f) { fView = null; renderFriends(); return; }
+  const st = Social.status(l); const cached = f.stats;
+  b.innerHTML = '<button class="btn2" data-act="back">← Back</button><div class="mecard" style="margin-top:12px">' + avatar(f.name) + '<div><b style="font-size:21px">' + esc(f.name) + '</b><br>' + stText(st) + '<br><small>Friends since ' + new Date(f.since).toLocaleDateString() + '</small></div></div><div id="pStats">' + statsHtml(cached) + '</div>' +
+    '<div class="fbtns" style="margin-top:14px;flex-wrap:wrap">' + (st === 'online' ? '<button class="go" data-act="challenge">⚔ Challenge to 1v1</button>' : st === 'match' ? '<button disabled>In a match right now</button>' : '<button disabled>Offline</button>') + '<button data-act="unfriend">Remove friend</button><button data-act="block" class="danger">Block</button></div>';
+  if (st !== 'offline') { const p = await Social.getProfile(l); if (p && fView === l && $('pStats')) $('pStats').innerHTML = statsHtml(p.stats); }
+}
+const statsHtml = s => s ? '<div class="stats3"><div><b>' + s.matches + '</b><small>Matches</small></div><div><b>' + s.wins + '</b><small>Wins</small></div><div><b>' + s.kills + '</b><small>Kills</small></div></div>' : '<div class="empty small">Stats show when your friend is online.</div>';
+
+function copyInvite() {
+  const me = Social.me(); const link = location.origin + location.pathname + '?add=' + encodeURIComponent(me.name);
+  const done = () => notify('🔗 Invite link copied! Send it to a friend.');
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done, () => prompt('Copy your invite link:', link)); else prompt('Copy your invite link:', link);
+}
+$('fBody').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-act]'); if (!btn) return; const act = btn.dataset.act, row = btn.closest('[data-l]'), l = row ? row.dataset.l : fView;
+  if (act === 'profile') { fView = l; renderFriends(); }
+  else if (act === 'back') { fView = null; renderFriends(); }
+  else if (act === 'challenge') Online.challenge(l);
+  else if (act === 'accept') { Social.accept(l); renderFriends(); notify('You and <b>' + esc(Social.me().friends[l].name) + '</b> are now friends! 🎉'); }
+  else if (act === 'decline') { Social.decline(l); renderFriends(); }
+  else if (act === 'cancel') { Social.cancel(l); renderFriends(); }
+  else if (act === 'search') doSearch();
+  else if (act === 'sendreq') { const r = Social.sendRequest(btn.dataset.name); notify(r.ok ? (r.accepted ? 'You are now friends! 🎉' : 'Friend request sent to <b>' + esc(btn.dataset.name) + '</b> ✉️') : esc(r.error)); renderFriends(); if (r.ok) { fTab = 'requests'; renderFriends(); } }
+  else if (act === 'copylink') copyInvite();
+  else if (act === 'unfriend') { if (confirm('Remove this friend?')) { Social.unfriend(l); fView = null; renderFriends(); } }
+  else if (act === 'block') { if (confirm('Block this player? They will not be able to contact you.')) { Social.block(l); fView = null; renderFriends(); } }
+  else if (act === 'unblock') { Social.unblock(l); renderFriends(); }
+  else if (act === 'reset') { if (confirm('This deletes your name, friends and stats on this device. Are you sure?')) { Social.reset(); hide('friends'); renderTop(); openName(); } }
+});
+$('fTabs').addEventListener('click', e => { const t = e.target.closest('button[data-tab]'); if (t) { fTab = t.dataset.tab; fView = null; renderFriends(); } });
+$('friendsClose').onclick = () => hide('friends');
+$('btnFriends').onclick = () => openFriends(Object.keys(Social && Social.me() ? Social.me().inReq : {}).length ? 'requests' : 'friends');
+$('btnProfile').onclick = () => openFriends('me');
+
+if (Social) {
+  Social.on('net', renderTop); Social.on('me', () => { renderTop(); renderFriends(); }); Social.on('friends', () => { renderTop(); renderFriends(); }); Social.on('requests', () => { renderTop(); renderFriends(); });
+  Social.on('newRequest', e => { renderTop(); sfxBeep(true); notify('👋 <b>' + esc(e.name) + '</b> wants to be your friend!', [{ label: 'Accept', cls: 'go', fn: () => { Social.accept(e.lower); renderFriends(); } }, { label: 'Decline', fn: () => Social.decline(e.lower) }, { label: 'Later' }], 20000); });
+  Social.on('accepted', e => notify('🎉 <b>' + esc(e.name) + '</b> accepted your friend request!'));
+  Social.on('declined', e => notify('<b>' + esc(e.name) + '</b> did not accept the request.'));
+  Social.on('unfriended', e => notify('<b>' + esc(e.name) + '</b> removed you from their friends.'));
+  Social.on('msg', e => Online.onMsg(e)); Social.on('peerLeft', e => Online.onPeerLeft(e));
+}
+
+// =====================================================================
+//  Online 1v1 match between two friends
+//  The challenger is the "host": decides the weapons and who won each round. Each player's own game works out
+//  whether a shot hit (the shooter's screen is the judge) and tells the other player how much damage was done.
+// =====================================================================
+function nameTag(text) {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d'); g.font = 'bold 34px Segoe UI, Arial'; g.textAlign = 'center'; g.lineWidth = 6; g.strokeStyle = 'rgba(0,0,0,0.75)'; g.strokeText(text, 128, 44); g.fillStyle = '#9fd6ff'; g.fillText(text, 128, 44);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false })); s.scale.set(1.6, 0.4, 1); s.position.y = 2.28; return s;
+}
+const Online = window.Online = {
+  active: false, ended: false, role: null, lower: null, name: '', rounds: 3, round: 0, remote: null, sendT: 0, pendingInv: null, outInv: null, timers: [],
+  later(ms, fn) { this.timers.push(setTimeout(fn, ms)); },
+  target() { const R = this.remote; return R && !R.dead ? { x: R.x, z: R.z, y: R.y, r: 0.34, h: R.crouch > 0.5 ? 1.3 : 1.72, headR: 0.17 } : null; },
+  hp() { return this.remote ? Math.max(0, this.remote.hp) : 0; },
+  sendHit(dmg, head) { const R = this.remote; if (!R) return false; Social.sendTo(this.lower, { t: 'ht', d: Math.round(dmg), h: head ? 1 : 0 }); R.hp -= dmg; return R.hp <= 0; },
+  sendShot(w, ox, oy, oz, end) { Social.sendTo(this.lower, { t: 'sh', w, o: [r2(ox), r2(oy), r2(oz)], e: end ? [r2(end[0]), r2(end[1]), r2(end[2])] : null }); },
+
+  // ----- challenge another player -----
+  challenge(l) {
+    if (this.active || this.outInv) return; if (G.phase !== 'menu') { notify('Finish your current match first.'); return; }
+    const f = Social.me().friends[l]; if (!f) return; if (Social.status(l) !== 'online') { notify(esc(f.name) + ' is not available right now.'); return; }
+    const id = rnd(6); this.outInv = { id, lower: l, name: f.name }; Social.sendTo(l, { t: 'inv', id, rounds: 3 });
+    $('waitTxt').innerHTML = 'Waiting for <b>' + esc(f.name) + '</b> to accept…'; show('waitScreen');
+    this.outInv.timer = setTimeout(() => { if (this.outInv && this.outInv.id === id) { this.cancelInv(); notify(esc(f.name) + ' did not answer.'); } }, 30000);
+  },
+  cancelInv() { if (this.outInv) { clearTimeout(this.outInv.timer); this.outInv = null; } hide('waitScreen'); },
+  onMsg(e) {
+    const d = e.d, l = e.lower;
+    if (d.t === 'inv') {
+      if (this.active || G.phase !== 'menu' || this.pendingInv) { Social.sendTo(l, { t: 'invA', id: String(d.id), ok: 0 }); return; }
+      const id = String(d.id).slice(0, 24), rounds = fin(d.rounds, 1, 5, 3) | 0; this.pendingInv = { lower: l, name: e.name, id, rounds }; sfxBeep(true);
+      const el = notify('⚔ <b>' + esc(e.name) + '</b> challenges you to a 1v1!<br><small>First to ' + rounds + ' rounds</small>', [{ label: 'Accept', cls: 'go', fn: () => { Social.sendTo(l, { t: 'invA', id, ok: 1 }); $('waitTxt').innerHTML = 'Starting match with <b>' + esc(e.name) + '</b>…'; show('waitScreen'); this.later(15000, () => { if (this.pendingInv && !this.active) { this.pendingInv = null; hide('waitScreen'); } }); } }, { label: 'Decline', fn: () => { Social.sendTo(l, { t: 'invA', id, ok: 0 }); this.pendingInv = null; } }], 25000);
+      this.later(25000, () => { if (this.pendingInv && this.pendingInv.id === id && !this.active && !$('waitScreen').classList.contains('on')) { Social.sendTo(l, { t: 'invA', id, ok: 0 }); this.pendingInv = null; } });
+    } else if (d.t === 'invA') {
+      if (!this.outInv || this.outInv.id !== String(d.id) || this.outInv.lower !== l) return; const inv = this.outInv; this.cancelInv();
+      if (d.ok) { Social.sendTo(l, { t: 'mst', id: inv.id, rounds: 3 }); this.begin(l, inv.name, 'host', 3); } else notify('<b>' + esc(inv.name) + '</b> declined the challenge.');
+    } else if (d.t === 'mst') {
+      if (!this.pendingInv || this.pendingInv.lower !== l || this.pendingInv.id !== String(d.id)) return; const p = this.pendingInv; this.pendingInv = null; hide('waitScreen'); this.begin(l, p.name, 'guest', fin(d.rounds, 1, 5, 3) | 0);
+    } else if (this.active && l === this.lower && !this.ended) this.matchMsg(d);
+  },
+  onPeerLeft(e) { if (this.active && !this.ended && e.lower === this.lower) this.finish(true, 'left'); if (this.outInv && this.outInv.lower === e.lower) { this.cancelInv(); } },
+
+  // ----- the match -----
+  begin(l, name, role, rounds) {
+    hide('friends'); hide('menu'); hide('nameScreen'); hide('waitScreen'); $('over').classList.remove('on'); $('pause').classList.remove('on');
+    this.active = true; this.ended = false; this.lower = l; this.name = name; this.role = role; this.rounds = rounds; this.round = 0; this.sendT = 0;
+    G.online = true; G.oppName = name; G.menuOpen = false; G.paused = false; G.over = false; G.stats = newStats(); G.score = { you: 0, bot: 0 };
+    if (bot) { scene.remove(bot.mesh); bot = null; }
+    $('lblBot').textContent = name.toUpperCase(); $('againBtn').style.display = 'none'; $('lblYou').textContent = 'YOU'; $('sYou').textContent = 0; $('sBot').textContent = 0;
+    document.body.classList.add('playing'); $('hud').classList.add('on'); audioInit(); this.makeRemote(name); Social.setStatus('match');
+    G.phase = 'countdown'; G.t = 99; G.last = 99; setMsg('Get ready…<small>' + (role === 'host' ? 'Starting round 1' : 'Waiting for ' + esc(name)) + '</small>');
+    if (role === 'host') this.later(900, () => this.hostNextRound());
+  },
+  makeRemote(name) {
+    const mesh = makeHumanoid(0x2d6fb7); scene.add(mesh); mesh.add(nameTag(name));
+    const R = { mesh, x: 19, y: 0, z: 0, yaw: 0, pitch: 0, crouch: 0, tx: 19, ty: 0, tz: 0, tyaw: 0, tpitch: 0, tcrouch: 0, hp: 100, dead: false, deadT: 0, speed: 0, walkPh: 0, gun: null, gunId: '', flashT: 0, hpShown: 100 };
+    this.remote = R; this.setGun(R, 'rifle');
+  },
+  setGun(R, id) { if (!WEAPONS[id] || R.gunId === id) return; if (R.gun) R.mesh.userData.aimG.remove(R.gun); R.gun = buildGunModel(id); R.gun.position.set(0.1, -0.03, -0.35); R.gun.children.forEach(c => { c.castShadow = false; }); R.gun.userData.flash.visible = false; R.mesh.userData.aimG.add(R.gun); R.gunId = id; },
+  hostNextRound() { if (!this.active || this.ended) return; this.round++; const wh = PRIMARIES[(Math.random() * PRIMARIES.length) | 0], wg = PRIMARIES[(Math.random() * PRIMARIES.length) | 0]; Social.sendTo(this.lower, { t: 'rd', n: this.round, wh, wg }); this.beginRound(this.round, wh, wg); },
+  beginRound(n, mine, theirs) {
+    if (!this.active || this.ended || !WEAPONS[mine] || !WEAPONS[theirs]) return; const host = this.role === 'host'; this.round = n; G.round = n; clearDecals();
+    Object.assign(P, { x: host ? -19 : 19, z: rand(-3, 3), y: 0, vx: 0, vz: 0, vy: 0, yaw: host ? -Math.PI / 2 : Math.PI / 2, pitch: 0, hp: 100, dead: false, deadT: 0, crouch: false, eye: 1.6, ads: 0, wantAds: false, recoilP: 0, recoilY: 0, bloom: 0 });
+    giveLoadout(mine);
+    const R = this.remote; R.hp = 100; R.dead = false; R.deadT = 0; R.mesh.rotation.set(0, 0, 0); R.mesh.scale.y = 1; R.x = R.tx = host ? 19 : -19; R.z = R.tz = 0; R.y = R.ty = 0; R.yaw = R.tyaw = host ? Math.PI / 2 : -Math.PI / 2; R.pitch = R.tpitch = 0; R.crouch = R.tcrouch = 0; this.setGun(R, theirs); R.mesh.userData.sprite.visible = true;
+    G.phase = 'countdown'; G.t = 3.3; G.last = 4; G.roundTime = 80; $('sYou').textContent = G.score.you; $('sBot').textContent = G.score.bot; $('roundInfo').textContent = 'Round ' + n + '  ·  first to ' + this.rounds;
+    setMsg('ROUND ' + n + '<small>You have the ' + WEAPONS[mine].name + ' · ' + esc(this.name) + ' has the ' + WEAPONS[theirs].name + '</small>');
+  },
+  liveTick(dt) {
+    G.roundTime -= dt;
+    if (this.role === 'host' && G.phase === 'live' && G.roundTime <= 0) { const a = P.hp, b = this.hp(); this.hostRoundEnd(a > b ? 'host' : b > a ? 'guest' : 'draw'); }
+  },
+  iDied() { if (!this.active || this.ended) return; if (this.role === 'host') this.hostRoundEnd('guest'); else Social.sendTo(this.lower, { t: 'dd' }); },
+  hostRoundEnd(w) {
+    if (G.phase !== 'live' || this.ended) return; if (w === 'host') G.score.you++; else if (w === 'guest') G.score.bot++;
+    Social.sendTo(this.lower, { t: 're', w, sh: G.score.you, sg: G.score.bot }); this.roundEndLocal(w === 'host' ? 'me' : w === 'guest' ? 'opp' : 'draw');
+    const over = G.score.you >= this.rounds || G.score.bot >= this.rounds;
+    this.later(over ? 2600 : 3300, () => { if (!this.active || this.ended) return; if (over) { const won = G.score.you > G.score.bot; Social.sendTo(this.lower, { t: 'me', w: won ? 'host' : 'guest' }); this.finish(won, ''); } else this.hostNextRound(); });
+  },
+  roundEndLocal(res) {
+    G.phase = 'roundover'; $('sYou').textContent = G.score.you; $('sBot').textContent = G.score.bot;
+    setMsg(res === 'me' ? '<span style="color:#7fd0ff">ROUND WON</span>' : res === 'opp' ? '<span style="color:#ff8a8a">ROUND LOST</span>' : 'DRAW'); if (res === 'me') sfxWin(); else if (res === 'opp') sfxLose();
+  },
+  matchMsg(d) {
+    const R = this.remote; if (!R) return;
+    switch (d.t) {
+      case 'ps': R.tx = fin(d.x, -30, 30); R.ty = fin(d.y, -1, 12); R.tz = fin(d.z, -30, 30); R.tyaw = fin(d.a, -50, 50); R.tpitch = fin(d.p, -1.6, 1.6); R.tcrouch = d.c ? 1 : 0; R.hp = fin(d.hp, 0, 100, R.hp); if (d.d && !R.dead) { R.dead = true; R.deadT = 0; } else if (!d.d && R.dead && G.phase !== 'live') R.dead = false; this.setGun(R, d.w); break;
+      case 'sh': { R.flashT = 0.05; if (R.gun) R.gun.userData.flash.visible = true; const o = Array.isArray(d.o) ? d.o : null, dist = Math.hypot(R.x - P.x, R.z - P.z), pan = clamp(Math.sin(Math.atan2(R.x - P.x, R.z - P.z) - (P.yaw + Math.PI)) * -0.9, -1, 1);
+        if (WEAPONS[d.w]) sfxShot(d.w, clamp(1.2 - dist / 70, 0.25, 1), pan); if (o && Array.isArray(d.e)) addTracer(fin(o[0], -40, 40), fin(o[1], -2, 12), fin(o[2], -40, 40), fin(d.e[0], -60, 60), fin(d.e[1], -2, 14), fin(d.e[2], -60, 60), 0x9ad0ff); break; }
+      case 'ht': if (G.phase === 'live') hurtPlayer(fin(d.d, 0, 160), R.x, R.z, !!d.h); break;
+      case 'dd': if (this.role === 'host') this.hostRoundEnd('host'); break;
+      case 'rd': if (this.role === 'guest') this.beginRound(fin(d.n, 1, 99) | 0, d.wg, d.wh); break;
+      case 're': if (this.role === 'guest' && G.phase !== 'roundover' && G.phase !== 'matchover') { G.score.you = fin(d.sg, 0, 9) | 0; G.score.bot = fin(d.sh, 0, 9) | 0; this.roundEndLocal(d.w === 'guest' ? 'me' : d.w === 'host' ? 'opp' : 'draw'); } break;
+      case 'me': if (this.role === 'guest') this.later(2200, () => this.finish(d.w === 'guest', '')); break;
+      case 'lv': this.finish(true, 'left'); break;
+    }
+  },
+  update(dt) {
+    const R = this.remote; if (!R) return; const k = Math.min(1, dt * 14), px = R.x, pz = R.z;
+    R.x += (R.tx - R.x) * k; R.y += (R.ty - R.y) * k; R.z += (R.tz - R.z) * k; R.yaw += (((R.tyaw - R.yaw + Math.PI * 3) % (Math.PI * 2)) - Math.PI) * k; R.pitch += (R.tpitch - R.pitch) * k; R.crouch += (R.tcrouch - R.crouch) * k;
+    R.speed += (Math.hypot(R.x - px, R.z - pz) / Math.max(dt, 1e-3) - R.speed) * Math.min(1, dt * 8);
+    const m = R.mesh; m.position.set(R.x, R.y, R.z); m.rotation.set(0, R.yaw, 0); m.scale.y = 1 - 0.22 * R.crouch;
+    R.walkPh += dt * R.speed * 2.4; const sw = R.speed > 0.5 ? Math.sin(R.walkPh) * 0.7 : 0; m.userData.legs[0].rotation.x = sw; m.userData.legs[1].rotation.x = -sw; m.userData.aimG.rotation.x = R.pitch;
+    if (R.dead) { R.deadT += dt; const f = clamp(R.deadT / 0.5, 0, 1); m.rotation.set(-f * 1.45, R.yaw, 0, 'YXZ'); m.position.y = R.y + 0.1 * f; m.userData.sprite.visible = false; }
+    if (Math.ceil(R.hp) !== R.hpShown) { R.hpShown = Math.ceil(R.hp); m.userData.sprite.material.map = hpSpriteTex(Math.max(0, R.hp)); m.userData.sprite.material.needsUpdate = true; }
+    if (R.flashT > 0) { R.flashT -= dt; if (R.gun && R.flashT <= 0) R.gun.userData.flash.visible = false; }
+    this.sendT -= dt; if (this.sendT <= 0 && this.active && !this.ended) { this.sendT = 0.05; Social.sendTo(this.lower, { t: 'ps', x: r2(P.x), y: r2(P.y), z: r2(P.z), a: r3(P.yaw + P.recoilY), p: r3(P.pitch + P.recoilP), c: P.crouch ? 1 : 0, hp: Math.round(P.hp), w: P.inv ? P.inv[P.cur].id : 'rifle', d: P.dead ? 1 : 0 }); }
+  },
+  finish(meWon, why) {
+    if (this.ended) return; this.ended = true; G.phase = 'matchover'; G.over = true; document.body.classList.remove('playing'); document.exitPointerLock && document.exitPointerLock(); $('pause').classList.remove('on');
+    Social.recordMatch(meWon, G.stats); Social.setStatus('menu'); const s = G.stats, acc = s.fired ? Math.round(s.hit / s.fired * 100) : 0;
+    $('overTitle').innerHTML = (meWon ? '<span style="color:#7fd0ff">YOU WIN!</span>' : '<span style="color:#ff8a8a">YOU LOSE</span>') + (why === 'left' ? '<br><small style="font-size:18px;opacity:.85">' + esc(this.name) + ' left the match</small>' : '');
+    $('overScore').textContent = G.score.you + ' : ' + G.score.bot + '   (you vs ' + this.name + ')'; $('overStats').innerHTML = 'Kills: <b>' + s.kills + '</b> · Headshots: <b>' + s.head + '</b><br>Accuracy: <b>' + acc + '%</b> · Damage dealt: <b>' + Math.round(s.dmg) + '</b>';
+    $('againBtn').style.display = 'none'; $('hud').classList.remove('on'); $('over').classList.add('on'); if (meWon) sfxWin(); else sfxLose();
+  },
+  cleanup() {
+    if (!this.active) return; if (!this.ended) Social.sendTo(this.lower, { t: 'lv' });
+    this.active = false; this.ended = true; this.timers.forEach(clearTimeout); this.timers = []; this.cancelInv(); this.pendingInv = null;
+    if (this.remote) { scene.remove(this.remote.mesh); this.remote = null; }
+    G.online = false; G.oppName = 'BOT'; $('lblBot').textContent = 'BOT'; $('againBtn').style.display = ''; Social.setStatus('menu');
+  }
+};
+$('waitCancel').onclick = () => { if (Online.outInv) { Online.cancelInv(); } else { if (Online.pendingInv) Social.sendTo(Online.pendingInv.lower, { t: 'invA', id: Online.pendingInv.id, ok: 0 }); Online.pendingInv = null; hide('waitScreen'); } };
+
+// ---------- invite links and first start ----------
+function handleAddLink() { const who = qs.get('add'); if (who && Social && Social.me() && !handleAddLink.done) { handleAddLink.done = true; const go = () => openFriends('add', who); if (Social.state() === 'online') go(); else { const t = setInterval(() => { if (Social.state() === 'online') { clearInterval(t); go(); } }, 400); setTimeout(() => clearInterval(t), 15000); } } }
+if (Social) { if (Social.me()) { Social.start(); handleAddLink(); } else setTimeout(() => { if (!Social.me() && G.phase === 'menu') openName(); }, 700); }
+renderTop();
+
+})();
 </script>
 </body>
 </html>
