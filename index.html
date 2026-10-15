@@ -562,7 +562,7 @@ class Bot {
     this.gun = buildGunModel(primary); this.gun.scale.setScalar(1.0); this.gun.position.set(0.1, -0.03, -0.35); this.gun.rotation.set(0, 0, 0); this.mesh.userData.aimG.add(this.gun);
     this.gun.children.forEach(c => { c.castShadow = false; });
     this.flashSprite = this.gun.userData.flash; this.flashSprite.visible = false;
-    this.spd = 4.1 * WEAPONS[primary].spd * this.lv.speed; this.speedNow = 0;
+    this.spd = 5.3 * WEAPONS[primary].spd * this.lv.speed; this.speedNow = 0;
   }
   get target() { return { x: this.x, z: this.z, y: this.y, r: 0.34, h: 1.72, headR: 0.17, ref: this }; }
   damage(n, head) {
@@ -802,9 +802,9 @@ function step(dt) {
   const w = P.inv ? curWeapon() : WEAPONS.pistol;
   let ix = 0, iz = 0; if (!frozen && !P.dead) { ix = (KEYS.KeyD ? 1 : 0) - (KEYS.KeyA ? 1 : 0) + MOVE.x; iz = (KEYS.KeyS ? 1 : 0) - (KEYS.KeyW ? 1 : 0) + MOVE.z; const l = Math.hypot(ix, iz); if (l > 1) { ix /= l; iz /= l; } }
   P.crouch = !frozen && !P.dead && (KEYS.KeyC || KEYS.ControlLeft); const wantSprint = (KEYS.ShiftLeft || MOVE.sprint) && iz < -0.1 && !P.crouch && P.ads < 0.2 && P.reloadT <= 0; P.sprint = wantSprint;
-  const base = P.crouch ? 2.7 : P.sprint ? 7.4 : 5.2, speed = base * w.spd * (1 - P.ads * 0.35);
+  const base = P.crouch ? 3.5 : P.sprint ? 9.6 : 6.9, speed = base * w.spd * (1 - P.ads * 0.3);
   const sy = Math.sin(P.yaw), cy = Math.cos(P.yaw), wx = ix * cy + iz * sy, wz = -ix * sy + iz * cy; // world move dir
-  const acc = P.ground ? 14 : 3; P.vx = lerp(P.vx, wx * speed, Math.min(1, dt * acc)); P.vz = lerp(P.vz, wz * speed, Math.min(1, dt * acc));
+  const acc = P.ground ? 18 : 3.5; P.vx = lerp(P.vx, wx * speed, Math.min(1, dt * acc)); P.vz = lerp(P.vz, wz * speed, Math.min(1, dt * acc));
   if (!frozen && !P.dead && KEYS.Space && P.ground) { P.vy = 6.3; P.ground = false; }
   P.x += P.vx * dt; P.z += P.vz * dt; pushOut(P, 0.4); P.x = clamp(P.x, -HALF_SIZE + 0.45, HALF_SIZE - 0.45); P.z = clamp(P.z, -HALF_SIZE + 0.45, HALF_SIZE - 0.45);
   P.vy -= 18 * dt; P.y += P.vy * dt; const gh = groundAt(P.x, P.z, 0.38, P.y);
@@ -848,10 +848,16 @@ function hud(dt) {
   $('reloadTxt').style.opacity = P.reloadT > 0 ? 1 : 0;
   if (G.phase === 'live') { const t = Math.max(0, Math.ceil(G.roundTime)); $('roundInfo').textContent = 'Round ' + G.round + '  ·  first to ' + (G.online ? Online.rounds : CFG.rounds) + '  ·  ' + Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
 }
+let slowFrames = 0;
 function loop(now) {
-  requestAnimationFrame(loop); let dt = Math.min(0.05, (now - last) / 1000); last = now;
-  const n = Math.ceil(dt / (1 / 90)); for (let i = 0; i < n; i++) step(dt / n);
+  requestAnimationFrame(loop); const raw = (now - last) / 1000; const dt = Math.min(0.12, raw); last = now;       // game speed no longer depends on frame rate (down to about 8 frames per second)
+  const n = Math.min(10, Math.ceil(dt / (1 / 90))); for (let i = 0; i < n; i++) step(dt / n);
   render(dt); hud(dt);
+  // if the computer is struggling, switch to Fast graphics by itself so the game stays smooth
+  if (G.phase !== 'menu' && !document.hidden) {
+    if (raw > 0.045) slowFrames++; else slowFrames = Math.max(0, slowFrames - 2);
+    if (slowFrames > 100 && CFG.quality === 'high') { slowFrames = 0; CFG.quality = 'low'; saveCfg(); applyQuality(); renderer.setPixelRatio(1); resize(); setSeg('segQ', 'low', v => { CFG.quality = v; applyQuality(); }); feed('⚙ Switched to Fast graphics for smoother play'); }
+  }
 }
 requestAnimationFrame(loop);
 $('boot').remove();
