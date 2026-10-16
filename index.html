@@ -104,7 +104,10 @@
   #fTabs button.on { background:var(--acc); color:#1d1300; font-weight:800; border-color:var(--acc); } #fTabs b { background:var(--red); color:#fff; border-radius:999px; padding:0 6px; margin-left:3px; font-size:12px; }
   #fBody h3 { margin:14px 0 6px; font-size:15px; opacity:0.85; }
   .frow { display:flex; align-items:center; gap:10px; padding:9px 10px; margin-bottom:7px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:12px; }
-  .av { display:inline-flex; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; font-weight:800; font-size:18px; flex:none; color:#fff; }
+  .av img { width:100%; height:100%; object-fit:cover; display:block; } .chip .av { width:24px; height:24px; font-size:14px; vertical-align:middle; }
+  .avgrid { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; align-items:center; } .avgrid button { font-size:22px; width:44px; height:44px; padding:0; border-radius:50%; border:2px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.07); cursor:pointer; } .avgrid button.on, .avsw.on { border-color:var(--acc); box-shadow:0 0 0 2px rgba(255,176,32,0.45); }
+  .avsw { display:inline-block; width:30px; height:30px; border-radius:50%; border:2px solid rgba(255,255,255,0.3); cursor:pointer; }
+  .av { display:inline-flex; overflow:hidden; width:40px; height:40px; border-radius:50%; align-items:center; justify-content:center; font-weight:800; font-size:18px; flex:none; color:#fff; }
   .finfo { flex:1; min-width:0; display:flex; flex-direction:column; } .finfo b { font-size:16px; overflow:hidden; text-overflow:ellipsis; } .finfo small, .st { font-size:12.5px; opacity:0.85; }
   .st.on { color:#5cf08a; } .st.match { color:#ffc247; } .st.off { color:#8a94a8; }
   .fbtns { display:flex; gap:6px; flex-wrap:wrap; } .fbtns button, #fBody .btn2, .card2 button, .addrow button, .toast button { font:inherit; font-size:13.5px; padding:7px 12px; border-radius:9px; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.08); color:var(--ink); cursor:pointer; }
@@ -168,7 +171,7 @@ window.addEventListener('error', function (e) { if (document.getElementById('boo
 <div id="rotate"><div>📱↻</div>Turn your phone sideways to play</div>
 
 <div class="screen on" id="menu">
-  <div id="topbar"><span class="chip static" id="netState">⚪ Offline</span><button class="chip" id="btnProfile">👤 <span id="meName">Set your name</span></button><button class="chip" id="btnFriends">👥 Friends <b id="friendBadge" hidden>0</b></button></div>
+  <div id="topbar"><span class="chip static" id="netState">⚪ Offline</span><button class="chip" id="btnProfile"><span id="meAv">👤</span> <span id="meName">Set your name</span></button><button class="chip" id="btnFriends">👥 Friends <b id="friendBadge" hidden>0</b></button></div>
   <h1>DUEL <em>ARENA</em></h1>
   <div class="sub">First to win the rounds takes the match. Pick your weapons in the loadout!</div>
   <div class="card">
@@ -198,6 +201,7 @@ window.addEventListener('error', function (e) { if (document.getElementById('boo
 <div class="screen" id="friends"><div class="card panel"><div id="fHead"><h2>Friends</h2><button class="btn2" id="friendsClose">✕ Close</button></div><div id="fTabs"></div><div id="fBody"></div></div></div>
 <div class="screen" id="waitScreen"><h2 id="waitTxt" style="font-size:clamp(22px,5vw,34px)"></h2><button class="btn2" id="waitCancel" style="margin-top:14px">Cancel</button></div>
 <div id="toasts"></div>
+<input type="file" id="avFile" accept="image/*" hidden>
 
 <script src="vendor/peerjs.min.js"></script>
 <script src="vendor/three.min.js" onerror="bootErr('The file <b>vendor/three.min.js</b> is missing. Keep the <b>vendor</b> folder next to index.html.')"></script>
@@ -1904,6 +1908,9 @@ function rnd(bytes) { const a = new Uint8Array(bytes); (self.crypto || window.cr
 //  Players find each other through PeerJS. A player's online "address" is  duelarena1-<username>.
 //  Friendships are secrets that both devices remember; friends prove it with HMAC on every connection.
 // =====================================================================
+const AVE = ['😎', '🤠', '🥷', '🤖', '👾', '🦊', '🐱', '🐶', '🐼', '🦁', '🐸', '🐵', '🦄', '🐲', '🦖', '👻', '💀', '🔥', '⚡', '⭐', '🚀', '🎮', '🏆', '🍕'];
+const cleanAv = a => ({ e: a && AVE.includes(a.e) ? a.e : '', c: a && Number.isFinite(a.c) ? Math.max(-1, Math.min(359, Math.floor(a.c))) : -1 });
+const cleanPic = p => typeof p === 'string' && p.length <= 30000 && /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(p) ? p : null;      // only a small JPEG made by this game
 function createSocial(opts) {
   const PRE = 'duelarena1-';
   const ICE = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
@@ -1919,7 +1926,7 @@ function createSocial(opts) {
   const cleanStats = s => s && typeof s === 'object' ? { matches: num(s.matches), wins: num(s.wins), losses: num(s.losses), kills: num(s.kills), headshots: num(s.headshots) } : null;
   function normalize(m) {
     m.friends = m.friends || {}; m.inReq = m.inReq || {}; m.outReq = m.outReq || {}; m.blocked = m.blocked || []; m.outbox = m.outbox || [];
-    m.stats = cleanStats(m.stats) || { matches: 0, wins: 0, losses: 0, kills: 0, headshots: 0 }; if (typeof m.allowReq !== 'boolean') m.allowReq = true; return m;
+    m.av = cleanAv(m.av); m.pic = cleanPic(m.pic); m.stats = cleanStats(m.stats) || { matches: 0, wins: 0, losses: 0, kills: 0, headshots: 0 }; if (typeof m.allowReq !== 'boolean') m.allowReq = true; return m;
   }
   A.me = opts.store.load(); if (A.me) normalize(A.me);
   const persist = () => { if (A.me) opts.store.save(A.me); };
@@ -1990,7 +1997,7 @@ function createSocial(opts) {
   }
   function ready(rec) {
     rec.ready = true; const old = A.recs.get(rec.lower); if (!old || !old.verified || rec.verified || old.dead) A.recs.set(rec.lower, rec);
-    if (rec.verified) { A.fstat[rec.lower] = 'online'; send(rec, { t: 'st', s: A.myStatus }); const f = A.me.friends[rec.lower]; if (f) { f.name = rec.name; persist(); } }
+    if (rec.verified) { A.fstat[rec.lower] = 'online'; send(rec, { t: 'st', s: A.myStatus }); send(rec, avMsg()); const f = A.me.friends[rec.lower]; if (f) { f.name = rec.name; persist(); } }
     flush(rec.lower); if (rec.onReady) rec.onReady(rec); emit('friends');
   }
   function closed(rec) {
@@ -2015,8 +2022,9 @@ function createSocial(opts) {
     const me = A.me, l = rec.lower;
     switch (d.t) {
       case 'st': if (rec.verified) { A.fstat[l] = d.s === 'match' ? 'match' : 'online'; emit('friends'); } break;
-      case 'prof': send(rec, { t: 'profR', st: A.myStatus, stats: me.stats, allow: me.allowReq }); break;
-      case 'profR': { const st = cleanStats(d.stats); if (rec.cbs.prof) { const f = rec.cbs.prof; rec.cbs.prof = null; f({ name: rec.name, status: d.st === 'match' ? 'match' : 'online', stats: st, allow: d.allow !== false, verified: rec.verified }); } if (rec.verified && me.friends[l] && st) { me.friends[l].stats = st; persist(); } break; }
+      case 'prof': send(rec, { t: 'profR', st: A.myStatus, stats: me.stats, allow: me.allowReq, av: me.av, pic: rec.verified && me.friends[l] ? me.pic : null }); break;           // the picture only goes to real friends
+      case 'av': if (rec.verified && me.friends[l]) { me.friends[l].av = cleanAv(d.av); me.friends[l].pic = cleanPic(d.pic); persist(); emit('friends'); } break;
+      case 'profR': { const st = cleanStats(d.stats), av = cleanAv(d.av), pic = rec.verified && me.friends[l] ? cleanPic(d.pic) : null; if (rec.cbs.prof) { const f = rec.cbs.prof; rec.cbs.prof = null; f({ name: rec.name, status: d.st === 'match' ? 'match' : 'online', stats: st, allow: d.allow !== false, verified: rec.verified, av, pic }); } if (rec.verified && me.friends[l]) { if (st) me.friends[l].stats = st; me.friends[l].av = av; me.friends[l].pic = pic; persist(); } break; }
       case 'freq': onRequest(rec); break;
       case 'facc': onAccepted(rec, d); break;
       case 'fdec': if (me.outReq[l]) { delete me.outReq[l]; persist(); emit('requests'); emit('declined', { name: rec.name }); } break;
@@ -2102,15 +2110,17 @@ function createSocial(opts) {
     }));
   }
   function getProfile(l) { const rec = A.recs.get(l); return new Promise(res => { if (!rec || !rec.verified || !rec.ready) return res(null); rec.cbs.prof = res; send(rec, { t: 'prof' }); setTimeout(() => { if (rec.cbs.prof) { rec.cbs.prof = null; res(null); } }, 3000); }); }
+  const avMsg = () => ({ t: 'av', av: A.me ? A.me.av : cleanAv(null), pic: A.me ? A.me.pic : null });
+  function setAvatar(av, pic) { const me = A.me; if (!me) return; me.av = cleanAv(av); if (pic !== undefined) me.pic = cleanPic(pic); persist(); emit('me'); for (const rec of A.recs.values()) if (rec.verified && rec.ready) send(rec, avMsg()); }
   function setStatus(s) { A.myStatus = s; for (const rec of A.recs.values()) if (rec.verified && rec.ready) send(rec, { t: 'st', s }); }
   function sendTo(l, msg) { const rec = A.recs.get(l); return !!(rec && rec.verified && rec.ready && !rec.dead && send(rec, msg)); }
   function recordMatch(win, st) { const s = A.me && A.me.stats; if (!s) return; s.matches++; if (win) s.wins++; else s.losses++; s.kills += num(st && st.kills); s.headshots += num(st && st.head); persist(); emit('me'); }
   function friends() {
     const me = A.me; if (!me) return []; const order = { match: 1, online: 0, offline: 2 };
-    return Object.keys(me.friends).map(l => ({ lower: l, name: me.friends[l].name, since: me.friends[l].since, stats: me.friends[l].stats, status: A.fstat[l] || 'offline' })).sort((a, b) => order[a.status] - order[b.status] || a.name.localeCompare(b.name));
+    return Object.keys(me.friends).map(l => ({ lower: l, name: me.friends[l].name, since: me.friends[l].since, stats: me.friends[l].stats, av: me.friends[l].av, pic: me.friends[l].pic, status: A.fstat[l] || 'offline' })).sort((a, b) => order[a.status] - order[b.status] || a.name.localeCompare(b.name));
   }
   function reset() { dropProfile(); }
-  return { on, start, createProfile, reset, me: () => A.me, state: () => A.state, friends, status: l => A.fstat[l] || 'offline', sendRequest, accept, decline, cancel, unfriend, block, unblock, setAllow, lookup, getProfile, setStatus, sendTo, recordMatch, checkName, persist, _A: A, _deliver: deliver, _maintain: maintain };
+  return { on, start, createProfile, reset, me: () => A.me, state: () => A.state, friends, status: l => A.fstat[l] || 'offline', sendRequest, accept, decline, cancel, unfriend, block, unblock, setAllow, lookup, getProfile, setStatus, sendTo, recordMatch, checkName, persist, setAvatar, _onData: onData, _clean: { cleanAv, cleanPic }, _A: A, _deliver: deliver, _maintain: maintain };
 }
 
 // =====================================================================
@@ -2128,7 +2138,11 @@ const Social = PEER_OK ? createSocial({ store, Peer }) : null;
 window.Social = Social;
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const avatar = n => '<span class="av" style="background:hsl(' + (Array.from(n).reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7)) + ' 55% 42%)">' + esc(n[0].toUpperCase()) + '</span>';
+const avatar = (n, av, pic) => {
+  if (pic) return '<span class="av"><img alt="" src="' + pic + '"></span>';
+  const hue = av && av.c >= 0 ? av.c : Array.from(n).reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
+  return '<span class="av" style="background:hsl(' + hue + ' 55% 42%)">' + (av && av.e ? av.e : esc(n[0].toUpperCase())) + '</span>';
+};
 const stText = s => s === 'match' ? '<span class="st match">● In a match</span>' : s === 'online' ? '<span class="st on">● Online</span>' : '<span class="st off">○ Offline</span>';
 const show = id => $(id).classList.add('on'), hide = id => $(id).classList.remove('on');
 const r2 = v => Math.round(v * 100) / 100, r3 = v => Math.round(v * 1000) / 1000;
@@ -2144,7 +2158,7 @@ function notify(html, buttons, ms = 9000) {
 function renderTop() {
   if (!Social) { $('meName').textContent = 'Friends unavailable'; $('netState').textContent = '⚠'; return; }
   const me = Social.me(), st = Social.state();
-  $('meName').textContent = me ? me.name : 'Set your name';
+  $('meName').textContent = me ? me.name : 'Set your name'; $('meAv').innerHTML = me ? avatar(me.name, me.av, me.pic) : '👤';
   $('netState').textContent = st === 'online' ? '🟢 Online' : st === 'connecting' ? '🟡 Connecting…' : st === 'nameTaken' ? '🔴 Name in use on another device' : '⚪ Offline';
   const n = me ? Object.keys(me.inReq).length : 0; $('friendBadge').hidden = n === 0; $('friendBadge').textContent = n;
 }
@@ -2178,7 +2192,7 @@ function renderFriends() {
   if (fView) { renderProfile(b); return; }
   if (fTab === 'friends') {
     const list = Social.friends();
-    b.innerHTML = (list.length ? list.map(f => '<div class="frow" data-l="' + f.lower + '">' + avatar(f.name) + '<div class="finfo"><b>' + esc(f.name) + '</b>' + stText(f.status) + '</div><div class="fbtns">' +
+    b.innerHTML = (list.length ? list.map(f => '<div class="frow" data-l="' + f.lower + '">' + avatar(f.name, f.av, f.pic) + '<div class="finfo"><b>' + esc(f.name) + '</b>' + stText(f.status) + '</div><div class="fbtns">' +
       (f.status === 'online' ? '<button data-act="challenge" class="go">⚔ 1v1</button>' : f.status === 'match' ? '<button disabled>In a match</button>' : '') + '<button data-act="profile">Profile</button></div></div>').join('')
       : '<div class="empty">No friends yet.<br>Tap <b>➕ Add friend</b> and type a username!</div>') +
       '<div class="note">You can see who is online while you are both playing at the same time.</div>';
@@ -2193,11 +2207,15 @@ function renderFriends() {
     $('addInput').value = keep; $('addInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
   } else {
     const s = me.stats, bl = me.blocked;
-    b.innerHTML = '<div class="mecard">' + avatar(me.name) + '<div><b style="font-size:20px">' + esc(me.name) + '</b><br><small>' + stText(Social.state() === 'online' ? 'online' : 'offline') + '</small></div></div>' +
+    b.innerHTML = '<div class="mecard">' + avatar(me.name, me.av, me.pic) + '<div><b style="font-size:20px">' + esc(me.name) + '</b><br><small>' + stText(Social.state() === 'online' ? 'online' : 'offline') + '</small></div></div>' +
+      '<h3>Your picture</h3><div class="avgrid">' + AVE.map(e => '<button data-act="avemoji" data-e="' + e + '" class="' + (!me.pic && me.av.e === e ? 'on' : '') + '">' + e + '</button>').join('') + '</div>' +
+      '<div class="avgrid">' + [-1, 0, 28, 50, 120, 170, 210, 265, 320].map(c => '<span class="avsw' + (me.av.c === c ? ' on' : '') + '" data-act="avcolor" data-c="' + c + '" style="background:' + (c < 0 ? 'linear-gradient(135deg,#667,#99a)' : 'hsl(' + c + ' 55% 42%)') + '"></span>').join('') + '</div>' +
+      '<div class="fbtns"><button data-act="avupload">📷 Upload a picture</button>' + (me.pic ? '<button data-act="avremove">Remove picture</button>' : '') + '</div>' +
+      '<div class="note">Tip: use a drawing or a character, not a photo of your face. Only your <b>friends</b> can see an uploaded picture. Everyone else just sees your emoji. The picture stays on your device and is shrunk to a tiny size.</div>' +
       '<div class="stats3"><div><b>' + s.matches + '</b><small>Matches</small></div><div><b>' + s.wins + '</b><small>Wins</small></div><div><b>' + s.kills + '</b><small>Kills</small></div></div>' +
       '<label class="chk"><input type="checkbox" id="allowReq"' + (me.allowReq ? ' checked' : '') + '> Let other players send me friend requests</label>' +
       '<h3>Blocked players</h3>' + (bl.length ? bl.map(l => '<div class="frow" data-l="' + l + '"><div class="finfo"><b>' + esc(l) + '</b></div><div class="fbtns"><button data-act="unblock">Unblock</button></div></div>').join('') : '<div class="empty small">Nobody blocked.</div>') +
-      '<div class="note">Tip for parents: there is no chat in this game. Players can only send friend requests and 1v1 challenges. Turn off the switch above to stop all new requests. Because players connect directly to each other, a player you search for or play with can see your internet (IP) address, like in most online games. Only add people you know.</div>' +
+      '<div class="note">Tip for parents: there is no chat in this game. Players can only send friend requests and 1v1 challenges. Players can pick an emoji picture or upload one; an uploaded picture is shrunk to a tiny size and only shown to accepted friends, strangers only see the emoji. Turn off the switch above to stop all new requests. Because players connect directly to each other, a player you search for or play with can see your internet (IP) address, like in most online games. Only add people you know.</div>' +
       '<button class="btn2 danger" data-act="reset" style="margin-top:12px">Start over with a new name</button>';
     $('allowReq').onchange = e => Social.setAllow(e.target.checked);
   }
@@ -2209,13 +2227,13 @@ async function doSearch() {
   const me = Social.me(), why = me.friends[r.lower] ? 'You are already friends.' : me.outReq[r.lower] ? 'Request already sent.' : me.blocked.includes(r.lower) ? 'You blocked this player.' : '';
   if (!r.online) { out.innerHTML = '<div class="card2"><b>' + esc(name) + '</b> is not online right now.<br><small>They need the game open for you to see them. You can still send a request. It arrives the next time you are both online.</small>' + (why ? '<div class="note">' + why + '</div>' : '<button class="go" data-act="sendreq" data-name="' + esc(name) + '">Send request anyway</button>') + '</div>'; return; }
   const p = r.prof, s = p.stats;
-  out.innerHTML = '<div class="card2"><div class="mecard">' + avatar(p.name) + '<div><b style="font-size:19px">' + esc(p.name) + '</b><br>' + stText(p.status) + '</div></div>' + (s ? '<div class="stats3"><div><b>' + s.matches + '</b><small>Matches</small></div><div><b>' + s.wins + '</b><small>Wins</small></div><div><b>' + s.kills + '</b><small>Kills</small></div></div>' : '') +
+  out.innerHTML = '<div class="card2"><div class="mecard">' + avatar(p.name, p.av, null) + '<div><b style="font-size:19px">' + esc(p.name) + '</b><br>' + stText(p.status) + '</div></div>' + (s ? '<div class="stats3"><div><b>' + s.matches + '</b><small>Matches</small></div><div><b>' + s.wins + '</b><small>Wins</small></div><div><b>' + s.kills + '</b><small>Kills</small></div></div>' : '') +
     (why ? '<div class="note">' + why + '</div>' : p.allow === false ? '<div class="note">This player is not accepting friend requests.</div>' : '<button class="go" data-act="sendreq" data-name="' + esc(p.name) + '">➕ Add friend</button>') + '</div>';
 }
 async function renderProfile(b) {
   const l = fView, me = Social.me(), f = me.friends[l]; if (!f) { fView = null; renderFriends(); return; }
   const st = Social.status(l); const cached = f.stats;
-  b.innerHTML = '<button class="btn2" data-act="back">← Back</button><div class="mecard" style="margin-top:12px">' + avatar(f.name) + '<div><b style="font-size:21px">' + esc(f.name) + '</b><br>' + stText(st) + '<br><small>Friends since ' + new Date(f.since).toLocaleDateString() + '</small></div></div><div id="pStats">' + statsHtml(cached) + '</div>' +
+  b.innerHTML = '<button class="btn2" data-act="back">← Back</button><div class="mecard" style="margin-top:12px">' + avatar(f.name, f.av, f.pic) + '<div><b style="font-size:21px">' + esc(f.name) + '</b><br>' + stText(st) + '<br><small>Friends since ' + new Date(f.since).toLocaleDateString() + '</small></div></div><div id="pStats">' + statsHtml(cached) + '</div>' +
     '<div class="fbtns" style="margin-top:14px;flex-wrap:wrap">' + (st === 'online' ? '<button class="go" data-act="challenge">⚔ Challenge to 1v1</button>' : st === 'match' ? '<button disabled>In a match right now</button>' : '<button disabled>Offline</button>') + '<button data-act="unfriend">Remove friend</button><button data-act="block" class="danger">Block</button></div>';
   if (st !== 'offline') { const p = await Social.getProfile(l); if (p && fView === l && $('pStats')) $('pStats').innerHTML = statsHtml(p.stats); }
 }
@@ -2227,7 +2245,7 @@ function copyInvite() {
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done, () => prompt('Copy your invite link:', link)); else prompt('Copy your invite link:', link);
 }
 $('fBody').addEventListener('click', e => {
-  const btn = e.target.closest('button[data-act]'); if (!btn) return; const act = btn.dataset.act, row = btn.closest('[data-l]'), l = row ? row.dataset.l : fView;
+  const btn = e.target.closest('[data-act]'); if (!btn) return; const act = btn.dataset.act, row = btn.closest('[data-l]'), l = row ? row.dataset.l : fView;
   if (act === 'profile') { fView = l; renderFriends(); }
   else if (act === 'back') { fView = null; renderFriends(); }
   else if (act === 'challenge') Online.challenge(l);
@@ -2236,6 +2254,10 @@ $('fBody').addEventListener('click', e => {
   else if (act === 'cancel') { Social.cancel(l); renderFriends(); }
   else if (act === 'search') doSearch();
   else if (act === 'sendreq') { const r = Social.sendRequest(btn.dataset.name); notify(r.ok ? (r.accepted ? 'You are now friends! 🎉' : 'Friend request sent to <b>' + esc(btn.dataset.name) + '</b> ✉️') : esc(r.error)); renderFriends(); if (r.ok) { fTab = 'requests'; renderFriends(); } }
+  else if (act === 'avemoji') Social.setAvatar({ e: btn.dataset.e, c: Social.me().av.c }, null);
+  else if (act === 'avcolor') Social.setAvatar({ e: Social.me().av.e, c: +btn.dataset.c });
+  else if (act === 'avupload') $('avFile').click();
+  else if (act === 'avremove') Social.setAvatar(Social.me().av, null);
   else if (act === 'copylink') copyInvite();
   else if (act === 'unfriend') { if (confirm('Remove this friend?')) { Social.unfriend(l); fView = null; renderFriends(); } }
   else if (act === 'block') { if (confirm('Block this player? They will not be able to contact you.')) { Social.block(l); fView = null; renderFriends(); } }
@@ -2246,6 +2268,19 @@ $('fTabs').addEventListener('click', e => { const t = e.target.closest('button[d
 $('friendsClose').onclick = () => hide('friends');
 $('btnFriends').onclick = () => openFriends(Object.keys(Social && Social.me() ? Social.me().inReq : {}).length ? 'requests' : 'friends');
 $('btnProfile').onclick = () => openFriends('me');
+$('avFile').onchange = e => {                                       // turn the chosen picture into a tiny square JPEG
+  const file = e.target.files && e.target.files[0]; e.target.value = ''; if (!file || !Social || !Social.me()) return;
+  if (!/^image\//.test(file.type) || file.size > 12e6) { notify('Please choose a normal picture file (under 12 MB).'); return; }
+  const img = new Image(), url = URL.createObjectURL(file);
+  img.onload = () => {
+    const s = Math.min(img.width, img.height), c = document.createElement('canvas'); c.width = c.height = 80; const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 80, 80);
+    g.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 80, 80); URL.revokeObjectURL(url);
+    let q = 0.75, data = c.toDataURL('image/jpeg', q); while (data.length > 20000 && q > 0.3) { q -= 0.1; data = c.toDataURL('image/jpeg', q); }
+    if (!data.startsWith('data:image/jpeg')) { notify('Sorry, that picture could not be used.'); return; }
+    Social.setAvatar(Social.me().av, data); notify('✅ Picture saved! Your friends will see it.');
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); notify('Sorry, that picture could not be opened.'); }; img.src = url;
+};
 
 if (Social) {
   Social.on('net', renderTop); Social.on('me', () => { renderTop(); renderFriends(); }); Social.on('friends', () => { renderTop(); renderFriends(); }); Social.on('requests', () => { renderTop(); renderFriends(); });
