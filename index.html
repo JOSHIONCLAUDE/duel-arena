@@ -73,6 +73,9 @@
   .play:active { transform:scale(0.98); }
   .help { margin-top:12px; font-size:12.5px; opacity:0.72; line-height:1.55; max-width:560px; }
   .help b { color:var(--acc); }
+  #vic { position:fixed; left:0; right:0; top:7%; text-align:center; pointer-events:none; opacity:0; transition:opacity .4s; z-index:15; } #vic.on { opacity:1; }
+  #vicT { font-size:clamp(38px,9vw,86px); font-weight:900; letter-spacing:4px; background:linear-gradient(#fff6c0,#ffb020); -webkit-background-clip:text; background-clip:text; color:transparent; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.6)); } #vicS { font-size:24px; font-weight:800; text-shadow:0 2px 6px #000; }
+  #over { background:linear-gradient(to bottom, rgba(4,8,18,0) 30%, rgba(4,8,18,0.85) 100%); justify-content:flex-end; padding-bottom:26px; }
   #over h2 { font-size:clamp(32px, 7vw, 56px); margin:0 0 6px; } #over .stats { margin:12px 0; line-height:1.8; font-size:17px; }
   #pause { background:rgba(4,8,16,0.82); }
 
@@ -142,6 +145,7 @@ window.addEventListener('error', function (e) { if (document.getElementById('boo
 </script>
 <div id="game"></div>
 
+<div id="vic"><div id="vicT"></div><div id="vicS"></div></div>
 <div id="hud">
   <div id="dmg"></div><div id="ring"><i></i></div><div id="scope"><i id="sdot"></i></div><div class="fxo" id="fxBlind"></div><div class="fxo" id="fxPaint"></div><div class="fxo" id="fxFreeze"></div><div class="fxo" id="fxBurn"></div>
   <div id="xh"><i class="l"></i><i class="r"></i><i class="u"></i><i class="d"></i><i class="dot"></i></div>
@@ -444,6 +448,23 @@ function sfxShot(id, vol = 1, pan = 0) {
 }
 const sfxBoom = (vol = 1, pan = 0) => snd(t => { noiseBurst(t, 0.9, 520, 0.5, 0.95 * vol, pan, 'lowpass'); thump(t, 95, 26, 0.75, 1.0 * vol, pan); noiseBurst(t, 0.15, 2600, 0.6, 0.4 * vol, pan); });
 const sfxSlide = () => snd(t => { noiseBurst(t, 0.7, 650, 0.6, 0.4, 0, 'lowpass'); noiseBurst(t, 0.35, 2600, 1, 0.1, 0); thump(t, 120, 60, 0.2, 0.25, 0); });
+
+// my own victory tune (not the real Rivals song): a heroic brass-style fanfare
+function sfxVictory() {
+  snd(t0 => {
+    const B = 0.46, hz = n => 440 * Math.pow(2, (n - 69) / 12);
+    const note = (n, beat, beats, vol, type) => { const t = t0 + beat * B, d = beats * B, o = ac.createOscillator(), fl = ac.createBiquadFilter(), g = ac.createGain(); o.type = type || 'sawtooth'; o.frequency.value = hz(n); fl.type = 'lowpass'; fl.frequency.setValueAtTime(700, t); fl.frequency.linearRampToValueAtTime(3000, t + 0.06); fl.frequency.linearRampToValueAtTime(1500, t + d); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.03); g.gain.setValueAtTime(vol, t + Math.max(0.04, d - 0.1)); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(fl); fl.connect(g); g.connect(outNode(1, 0)); o.start(t); o.stop(t + d + 0.05); if (beats > 1.2) { const v = ac.createOscillator(), vg = ac.createGain(); v.frequency.value = 5.5; vg.gain.value = 6; v.connect(vg); vg.connect(o.detune); v.start(t); v.stop(t + d + 0.05); } };
+    const chord = (ns, beat, beats, vol) => ns.forEach(n => note(n, beat, beats, vol));
+    const kick = b => thump(t0 + b * B, 150, 45, 0.25, 0.7, 0), snare = (b, v) => noiseBurst(t0 + b * B, 0.12, 2200, 0.7, v || 0.35, 0), crash = b => noiseBurst(t0 + b * B, 1.4, 5500, 0.4, 0.3, 0, 'highpass');
+    // chords: C, F, G, C (held), Am, F, G, big C
+    crash(0); chord([48, 60, 64, 67], 0, 1, 0.07); chord([41, 53, 57, 60], 1, 1, 0.07); chord([43, 55, 59, 62], 2, 1, 0.07); chord([36, 48, 60, 64, 67, 72], 3, 2, 0.07);
+    chord([45, 57, 60, 64], 5, 1, 0.07); chord([41, 53, 57, 60], 6, 0.5, 0.07); chord([43, 55, 59, 62], 6.5, 0.5, 0.07); crash(7); chord([36, 48, 60, 64, 67, 72], 7, 3.5, 0.08);
+    // tune
+    [[76, 0, 0.25], [79, 0.25, 0.25], [84, 0.5, 0.5], [81, 1, 0.5], [84, 1.5, 0.5], [83, 2, 0.5], [86, 2.5, 0.5], [88, 3, 2], [84, 5, 0.5], [81, 5.5, 0.5], [84, 6, 0.5], [86, 6.5, 0.5], [88, 7, 1], [91, 8, 2.5]].forEach(m => note(m[0], m[1], m[2], 0.1));
+    [[72, 0, 0.5], [76, 3, 2], [72, 7, 3.5]].forEach(m => note(m[0] + 12, m[1], m[2], 0.04, 'square'));
+    for (let b = 0; b < 10; b++) kick(b); [1.5, 2.5, 4.5, 5.5, 6.5, 8.5, 9.5].forEach(b => snare(b)); for (let k = 0; k < 8; k++) snare(2.25 + k * 0.09, 0.15 + k * 0.03);
+  });
+}
 const sfxClick = () => snd(t => blip(t, 320, 0.03, 0.1));
 const sfxFire = () => snd(t => noiseBurst(t, 0.4, 600, 0.5, 0.3, 0, 'lowpass'));
 const sfxFlash = vol => snd(t => { noiseBurst(t, 0.35, 4000, 0.7, 0.5 * vol, 0, 'highpass'); blip(t, 3200, 0.5, 0.08 * vol, 'sine'); });
@@ -635,7 +656,7 @@ const MOVE = { x: 0, z: 0, sprint: false };          // from touch stick
 function giveLoadout(L) {
   L = validLoadout(L); P.inv = {}; SLOTS.forEach(s => { P.inv[s] = ammoFor(ITEMS[L[s]]); });
   P.slideT = 0; P.slideCd = 0; P.cur = 'primary'; P.lastSlot = 'secondary'; P.switchT = 0.45; P.reloadT = 0; P.cdT = 0.3; P.st = newSt(); P.buff = { dmg: 1, spd: 1, t: 0 }; P.burstLeft = 0; P.spinT = 0; P.useT = 0; P.using = null; P.grapple = null; P.satchel = null; P.burnAcc = 0; P.padCd = 0;
-  clearWorld(); mapRoundReset(); buildViewmodel(); renderSlots();
+  clearWorld(); mapRoundReset(); victoryEnd(); buildViewmodel(); renderSlots();
 }
 const curWeapon = () => ITEMS[P.inv[P.cur].id];
 const curAmmo = () => P.inv[P.cur];
@@ -1086,9 +1107,9 @@ function showMatchOver() {
   $('overTitle').innerHTML = won ? '<span style="color:#7fd0ff">YOU WIN!</span>' : '<span style="color:#ff8a8a">YOU LOSE</span>'; $('overScore').textContent = G.score.you + ' : ' + G.score.bot;
   const s = G.stats, acc = s.fired ? Math.round(s.hit / s.fired * 100) : 0;
   $('overStats').innerHTML = 'Kills: <b>' + s.kills + '</b> · Headshots: <b>' + s.head + '</b><br>Accuracy: <b>' + acc + '%</b> · Damage dealt: <b>' + Math.round(s.dmg) + '</b>';
-  $('hud').classList.remove('on'); $('over').classList.add('on'); if (won) sfxWin(); else sfxLose();
+  $('hud').classList.remove('on'); victoryScene({ won, name: won ? 'YOU' : G.oppName, cloth: won ? 0x2d6fb7 : 0xb23a3a, gun: won ? P.inv.primary.id : (bot ? bot.L.primary : 'rifle'), score: G.score.you + ' : ' + G.score.bot });
 }
-function toMenu() { if (G.online && window.Online) Online.cleanup(); G.menuOpen = false; document.body.classList.remove('playing'); G.phase = 'menu'; $('hud').classList.remove('on'); $('over').classList.remove('on'); $('pause').classList.remove('on'); $('menu').classList.add('on'); if (bot) { scene.remove(bot.mesh); bot = null; } clearWorld(); document.exitPointerLock && document.exitPointerLock(); }
+function toMenu() { if (G.online && window.Online) Online.cleanup(); G.menuOpen = false; document.body.classList.remove('playing'); G.phase = 'menu'; $('hud').classList.remove('on'); $('over').classList.remove('on'); $('pause').classList.remove('on'); $('menu').classList.add('on'); if (bot) { scene.remove(bot.mesh); bot = null; } clearWorld(); victoryEnd(); document.exitPointerLock && document.exitPointerLock(); }
 
 // ---------- shooting ----------
 function camForward(pitch, yaw) { const cp = Math.cos(pitch); return [-Math.sin(yaw) * cp, Math.sin(pitch), -Math.cos(yaw) * cp]; }
@@ -1618,6 +1639,32 @@ $('btnMap').onclick = () => { renderMaps(); $('maps').classList.add('on'); };
 $('mapsClose').onclick = () => $('maps').classList.remove('on');
 updateMapBtn();
 
+// ---------- winner screen ----------
+const VIC = { on: false, t: 0, g: null, m: null, after: null, Y: 80 };
+const finishVictory = () => { if (VIC.after) { const f = VIC.after; VIC.after = null; f(); } };
+function victoryEnd() { VIC.on = false; VIC.after = null; if (VIC.g) { scene.remove(VIC.g); VIC.g.traverse(o => { if (o.geometry) o.geometry.dispose(); }); VIC.g = VIC.m = null; } const v = $('vic'); if (v) v.classList.remove('on'); }
+function victoryScene(o) {
+  victoryEnd(); VIC.on = true; VIC.t = 0; VIC.after = () => { $('over').classList.add('on'); $('vic').classList.remove('on'); };
+  const g = new THREE.Group(); g.position.set(0, VIC.Y, 0); scene.add(g);
+  const st = new THREE.Mesh(new THREE.CylinderGeometry(4.6, 4.8, 0.4, 40), MAT(0xeef1f6, 0.1, 0.6)); st.position.y = -0.2; g.add(st);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(4.6, 0.07, 8, 60), glowM(0xffc83a)); ring.rotation.x = Math.PI / 2; ring.position.y = 0.02; g.add(ring);
+  const m = makeHumanoid(o.cloth); m.userData.sprite.visible = false;
+  const it = ITEMS[o.gun], gunId = it && ['gun', 'stream', 'proj'].includes(it.kind) ? o.gun : 'rifle', gun = buildItemModel(gunId); gun.position.set(0.1, -0.03, -0.35); gun.userData.flash.visible = false; m.userData.aimG.add(gun);
+  const L = m.userData.legs; L[0].rotation.set(0.75, 0, -0.22); L[1].rotation.set(-0.55, 0, 0.3);          // wide, bent-knee stance
+  m.userData.aimG.rotation.set(1.45, 0, -0.22);                                                          // gun held up high
+  m.rotation.order = 'YXZ'; m.rotation.set(0, Math.PI + 0.1, 0.14); m.position.y = -0.18; g.add(m); VIC.g = g; VIC.m = m;
+  $('vicT').textContent = o.won ? '🏆 YOU WIN!' : o.name + ' WINS!'; $('vicS').textContent = o.score; $('vic').classList.add('on');
+  sfxVictory(); setTimeout(finishVictory, 6500);
+}
+function renderVictory(dt) {
+  VIC.t += dt; const t = VIC.t, Y = VIC.Y, a = -0.45 + Math.min(t, 10) * 0.09, r = 3.7 - Math.min(t, 3) * 0.25;
+  cam.fov = 64; cam.updateProjectionMatrix(); cam.position.set(Math.sin(a) * r, Y + 0.3, Math.cos(a) * r); cam.lookAt(0, Y + 1.15, 0); cam.rotateZ(0.2);
+  if (VIC.m) { VIC.m.userData.aimG.rotation.x = 1.45 + Math.sin(t * 3) * 0.04; VIC.m.position.y = -0.18 + Math.sin(t * 4) * 0.012; }
+  if (t < 4.5) for (let i = 0; i < 2; i++) puff(rand(-1.2, 1.2), Y + 2.6, rand(-1.2, 1.2), rand(-4, 4), rand(3, 8), rand(-4, 4), 1.8, 0.3, 0.3, [0xff4455, 0xffb020, 0x4ac96a, 0x3a9bf2, 0xf25aa9, 0xf5e04a][(Math.random() * 6) | 0], 0.95, 7, false);
+  updateEffects(dt); if (t > 5.2) finishVictory();
+  renderer.clear(); renderer.render(scene, cam);
+}
+
 // ---------- input ----------
 function lockPointer() { if (TOUCH) return; const c = renderer.domElement; if (c.requestPointerLock) { try { const r = c.requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch (e) {} } }
 let looking = false;                                  // true while the right mouse button is held (hold-to-look mode)
@@ -1770,6 +1817,7 @@ function step(dt) {
   P.moving = moving;
 }
 function render(dt) {
+  if (VIC.on) { renderVictory(dt); return; }
   const w = P.inv ? curWeapon() : ITEMS.handgun;
   const zoom = lerp(1, w.zoom, P.ads), fov = CFG.fov / zoom; if (Math.abs(cam.fov - fov) > 0.05) { cam.fov = fov; cam.updateProjectionMatrix(); }
   camShake = Math.max(0, camShake - dt * 0.4);
@@ -2325,7 +2373,7 @@ const Online = window.Online = {
     Social.recordMatch(meWon, G.stats); Social.setStatus('menu'); const s = G.stats, acc = s.fired ? Math.round(s.hit / s.fired * 100) : 0;
     $('overTitle').innerHTML = (meWon ? '<span style="color:#7fd0ff">YOU WIN!</span>' : '<span style="color:#ff8a8a">YOU LOSE</span>') + (why === 'left' ? '<br><small style="font-size:18px;opacity:.85">' + esc(this.name) + ' left the match</small>' : '');
     $('overScore').textContent = G.score.you + ' : ' + G.score.bot + '   (you vs ' + this.name + ')'; $('overStats').innerHTML = 'Kills: <b>' + s.kills + '</b> · Headshots: <b>' + s.head + '</b><br>Accuracy: <b>' + acc + '%</b> · Damage dealt: <b>' + Math.round(s.dmg) + '</b>';
-    $('againBtn').style.display = 'none'; $('hud').classList.remove('on'); $('over').classList.add('on'); if (meWon) sfxWin(); else sfxLose();
+    $('againBtn').style.display = 'none'; $('hud').classList.remove('on'); victoryScene({ won: meWon, name: this.name, cloth: meWon ? 0x2d6fb7 : 0xb23a3a, gun: meWon ? (P.inv ? P.inv.primary.id : 'rifle') : (this.remote && this.remote.gunId) || 'rifle', score: G.score.you + ' : ' + G.score.bot });
   },
   cleanup() {
     if (!this.active) return; if (!this.ended) Social.sendTo(this.lower, { t: 'lv' });
