@@ -88,6 +88,7 @@
   .ldrow h3 { margin:14px 0 6px; font-size:15px; opacity:0.85; } .ldgrid { display:flex; flex-wrap:wrap; gap:6px; }
   .ldi { font:inherit; font-size:13px; padding:6px 10px; border-radius:9px; border:1px solid rgba(255,255,255,0.22); background:rgba(255,255,255,0.07); color:var(--ink); cursor:pointer; }
   .ldi.prime { border-color:rgba(120,190,255,0.6); } .ldi.contraband { border-color:rgba(255,120,200,0.65); } .ldi.on { background:var(--acc); color:#1d1300; font-weight:800; border-color:var(--acc); }
+  .teamb { font:inherit; font-size:13px; padding:6px 10px; border-radius:9px; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.08); color:var(--ink); cursor:pointer; } .teamb:disabled { cursor:default; opacity:0.9; } .teamb.t0 { border-color:#4aa3ff; } .teamb.t1 { border-color:#ff5a5a; } #roomBody .play:disabled { opacity:0.45; cursor:default; } #roomBody .seg { flex-wrap:wrap; }
   .ldinfo { font-size:13px; opacity:0.9; margin-top:6px; line-height:1.45; min-height:38px; } .ldinfo small { opacity:0.7; }
   /* ---- friends and online ---- */
   #topbar { position:absolute; top:12px; right:12px; left:12px; display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap; z-index:5; }
@@ -95,7 +96,7 @@
   .chip.static { cursor:default; font-size:13px; opacity:0.9; }
   .chip b { background:var(--red); color:#fff; border-radius:999px; padding:1px 7px; margin-left:6px; font-size:12px; }
   .chip b[hidden] { display:none; }
-  #nameScreen, #friends, #waitScreen, #loadout, #maps { background:rgba(4,8,18,0.96); z-index:20; }
+  #nameScreen, #friends, #waitScreen, #loadout, #maps, #room { background:rgba(4,8,18,0.96); z-index:20; }
   #nameScreen input, .addrow input { width:100%; font:inherit; font-size:22px; padding:12px 14px; border-radius:12px; border:2px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.08); color:#fff; outline:none; text-align:center; }
   #nameScreen input:focus, .addrow input:focus { border-color:var(--acc); }
   #nameErr, .err { color:#ff8a8a; min-height:20px; margin:8px 0; font-size:14px; }
@@ -189,12 +190,13 @@ window.addEventListener('error', function (e) { if (document.getElementById('boo
     <div class="row"><span>Sound</span><div class="seg" id="segSnd"><button data-v="1">On</button><button data-v="0">Off</button></div></div>
   </div>
   <button class="play" id="playBtn">PLAY</button>
-  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button class="btn2" id="btnLoadout" style="font-size:16px">🎒 Choose your loadout</button><button class="btn2" id="btnMap" style="font-size:16px">🗺 Map</button></div>
+  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button class="btn2" id="btnLoadout" style="font-size:16px">🎒 Choose your loadout</button><button class="btn2" id="btnMap" style="font-size:16px">🗺 Map</button><button class="btn2" id="btnRoom" style="font-size:16px">👥 Play with friends</button></div>
   <div class="help" id="help"><b>W A S D</b> move · <b>Mouse</b> look · <b>Click</b> shoot · <b>Right-click</b> aim · <b>Shift</b> sprint · <b>Space</b> jump · <b>C</b> crouch (while running: slide) · <b>R</b> reload · <b>1 2 3 4</b> items · <b>Esc</b> pause</div>
 </div>
 
 <div class="screen" id="loadout"><div class="card panel" style="width:min(760px,100%)"><div id="fHead"><h2>🎒 Your loadout</h2><button class="btn2" id="loadoutClose">✕ Done</button></div><div id="ldBody"></div><div class="note">Fan-made game inspired by Rivals. It is not made by or connected to Rivals or Roblox. Weapon names are used as a tribute; most numbers are my best guess.</div></div></div>
 
+<div class="screen" id="room"><div class="card panel" style="width:min(640px,100%)"><div id="fHead"><h2>👥 Play with friends</h2><button class="btn2" id="roomLeave">✕ Leave</button></div><div id="roomBody"></div><div class="note">Up to 8 friends can play together. Only friends you have accepted can be invited. Everyone connects through the person who made the room.</div></div></div>
 <div class="screen" id="maps"><div class="card panel" style="width:min(760px,100%)"><div id="fHead"><h2>🗺 Choose a map</h2><button class="btn2" id="mapsClose">✕ Done</button></div><div id="mapBody"></div><div class="note">The map names come from Rivals, but every layout is my own design, so they will not look like the real ones. Fan-made, not connected to Rivals or Roblox.</div></div></div>
 
 <div class="screen" id="pause"><h1 style="font-size:clamp(34px,7vw,60px)">PAUSED</h1><button class="play" id="resumeBtn">RESUME</button><button class="btn2" id="quitBtn" style="margin-top:14px">Quit to menu</button><div id="pauseNote" style="margin-top:12px;opacity:.8;font-size:14px"></div></div>
@@ -759,12 +761,12 @@ function updateEffects(dt) {
 // the stuff that blows up, burns or sits in the arena
 const PROJ = [], WORLD = [], SMOKES = [];
 function clearWorld() { PROJ.forEach(p => scene.remove(p.mesh)); PROJ.length = 0; WORLD.forEach(o => o.remove()); WORLD.length = 0; SMOKES.length = 0; }
-function foeTargets(infl = 0) { return foesAlive().map(f => { const t = f instanceof Bot ? f.target : Online.target(); return t ? Object.assign({ f }, t, { r: t.r + infl }) : null; }).filter(Boolean); }
+function foeTargets(infl = 0) { return foesAlive().map(f => { const t = f instanceof Bot ? f.target : Online.targetOf(f); return t ? Object.assign({ f }, t, { r: t.r + infl }) : null; }).filter(Boolean); }
 const playerTarget = () => ({ x: P.x, z: P.z, y: P.y, r: 0.34, h: P.crouch ? 1.3 : 1.72, headR: 0.17, me: true });
-function foesAlive() { if (G.online) { const R = Online.remote; return R && !R.dead ? [R] : []; } return BOTS.filter(b => !b.dead && b.team !== 0); }
+function foesAlive() { if (G.online) return Online.foes(); return BOTS.filter(b => !b.dead && b.team !== 0); }
 function hitFoe(f, dmg, head, fx) {                          // returns true if this killed the target
   dmg *= P.buff.dmg;
-  if (G.online) { G.stats.dmg += Math.min(dmg, Online.hp()); return Online.sendHit(dmg, head, fx); }
+  if (G.online) { G.stats.dmg += Math.min(dmg, Online.hp(f)); return Online.sendHit(dmg, head, fx, f); }
   G.stats.dmg += Math.min(dmg, f.hp); const k = dmg > 0 ? f.damage(dmg, head) : false; if (fx) applyStatus(f, fx); if (k) G.lastVictim = f.label; return k;
 }
 function reportHit(killed, head, icon) { showHitMarker(killed ? 'kill' : head ? 'head' : ''); sfxHit(head); if (killed) { G.stats.kills++; sfxKill(); feed('<b style="color:#7fd0ff">You</b> ▸ ' + (G.lastVictim || G.oppName) + (icon || (head ? ' 🎯' : ''))); G.lastVictim = null; } }
@@ -1130,6 +1132,7 @@ function hurtPlayer(n, fx, fz, head, o) {
 const MODE_NAMES = { '1v1': '1v1', '2v2': '2v2', '2v1': '2v1', '1v2': '1v2', ffa: '1v1v1', big: '∞ v ∞' };
 function modeSizes() { const m = CFG.mode; return m === '2v2' ? [2, 2] : m === '2v1' ? [2, 1] : m === '1v2' ? [1, 2] : m === 'ffa' ? [1, 1, 1] : m === 'big' ? [CFG.bigSize, CFG.bigSize] : [1, 1]; }
 function renderScore() {
+  if (G.online) { Online.renderScore(); return; }
   const ffa = G.ffa && !G.online; $('score').style.display = ffa ? 'none' : ''; $('scoreF').style.display = ffa ? '' : 'none'; $('sYou').textContent = G.score.you; $('sBot').textContent = G.score.bot;
   if (ffa) $('scoreF').innerHTML = '<span class="you">YOU</span> <b>' + G.score.you + '</b> · <span class="bot">BOT A</span> <b>' + G.score.bot + '</b> · <span class="b2">BOT B</span> <b>' + G.score.b2 + '</b>';
 }
@@ -1703,7 +1706,7 @@ function renderMaps() {
   $('mapBody').querySelectorAll('.ldi').forEach(b => { b.onclick = () => { CFG.map = b.dataset.id; saveCfg(); updateMapBtn(); renderMaps(); }; b.onmouseenter = () => { $('mapBody').firstChild.innerHTML = mapInfo(b.dataset.id); }; });
 }
 $('btnMap').onclick = () => { renderMaps(); $('maps').classList.add('on'); };
-$('mapsClose').onclick = () => $('maps').classList.remove('on');
+$('mapsClose').onclick = () => { $('maps').classList.remove('on'); if (window.Online && Online.role === 'host' && !Online.started) Online.syncRoom(); };
 updateMapBtn();
 
 // ---------- winner screen ----------
@@ -1807,7 +1810,7 @@ addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') switchToMo
 setSeg('segQ', CFG.quality, v => { CFG.quality = v; applyQuality(); }); setSeg('segSnd', CFG.sound, v => { CFG.sound = +v; });
 $('rngSens').value = CFG.sens; $('rngSens').oninput = e => { CFG.sens = +e.target.value; saveCfg(); };
 $('rngFov').value = CFG.fov; $('rngFov').oninput = e => { CFG.fov = +e.target.value; saveCfg(); };
-$('playBtn').onclick = () => { startMatch(); if (CFG.look === 'lock') lockPointer(); };
+$('playBtn').onclick = () => { if (window.Online && Online.inRoom() && !Online.active) Online.leaveRoom(); startMatch(); if (CFG.look === 'lock') lockPointer(); };
 $('againBtn').onclick = () => { startMatch(); if (CFG.look === 'lock') lockPointer(); }; $('menuBtn').onclick = toMenu;
 $('resumeBtn').onclick = () => { G.paused = false; G.menuOpen = false; $('pause').classList.remove('on'); if (CFG.look === 'lock') lockPointer(); }; $('quitBtn').onclick = () => { G.paused = false; G.menuOpen = false; toMenu(); };
 addEventListener('keydown', e => { if (e.code === 'Escape' && TOUCH && G.phase !== 'menu' && !G.over) pauseGame(); });
@@ -1889,6 +1892,9 @@ function step(dt) {
 }
 function render(dt) {
   if (VIC.on) { renderVictory(dt); return; }
+  if (P.dead && P.deadT > 1.3 && G.online && G.phase === 'live') {          // online: watch a teammate (or anyone still fighting)
+    const t = Online.spectate(); if (t) { cam.fov = CFG.fov; cam.updateProjectionMatrix(); cam.position.set(t.x, t.y + 1.7, t.z); cam.rotation.set(t.pitch, t.yaw, 0, 'YXZ'); t.mesh.visible = false; $('xh').style.opacity = 0; renderer.clear(); renderer.render(scene, cam); t.mesh.visible = true; return; }
+  }
   if (P.dead && P.deadT > 1.3 && !G.online && G.phase === 'live') {          // you are out: watch a teammate (or anyone still fighting)
     const t = BOTS.find(b => !b.dead && b.team === 0) || BOTS.find(b => !b.dead);
     if (t) { cam.fov = CFG.fov; cam.updateProjectionMatrix(); cam.position.set(t.x, t.y + 1.7, t.z); cam.rotation.set(t.mesh.userData.aimG.rotation.x, t.yaw, 0, 'YXZ'); t.mesh.visible = false; $('xh').style.opacity = 0; renderer.clear(); renderer.render(scene, cam); t.mesh.visible = true; return; }
@@ -1920,7 +1926,7 @@ function hud(dt) {
   const noAmmo = (w.kind === 'gun' || w.kind === 'stream' || w.kind === 'proj') && !w.infinite && !w.free && a.mag <= 0 && a.reserve <= 0;
   const sd = $('sdot'); if (P.inv[P.cur].id === 'sniper' && P.ads > 0.7 && !P.dead) { const [sx, sy, sz] = camForward(P.pitch + P.recoilP, P.yaw + P.recoilY), sh = traceRay(P.x, P.y + P.eye, P.z, sx, sy, sz, 300, foeTargets()); sd.classList.toggle('on', sh.kind === 'body' || sh.kind === 'head'); } else sd.classList.remove('on');
   $('reloadTxt').textContent = P.using ? (P.using.type === 'heal' ? 'HEALING' : 'DRINKING') : noAmmo ? 'NO AMMO' : 'RELOADING'; $('reloadTxt').style.opacity = (P.reloadT > 0 || P.using || noAmmo) ? 1 : 0;
-  const al = $('alive'), sz = G.sizes; if (!G.online && sz && (sz.length === 3 || sz[0] + sz[1] > 2)) { const cnt = t => BOTS.filter(b => !b.dead && b.team === t).length + (t === 0 && !P.dead ? 1 : 0); al.textContent = sz.length === 3 ? '❤ Alive: you ' + (P.dead ? 0 : 1) + ' · Bot A ' + cnt(1) + ' · Bot B ' + cnt(2) : '❤ Your team ' + cnt(0) + '/' + sz[0] + '  ·  Enemy ' + cnt(1) + '/' + sz[1]; } else al.textContent = '';
+  const al = $('alive'), sz = G.sizes; if (!G.online && sz && (sz.length === 3 || sz[0] + sz[1] > 2)) { const cnt = t => BOTS.filter(b => !b.dead && b.team === t).length + (t === 0 && !P.dead ? 1 : 0); al.textContent = sz.length === 3 ? '❤ Alive: you ' + (P.dead ? 0 : 1) + ' · Bot A ' + cnt(1) + ' · Bot B ' + cnt(2) : '❤ Your team ' + cnt(0) + '/' + sz[0] + '  ·  Enemy ' + cnt(1) + '/' + sz[1]; } else al.textContent = G.online ? Online.aliveText() : '';
   if (G.phase === 'live') { const t = Math.max(0, Math.ceil(G.roundTime)); $('roundInfo').textContent = 'Round ' + G.round + '  ·  first to ' + (G.online ? Online.rounds : CFG.rounds) + '  ·  ' + Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
 }
 let slowFrames = 0;
@@ -2262,7 +2268,7 @@ function renderFriends() {
   if (fTab === 'friends') {
     const list = Social.friends();
     b.innerHTML = (list.length ? list.map(f => '<div class="frow" data-l="' + f.lower + '">' + avatar(f.name, f.av, f.pic) + '<div class="finfo"><b>' + esc(f.name) + '</b>' + stText(f.status) + '</div><div class="fbtns">' +
-      (f.status === 'online' ? '<button data-act="challenge" class="go">⚔ 1v1</button>' : f.status === 'match' ? '<button disabled>In a match</button>' : '') + '<button data-act="profile">Profile</button></div></div>').join('')
+      (f.status === 'online' ? '<button data-act="challenge" class="go">⚔ 1v1</button><button data-act="invite">👥 Invite</button>' : f.status === 'match' ? '<button disabled>In a match</button>' : '') + '<button data-act="profile">Profile</button></div></div>').join('')
       : '<div class="empty">No friends yet.<br>Tap <b>➕ Add friend</b> and type a username!</div>') +
       '<div class="note">You can see who is online while you are both playing at the same time.</div>';
   } else if (fTab === 'requests') {
@@ -2318,6 +2324,7 @@ $('fBody').addEventListener('click', e => {
   if (act === 'profile') { fView = l; renderFriends(); }
   else if (act === 'back') { fView = null; renderFriends(); }
   else if (act === 'challenge') Online.challenge(l);
+  else if (act === 'invite') Online.inviteFriend(l);
   else if (act === 'accept') { Social.accept(l); renderFriends(); notify('You and <b>' + esc(Social.me().friends[l].name) + '</b> are now friends! 🎉'); }
   else if (act === 'decline') { Social.decline(l); renderFriends(); }
   else if (act === 'cancel') { Social.cancel(l); renderFriends(); }
@@ -2361,135 +2368,297 @@ if (Social) {
 }
 
 // =====================================================================
-//  Online 1v1 match between two friends
-//  The challenger is the "host": decides the weapons and who won each round. Each player's own game works out
-//  whether a shot hit (the shooter's screen is the judge) and tells the other player how much damage was done.
+//  Online matches between friends: 1v1 challenges and rooms for up to 8 players (teams or free for all).
+//  The player who makes the room is the "host": everybody talks to the host, who passes messages on and decides who won each round.
+//  Each player's own game works out whether their shots hit (the shooter's screen is the judge) and tells the victim how much damage was done.
 // =====================================================================
 function nameTag(text) {
   const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d'); g.font = 'bold 34px Segoe UI, Arial'; g.textAlign = 'center'; g.lineWidth = 6; g.strokeStyle = 'rgba(0,0,0,0.75)'; g.strokeText(text, 128, 44); g.fillStyle = '#9fd6ff'; g.fillText(text, 128, 44);
   const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false })); s.scale.set(1.6, 0.4, 1); s.position.y = 2.28; return s;
 }
+const meL = () => Social.me().lower;
+function cleanMem(a) {                                             // the room list a host sends: only sensible names and teams
+  if (!Array.isArray(a) || a.length < 1 || a.length > 8) return null; const out = [];
+  for (const m of a) { if (!m || typeof m.l !== 'string' || !/^[a-z0-9_]{3,16}$/.test(m.l) || typeof m.n !== 'string' || !/^[A-Za-z0-9_]{3,16}$/.test(m.n)) return null; out.push({ l: m.l, n: m.n, t: fin(m.t, 0, 7, 0) | 0 }); }
+  return out;
+}
+const cleanScores = sc => { const out = {}; if (sc && typeof sc === 'object') for (const k of Object.keys(sc).slice(0, 8)) if (/^[0-7]$/.test(k)) out[k] = fin(sc[k], 0, 9) | 0; return out; };
 const Online = window.Online = {
-  active: false, ended: false, role: null, lower: null, name: '', rounds: 3, round: 0, remote: null, sendT: 0, pendingInv: null, outInv: null, timers: [],
+  active: false, ended: false, started: false, role: null, roomId: '', hostL: '', mem: [], ffa: false, rounds: 3, mapId: null, mapPick: 'arena', round: 0, remotes: {}, sendT: 0, timers: [], invited: {}, pendingJoin: null, outInv: null, auto: false, scores: {}, alive: {}, myTeam: 0, spawns: {},
+  get remote() { const k = Object.keys(this.remotes); return k.length ? this.remotes[k[0]] : null; },
   later(ms, fn) { this.timers.push(setTimeout(fn, ms)); },
-  target() { const R = this.remote; return R && !R.dead ? { x: R.x, z: R.z, y: R.y, r: 0.34, h: R.crouch > 0.5 ? 1.3 : 1.72, headR: 0.17 } : null; },
-  hp() { return this.remote ? Math.max(0, this.remote.hp) : 0; },
-  sendHit(dmg, head, fx) { const R = this.remote; if (!R) return false; const m = { t: 'ht', d: Math.round(dmg), h: head ? 1 : 0 }; if (fx) m.f = fx; Social.sendTo(this.lower, m); R.hp -= dmg; return R.hp <= 0; },
+  memberOf(l) { return this.mem.find(m => m.l === l); },
+  inRoom() { return this.mem.length > 0; },
+  send(l, m) { return Social.sendTo(l, m); },
+  hostBcast(m) { const me = meL(); this.mem.forEach(x => { if (x.l !== me) this.send(x.l, m); }); },
+  gameSend(m) { if (this.role === 'host') { const me = meL(), mm = Object.assign({ f: me }, m); this.mem.forEach(x => { if (x.l !== me) this.send(x.l, mm); }); } else this.send(this.hostL, m); },   // guests talk to the host, the host passes it on
+
+  // ----- what the game asks for -----
+  foes() { return Object.values(this.remotes).filter(R => !R.dead && R.team !== this.myTeam); },
+  targetOf(R) { return R && !R.dead ? { x: R.x, z: R.z, y: R.y, r: 0.34, h: R.crouch > 0.5 ? 1.3 : 1.72, headR: 0.17 } : null; },
+  target() { return this.targetOf(this.remote); },
+  hp(R) { R = R || this.remote; return R ? Math.max(0, R.hp) : 0; },
+  sendHit(dmg, head, fx, R) {
+    R = R || this.remote; if (!R) return false; const m = { t: 'ht', to: R.lower, d: Math.round(dmg), h: head ? 1 : 0 }; if (fx) m.f = fx;
+    if (this.role === 'host') this.send(R.lower, Object.assign({ f: meL() }, m)); else this.send(this.hostL, m); R.hp -= dmg; return R.hp <= 0;
+  },
   sendShot(w, o, end, v) {
     if (!this.active || this.ended) return; const it = ITEMS[w], now = performance.now();
     if (it && it.kind !== 'proj' && it.kind !== 'util' && it.kind !== 'melee' && it.rpm > 500 && w === this._lw && now - this._lt < 70) return; this._lw = w; this._lt = now;
-    const m = { t: 'sh', w }; if (o) m.o = o.map(r2); if (end) m.e = end.map(r2); if (v) m.v = v.map(r2); Social.sendTo(this.lower, m);
+    const m = { t: 'sh', w }; if (o) m.o = o.map(r2); if (end) m.e = end.map(r2); if (v) m.v = v.map(r2); this.gameSend(m);
   },
-  sendWorld(k, x, y, z) { if (!this.active || this.ended) return; Social.sendTo(this.lower, { t: 'wo', k, p: [r2(x), r2(y), r2(z)] }); },
-  sendBoom(x, y, z, r, small) { if (!this.active || this.ended) return; Social.sendTo(this.lower, { t: 'bm', p: [r2(x), r2(y), r2(z)], r: r2(r), s: small ? 1 : 0 }); },
+  sendWorld(k, x, y, z) { if (!this.active || this.ended) return; this.gameSend({ t: 'wo', k, p: [r2(x), r2(y), r2(z)] }); },
+  sendBoom(x, y, z, r, small) { if (!this.active || this.ended) return; this.gameSend({ t: 'bm', p: [r2(x), r2(y), r2(z)], r: r2(r), s: small ? 1 : 0 }); },
+  spectate() { const R = Object.values(this.remotes).filter(r => !r.dead); return R.find(r => r.team === this.myTeam) || R[0] || null; },
+  aliveText() {
+    if (!this.active || this.mem.length <= 2) return ''; const me = meL(), alive = m => m.l === me ? !P.dead : !!this.remotes[m.l] && !this.remotes[m.l].dead;
+    if (this.ffa) return '❤ Alive: ' + this.mem.filter(alive).length + ' of ' + this.mem.length;
+    const a = this.mem.filter(m => m.t === this.myTeam), b = this.mem.filter(m => m.t !== this.myTeam); return '❤ Your team ' + a.filter(alive).length + '/' + a.length + '  ·  Enemy ' + b.filter(alive).length + '/' + b.length;
+  },
+  renderScore() {
+    if (!this.mem.length) return; const me = meL(), sc = t => this.scores[t] || 0, teams = [...new Set(this.mem.map(m => m.t))];
+    if (this.ffa) { $('score').style.display = 'none'; $('scoreF').style.display = ''; $('scoreF').innerHTML = this.mem.map(m => '<span class="' + (m.l === me ? 'you' : 'bot') + '">' + (m.l === me ? 'YOU' : esc(m.n.toUpperCase())) + '</span> <b>' + sc(m.t) + '</b>').join(' · '); return; }
+    const other = teams.find(t => t !== this.myTeam), mine = this.mem.filter(m => m.t === this.myTeam), theirs = this.mem.filter(m => m.t === other);
+    $('score').style.display = ''; $('scoreF').style.display = 'none'; $('sYou').textContent = sc(this.myTeam); $('sBot').textContent = other === undefined ? 0 : sc(other); $('lblYou').textContent = mine.length > 1 ? 'TEAM' : 'YOU'; $('lblBot').textContent = theirs.length === 1 ? theirs[0].n.toUpperCase() : 'ENEMY';
+  },
 
-  // ----- challenge another player -----
-  challenge(l) {
-    if (this.active || this.outInv) return; if (G.phase !== 'menu') { notify('Finish your current match first.'); return; }
+  // ----- rooms: make one, invite friends, change settings -----
+  createRoom(auto) { const me = Social.me(); this.resetRoom(); this.role = 'host'; this.roomId = rnd(6); this.hostL = me.lower; this.mem = [{ l: me.lower, n: me.name, t: 0 }]; this.ffa = false; this.rounds = CFG.rounds; this.auto = !!auto; },
+  resetRoom() { this.role = null; this.roomId = ''; this.hostL = ''; this.mem = []; this.invited = {}; this.pendingJoin = null; this.started = false; this.scores = {}; this.alive = {}; this.auto = false; },
+  openRoom() { if (this.active) return; if (G.phase !== 'menu') { notify('Finish your current match first.'); return; } if (!this.inRoom()) this.createRoom(false); show('room'); this.renderRoom(); },
+  leaveRoom() {
+    if (this.active) { this.cleanup(); return; }
+    if (this.role === 'host') this.hostBcast({ t: 'rclose', id: this.roomId }); else if (this.role === 'guest') this.send(this.hostL, { t: 'rlv', id: this.roomId });
+    this.resetRoom(); this.cancelInv(); hide('room');
+  },
+  syncRoom() { if (this.role !== 'host' || this.started) return; this.hostBcast({ t: 'rst', id: this.roomId, mem: this.mem, ffa: this.ffa, rounds: this.rounds, map: CFG.map, auto: this.auto ? 1 : 0 }); this.renderRoom(); },
+  invite(l) {
+    if (this.role !== 'host' || this.started) return; const f = Social.me().friends[l]; if (!f) return;
+    if (Social.status(l) !== 'online') { notify(esc(f.name) + ' is not online right now.'); return; } if (this.memberOf(l)) return; if (this.mem.length >= 8) { notify('The room is full (8 players).'); return; }
+    this.send(l, { t: 'rinv', id: this.roomId, rounds: this.rounds, auto: this.auto ? 1 : 0 }); this.invited[l] = Date.now(); this.renderRoom();
+    setTimeout(() => { delete this.invited[l]; this.renderRoom(); }, 30000);
+  },
+  inviteFriend(l) {
+    if (this.active || G.phase !== 'menu') return; if (!this.inRoom()) this.createRoom(false); else if (this.role !== 'host') { notify('Only the host can invite people.'); return; }
+    this.invite(l); show('room'); hide('friends'); this.renderRoom();
+  },
+  challenge(l) {                                                   // quick 1v1: a room of two that starts as soon as your friend says yes
+    if (this.active || this.outInv) return; if (this.inRoom()) { notify('You are already in a room. Leave it first.'); return; } if (G.phase !== 'menu') { notify('Finish your current match first.'); return; }
     const f = Social.me().friends[l]; if (!f) return; if (Social.status(l) !== 'online') { notify(esc(f.name) + ' is not available right now.'); return; }
-    const id = rnd(6); this.outInv = { id, lower: l, name: f.name }; Social.sendTo(l, { t: 'inv', id, rounds: 3 });
-    $('waitTxt').innerHTML = 'Waiting for <b>' + esc(f.name) + '</b> to accept…'; show('waitScreen');
-    this.outInv.timer = setTimeout(() => { if (this.outInv && this.outInv.id === id) { this.cancelInv(); notify(esc(f.name) + ' did not answer.'); } }, 30000);
+    this.createRoom(true); this.outInv = { lower: l, name: f.name }; this.invite(l); $('waitTxt').innerHTML = 'Waiting for <b>' + esc(f.name) + '</b> to accept…'; show('waitScreen');
+    this.outInv.timer = setTimeout(() => { if (this.outInv && this.outInv.lower === l) { this.cancelInv(); this.leaveRoom(); notify(esc(f.name) + ' did not answer.'); } }, 30000);
   },
   cancelInv() { if (this.outInv) { clearTimeout(this.outInv.timer); this.outInv = null; } hide('waitScreen'); },
+  setFfa(v) { if (this.role !== 'host' || this.started) return; this.ffa = !!v; this.mem.forEach((m, i) => { m.t = this.ffa ? i : i % 2; }); this.syncRoom(); },
+  setRounds(n) { if (this.role !== 'host' || this.started) return; this.rounds = n; CFG.rounds = n; saveCfg(); this.syncRoom(); },
+  swapTeam(l) { if (this.role !== 'host' || this.started || this.ffa) return; const m = this.memberOf(l); if (m) { m.t = m.t === 0 ? 1 : 0; this.syncRoom(); } },
+  canStart() { return this.mem.length >= 2 && (this.ffa || (this.mem.some(m => m.t === 0) && this.mem.some(m => m.t === 1))); },
+
+  // ----- messages from friends -----
   onMsg(e) {
-    const d = e.d, l = e.lower;
-    if (d.t === 'inv') {
-      if (this.active || G.phase !== 'menu' || this.pendingInv) { Social.sendTo(l, { t: 'invA', id: String(d.id), ok: 0 }); return; }
-      const id = String(d.id).slice(0, 24), rounds = fin(d.rounds, 1, 5, 3) | 0; this.pendingInv = { lower: l, name: e.name, id, rounds }; sfxBeep(true);
-      const el = notify('⚔ <b>' + esc(e.name) + '</b> challenges you to a 1v1!<br><small>First to ' + rounds + ' rounds</small>', [{ label: 'Accept', cls: 'go', fn: () => { Social.sendTo(l, { t: 'invA', id, ok: 1 }); $('waitTxt').innerHTML = 'Starting match with <b>' + esc(e.name) + '</b>…'; show('waitScreen'); this.later(15000, () => { if (this.pendingInv && !this.active) { this.pendingInv = null; hide('waitScreen'); } }); } }, { label: 'Decline', fn: () => { Social.sendTo(l, { t: 'invA', id, ok: 0 }); this.pendingInv = null; } }], 25000);
-      this.later(25000, () => { if (this.pendingInv && this.pendingInv.id === id && !this.active && !$('waitScreen').classList.contains('on')) { Social.sendTo(l, { t: 'invA', id, ok: 0 }); this.pendingInv = null; } });
-    } else if (d.t === 'invA') {
-      if (!this.outInv || this.outInv.id !== String(d.id) || this.outInv.lower !== l) return; const inv = this.outInv; this.cancelInv();
-      if (d.ok) { Social.sendTo(l, { t: 'mst', id: inv.id, rounds: 3 }); this.begin(l, inv.name, 'host', 3); } else notify('<b>' + esc(inv.name) + '</b> declined the challenge.');
-    } else if (d.t === 'mst') {
-      if (!this.pendingInv || this.pendingInv.lower !== l || this.pendingInv.id !== String(d.id)) return; const p = this.pendingInv; this.pendingInv = null; hide('waitScreen'); this.begin(l, p.name, 'guest', fin(d.rounds, 1, 5, 3) | 0);
-    } else if (this.active && l === this.lower && !this.ended) this.matchMsg(d);
+    const d = e.d, l = e.lower; if (!d || typeof d.t !== 'string') return;
+    switch (d.t) {
+      case 'rinv': this.onInvite(e); return;
+      case 'rja': if (this.role === 'host' && d.id === this.roomId) this.onJoinAnswer(l, !!d.ok); return;
+      case 'rst': this.onRoomState(e); return;
+      case 'rclose': this.onClosed(e); return;
+      case 'rlv': if (this.role === 'host' && d.id === this.roomId && this.memberOf(l)) this.removeMember(l); return;
+      case 'rgo': this.onGo(e); return;
+    }
+    if (this.active && !this.ended) this.matchMsg(d, l);
   },
-  onPeerLeft(e) { if (this.active && !this.ended && e.lower === this.lower) this.finish(true, 'left'); if (this.outInv && this.outInv.lower === e.lower) { this.cancelInv(); } },
+  onInvite(e) {
+    const d = e.d, l = e.lower, id = typeof d.id === 'string' ? d.id.slice(0, 24) : ''; if (!id) return;
+    if (this.active || this.inRoom() || this.pendingJoin || G.phase !== 'menu') { this.send(l, { t: 'rja', id, ok: 0 }); return; }
+    const auto = !!d.auto, rounds = fin(d.rounds, 1, 5, 3) | 0; this.pendingJoin = { id, host: l, name: e.name, auto }; sfxBeep(true);
+    notify((auto ? '⚔ <b>' + esc(e.name) + '</b> challenges you to a 1v1!' : '👥 <b>' + esc(e.name) + '</b> invites you to play together!') + '<br><small>First to ' + rounds + ' rounds</small>', [
+      { label: 'Accept', cls: 'go', fn: () => { if (!this.pendingJoin || this.pendingJoin.id !== id) return; this.send(l, { t: 'rja', id, ok: 1 }); $('waitTxt').innerHTML = 'Joining <b>' + esc(e.name) + '</b>…'; show('waitScreen'); this.later(15000, () => { if (this.pendingJoin && this.pendingJoin.id === id && !this.inRoom()) { this.pendingJoin = null; hide('waitScreen'); notify('Could not join. The invite may have run out.'); } }); } },
+      { label: 'Decline', fn: () => { this.send(l, { t: 'rja', id, ok: 0 }); this.pendingJoin = null; } }], 25000);
+    this.later(25000, () => { if (this.pendingJoin && this.pendingJoin.id === id && !this.inRoom() && !$('waitScreen').classList.contains('on')) { this.send(l, { t: 'rja', id, ok: 0 }); this.pendingJoin = null; } });
+  },
+  onJoinAnswer(l, ok) {
+    if (this.started) { this.send(l, { t: 'rclose', id: this.roomId }); return; } delete this.invited[l]; const f = Social.me().friends[l];
+    if (!ok) { notify('<b>' + esc(f ? f.name : l) + '</b> did not join.'); if (this.auto) { this.cancelInv(); this.leaveRoom(); } else this.renderRoom(); return; }
+    if (!f || this.memberOf(l)) return; if (this.mem.length >= 8) { this.send(l, { t: 'rclose', id: this.roomId }); return; }
+    const n0 = this.mem.filter(m => m.t === 0).length, n1 = this.mem.filter(m => m.t === 1).length;
+    this.mem.push({ l, n: f.name, t: this.ffa ? this.mem.length : (n0 <= n1 ? 0 : 1) }); this.syncRoom(); if (!this.auto) notify('✅ <b>' + esc(f.name) + '</b> joined the room!');
+    if (this.auto) { this.cancelInv(); this.start(); }
+  },
+  onRoomState(e) {
+    const d = e.d, l = e.lower, mem = cleanMem(d.mem); if (!mem || typeof d.id !== 'string') return; const pj = this.pendingJoin;
+    if (pj && pj.id === d.id && pj.host === l && !this.inRoom()) { this.role = 'guest'; this.roomId = d.id; this.hostL = l; this.pendingJoin = null; this.started = false; this.auto = !!d.auto; if (!this.auto) hide('waitScreen'); }
+    else if (!(this.role === 'guest' && this.roomId === d.id && this.hostL === l) || this.started) return;
+    this.mem = mem; this.ffa = !!d.ffa; this.rounds = fin(d.rounds, 1, 5, 3) | 0; this.mapPick = typeof d.map === 'string' ? d.map : 'arena';
+    if (!this.auto) { show('room'); hide('friends'); } this.renderRoom();
+  },
+  onClosed(e) {
+    const d = e.d, l = e.lower;
+    if (this.pendingJoin && this.pendingJoin.id === d.id && this.pendingJoin.host === l) { this.pendingJoin = null; hide('waitScreen'); notify('That room is full or closed.'); return; }
+    if (this.role !== 'guest' || this.roomId !== d.id || this.hostL !== l) return;
+    if (this.active && !this.ended) this.finish(-2, 'hostleft'); else if (!this.active) { this.resetRoom(); hide('room'); hide('waitScreen'); notify('The host closed the room.'); }
+  },
+  onGo(e) {
+    const d = e.d, l = e.lower; if (this.role !== 'guest' || d.id !== this.roomId || l !== this.hostL || this.started) return; const mem = cleanMem(d.mem); if (!mem || !mem.some(m => m.l === meL())) return;
+    this.mem = mem; this.ffa = !!d.ffa; this.rounds = fin(d.rounds, 1, 5, 3) | 0; this.mapId = typeof d.map === 'string' && MAPBY[d.map] ? d.map : 'arena'; this.enterMatch();
+  },
+  onPeerLeft(e) {
+    const l = e.lower; if (this.outInv && this.outInv.lower === l) { this.cancelInv(); this.leaveRoom(); }
+    if (!this.inRoom()) { if (this.pendingJoin && this.pendingJoin.host === l) { this.pendingJoin = null; hide('waitScreen'); } return; }
+    if (this.role === 'guest' && l === this.hostL) { if (this.active && !this.ended) this.finish(-2, 'hostleft'); else if (!this.active) { this.resetRoom(); hide('room'); hide('waitScreen'); notify('The host left the room.'); } return; }
+    if (this.role === 'host' && this.memberOf(l)) this.removeMember(l);
+  },
+  removeMember(l) {
+    const m = this.memberOf(l); if (!m) return; this.mem = this.mem.filter(x => x.l !== l);
+    if (!this.started) { this.syncRoom(); notify('<b>' + esc(m.n) + '</b> left the room.'); return; }
+    const R = this.remotes[l]; if (R) { scene.remove(R.mesh); delete this.remotes[l]; } delete this.alive[l]; this.hostBcast({ t: 'rleft', l }); notify('<b>' + esc(m.n) + '</b> left the match.');
+    if (new Set(this.mem.map(x => x.t)).size < 2) { this.hostBcast({ t: 'rme', w: this.myTeam }); this.finish(this.myTeam, 'left'); return; }
+    this.checkRoundEnd();
+  },
 
   // ----- the match -----
-  begin(l, name, role, rounds) {
-    hide('friends'); hide('menu'); hide('nameScreen'); hide('waitScreen'); $('over').classList.remove('on'); $('pause').classList.remove('on');
-    this.mapId = role === 'host' ? resolveMap(CFG.map) : null; this.active = true; this.ended = false; this.lower = l; this.name = name; this.role = role; this.rounds = rounds; this.round = 0; this.sendT = 0;
-    G.online = true; G.oppName = name; G.menuOpen = false; G.paused = false; G.over = false; G.stats = newStats(); G.score = { you: 0, bot: 0, b2: 0 }; G.ffa = false; G.sizes = null; G.roundMax = 80; $('lblYou').textContent = 'YOU'; renderScore();
-    clearBots();
-    $('lblBot').textContent = name.toUpperCase(); $('againBtn').style.display = 'none'; $('lblYou').textContent = 'YOU'; $('sYou').textContent = 0; $('sBot').textContent = 0;
-    document.body.classList.add('playing'); $('hud').classList.add('on'); audioInit(); this.makeRemote(name); Social.setStatus('match');
-    G.phase = 'countdown'; G.t = 99; G.last = 99; setMsg('Get ready…<small>' + (role === 'host' ? 'Starting round 1' : 'Waiting for ' + esc(name)) + '</small>');
-    if (role === 'host') this.later(900, () => this.hostNextRound());
+  start() {
+    if (this.role !== 'host' || this.started || !this.canStart()) return; this.mapId = resolveMap(CFG.map); this.started = true;
+    this.hostBcast({ t: 'rgo', id: this.roomId, map: this.mapId, mem: this.mem, ffa: this.ffa, rounds: this.rounds }); this.enterMatch(); this.later(900, () => this.hostNextRound());
   },
-  makeRemote(name) {
-    const mesh = makeHumanoid(0x2d6fb7); scene.add(mesh); mesh.add(nameTag(name));
-    const R = { mesh, x: 19, y: 0, z: 0, yaw: 0, pitch: 0, crouch: 0, tx: 19, ty: 0, tz: 0, tyaw: 0, tpitch: 0, tcrouch: 0, hp: MAXHP, dead: false, deadT: 0, speed: 0, walkPh: 0, gun: null, gunId: '', flashT: 0, hpShown: MAXHP };
-    this.remote = R; this.setGun(R, 'rifle');
+  enterMatch() {
+    ['room', 'friends', 'menu', 'nameScreen', 'waitScreen', 'maps', 'loadout'].forEach(hide); $('over').classList.remove('on'); $('pause').classList.remove('on');
+    const me = meL(), mm = this.memberOf(me), n = this.mem.length; this.myTeam = mm ? mm.t : 0; this.started = true; this.active = true; this.ended = false; this.round = 0; this.sendT = 0; this.scores = {}; this.mem.forEach(m => { this.scores[m.t] = 0; });
+    G.online = true; G.menuOpen = false; G.paused = false; G.over = false; G.stats = newStats(); G.ffa = false; G.sizes = null; G.roundMax = n > 4 ? 150 : n > 2 ? 100 : 80; G.score = { you: 0, bot: 0, b2: 0 };
+    G.oppName = n === 2 ? this.mem.find(m => m.l !== me).n : 'ENEMY'; clearBots(); this.clearRemotes(); this.mem.forEach(m => { if (m.l !== me) this.makeRemote(m); });
+    $('againBtn').style.display = 'none'; document.body.classList.add('playing'); $('hud').classList.add('on'); audioInit(); Social.setStatus('match');
+    G.phase = 'countdown'; G.t = 99; G.last = 99; setMsg('Get ready…<small>' + (this.role === 'host' ? 'Starting round 1' : 'Waiting for the host') + '</small>'); this.renderScore();
   },
+  makeRemote(m) {
+    const ci = m.t === this.myTeam ? 0 : this.ffa ? 1 + (m.t % 2) : 1, mesh = makeHumanoid(TEAMCOL[ci]); mesh.userData.sprite.material.map = hpSpriteTex(MAXHP, ci); scene.add(mesh); mesh.add(nameTag(m.n));
+    const R = { lower: m.l, name: m.n, team: m.t, ci, mesh, x: 19, y: 0, z: 0, yaw: 0, pitch: 0, crouch: 0, tx: 19, ty: 0, tz: 0, tyaw: 0, tpitch: 0, tcrouch: 0, hp: MAXHP, dead: false, deadT: 0, speed: 0, walkPh: 0, gun: null, gunId: '', flashT: 0, hpShown: MAXHP };
+    this.remotes[m.l] = R; this.setGun(R, 'rifle');
+  },
+  clearRemotes() { Object.values(this.remotes).forEach(R => { scene.remove(R.mesh); R.mesh.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }); this.remotes = {}; },
   setGun(R, id) { if (typeof id !== 'string' || !ITEMS[id] || R.gunId === id) return; if (R.gun) R.mesh.userData.aimG.remove(R.gun); R.gun = buildItemModel(id); R.gun.position.set(0.1, -0.03, -0.35); R.gun.traverse(c => { c.castShadow = false; }); R.gun.userData.flash.visible = false; R.mesh.userData.aimG.add(R.gun); R.gunId = id; },
-  hostNextRound() { if (!this.active || this.ended) return; this.round++; if (!this.mapId) this.mapId = resolveMap(CFG.map); Social.sendTo(this.lower, { t: 'rd', n: this.round, m: this.mapId }); this.beginRound(this.round, this.mapId); },
+  computeSpawns() {                                                  // everyone works out the same starting spots from the same room list
+    const taken = [], out = {}, byTeam = {}; this.mem.forEach(m => { (byTeam[m.t] = byTeam[m.t] || []).push(m); }); const teams = Object.keys(byTeam).map(Number).sort((a, b) => a - b);
+    teams.forEach((t, k) => { const side = k % 2 === 0 ? -1 : 1, zc = this.ffa ? (Math.floor(k / 2) - (teams.length - 1) / 4) * 8 : 0, pts = spawnPoints(side, byTeam[t].length, zc, taken); byTeam[t].forEach((m, i) => { const pt = pts[i] || { x: side * spawnX(), z: (i - 1) * 2 }; out[m.l] = { x: pt.x, z: pt.z, yaw: side < 0 ? -Math.PI / 2 : Math.PI / 2 }; }); });
+    return out;
+  },
+  hostNextRound() { if (!this.active || this.ended) return; this.round++; if (!this.mapId) this.mapId = resolveMap(CFG.map); this.hostBcast({ t: 'rrd', n: this.round, m: this.mapId }); this.beginRound(this.round, this.mapId); },
   beginRound(n, mapId) {
-    if (!this.active || this.ended) return; const host = this.role === 'host'; this.round = n; G.round = n; clearDecals(); clearWorld(); if (typeof mapId === 'string' && MAPBY[mapId] && (!MAP || MAP.id !== mapId)) loadMap(mapId);
-    Object.assign(P, { x: host ? -spawnX() : spawnX(), z: rand(-3, 3), y: 0, vx: 0, vz: 0, vy: 0, yaw: host ? -Math.PI / 2 : Math.PI / 2, pitch: 0, hp: MAXHP, dead: false, deadT: 0, crouch: false, eye: 1.6, ads: 0, wantAds: false, recoilP: 0, recoilY: 0, bloom: 0 });
-    const mine = myLoadout(); giveLoadout(mine);
-    const R = this.remote; R.hp = MAXHP; R.dead = false; R.deadT = 0; R.mesh.rotation.set(0, 0, 0); R.mesh.scale.y = 1; R.x = R.tx = host ? spawnX() : -spawnX(); R.z = R.tz = 0; R.y = R.ty = 0; R.yaw = R.tyaw = host ? Math.PI / 2 : -Math.PI / 2; R.pitch = R.tpitch = 0; R.crouch = R.tcrouch = 0; R.mesh.userData.sprite.visible = true; R.mesh.userData.sprite.material.map = hpSpriteTex(MAXHP); R.mesh.userData.sprite.material.needsUpdate = true; R.hpShown = MAXHP;
-    G.phase = 'countdown'; G.t = 3.3; G.last = 4; G.roundTime = 80; $('sYou').textContent = G.score.you; $('sBot').textContent = G.score.bot; $('roundInfo').textContent = 'Round ' + n + '  ·  first to ' + this.rounds;
+    if (!this.active || this.ended) return; this.round = n; G.round = n; clearDecals(); clearWorld(); if (typeof mapId === 'string' && MAPBY[mapId] && (!MAP || MAP.id !== mapId)) loadMap(mapId);
+    this.spawns = this.computeSpawns(); const sp = this.spawns[meL()] || { x: -spawnX(), z: 0, yaw: -Math.PI / 2 };
+    Object.assign(P, { x: sp.x, z: sp.z, y: 0, vx: 0, vz: 0, vy: 0, yaw: sp.yaw, pitch: 0, hp: MAXHP, dead: false, deadT: 0, crouch: false, eye: 1.6, ads: 0, wantAds: false, recoilP: 0, recoilY: 0, bloom: 0, lastAtt: null });
+    const mine = myLoadout(); giveLoadout(mine); this.alive = {}; this.mem.forEach(m => { this.alive[m.l] = true; });
+    Object.values(this.remotes).forEach(R => { const s = this.spawns[R.lower] || { x: 0, z: 0, yaw: 0 }; R.hp = MAXHP; R.dead = false; R.deadT = 0; R.mesh.rotation.set(0, 0, 0); R.mesh.scale.y = 1; R.x = R.tx = s.x; R.z = R.tz = s.z; R.y = R.ty = 0; R.yaw = R.tyaw = s.yaw; R.pitch = R.tpitch = 0; R.crouch = R.tcrouch = 0; R.mesh.userData.sprite.visible = true; R.mesh.userData.sprite.material.map = hpSpriteTex(MAXHP, R.ci); R.mesh.userData.sprite.material.needsUpdate = true; R.hpShown = MAXHP; });
+    G.phase = 'countdown'; G.t = 3.3; G.last = 4; G.roundTime = G.roundMax; $('roundInfo').textContent = 'Round ' + n + '  ·  first to ' + this.rounds; this.renderScore();
     setMsg('ROUND ' + n + '<small>' + MAP.name + ' · Your loadout: ' + loadoutText(mine) + '</small>');
   },
-  liveTick(dt) {
-    G.roundTime -= dt;
-    if (this.role === 'host' && G.phase === 'live' && G.roundTime <= 0) { const a = P.hp, b = this.hp(); this.hostRoundEnd(a > b ? 'host' : b > a ? 'guest' : 'draw'); }
+  liveTick(dt) { G.roundTime -= dt; if (this.role === 'host' && G.phase === 'live' && G.roundTime <= 0) this.hostRoundEnd(this.timeoutTeam()); },
+  timeoutTeam() {                                                    // time is up: the team with the most health left wins
+    const hp = {}; this.mem.forEach(m => { const R = this.remotes[m.l]; hp[m.t] = (hp[m.t] || 0) + (m.l === meL() ? (P.dead ? 0 : P.hp) : (R && !R.dead ? R.hp : 0)); });
+    let best = -1, bv = -1, tie = false; for (const t in hp) { if (hp[t] > bv) { bv = hp[t]; best = +t; tie = false; } else if (hp[t] === bv) tie = true; } return tie ? -1 : best;
   },
-  iDied() { if (!this.active || this.ended) return; if (this.role === 'host') this.hostRoundEnd('guest'); else Social.sendTo(this.lower, { t: 'dd' }); },
+  iDied() { if (!this.active || this.ended) return; const k = P.lastAtt || null; if (this.role === 'host') this.onDeath(meL(), k); else this.send(this.hostL, { t: 'dd', k }); },
+  onDeath(l, killer) {
+    const m = this.memberOf(l); if (!m || this.alive[l] === false) return; this.alive[l] = false; const R = this.remotes[l]; if (R) { R.dead = true; R.deadT = 0; }
+    const kf = { t: 'rkf', k: killer || '', v: m.n }; this.hostBcast(kf); if (l !== meL()) feed('<b style="color:#ff8a8a">' + esc(kf.k || '☠') + '</b> ▸ ' + esc(kf.v)); this.checkRoundEnd();
+  },
+  checkRoundEnd() {
+    if (G.phase !== 'live' || this.role !== 'host') return; const teams = new Set(); this.mem.forEach(m => { if (this.alive[m.l] !== false) teams.add(m.t); });
+    if (teams.size <= 1) this.hostRoundEnd(teams.size ? [...teams][0] : -1);
+  },
+  bestTeam() { let b = -1, bv = 0; for (const t in this.scores) if (this.scores[t] > bv) { bv = this.scores[t]; b = +t; } return b; },
   hostRoundEnd(w) {
-    if (G.phase !== 'live' || this.ended) return; if (w === 'host') G.score.you++; else if (w === 'guest') G.score.bot++;
-    Social.sendTo(this.lower, { t: 're', w, sh: G.score.you, sg: G.score.bot }); this.roundEndLocal(w === 'host' ? 'me' : w === 'guest' ? 'opp' : 'draw');
-    const over = G.score.you >= this.rounds || G.score.bot >= this.rounds;
-    this.later(over ? 2600 : 3300, () => { if (!this.active || this.ended) return; if (over) { const won = G.score.you > G.score.bot; Social.sendTo(this.lower, { t: 'me', w: won ? 'host' : 'guest' }); this.finish(won, ''); } else this.hostNextRound(); });
+    if (G.phase !== 'live' || this.ended) return; if (w >= 0) this.scores[w] = (this.scores[w] || 0) + 1;
+    this.hostBcast({ t: 'rre', w, sc: this.scores }); this.roundEndLocal(w); const best = this.bestTeam(), over = best >= 0 && this.scores[best] >= this.rounds;
+    this.later(over ? 2600 : 3300, () => { if (!this.active || this.ended) return; if (over) { this.hostBcast({ t: 'rme', w: best }); this.finish(best, ''); } else this.hostNextRound(); });
   },
-  roundEndLocal(res) {
-    G.phase = 'roundover'; $('sYou').textContent = G.score.you; $('sBot').textContent = G.score.bot;
-    setMsg(res === 'me' ? '<span style="color:#7fd0ff">ROUND WON</span>' : res === 'opp' ? '<span style="color:#ff8a8a">ROUND LOST</span>' : 'DRAW'); if (res === 'me') sfxWin(); else if (res === 'opp') sfxLose();
+  roundEndLocal(w) {
+    G.phase = 'roundover'; this.renderScore();
+    setMsg(w === this.myTeam ? '<span style="color:#7fd0ff">ROUND WON</span>' : w < 0 ? 'DRAW' : '<span style="color:#ff8a8a">ROUND LOST</span>'); if (w === this.myTeam) sfxWin(); else if (w >= 0) sfxLose();
   },
-  matchMsg(d) {
-    const R = this.remote; if (!R) return;
+  matchMsg(d, from) {
+    const me = meL(), host = this.role === 'host';
+    if (host) {
+      if (!this.memberOf(from)) return; if (d.t === 'dd') { this.onDeath(from, typeof d.k === 'string' ? d.k.slice(0, 16) : null); return; }
+      if (!['ps', 'sh', 'wo', 'bm', 'ht'].includes(d.t)) return; const out = Object.assign({}, d, { f: from });
+      if (d.t === 'ht') { if (d.to !== me) { if (typeof d.to === 'string' && this.memberOf(d.to)) this.send(d.to, out); return; } }
+      else this.mem.forEach(x => { if (x.l !== me && x.l !== from) this.send(x.l, out); });
+    } else {
+      if (from !== this.hostL) return;
+      if (d.t === 'rrd') { this.beginRound(fin(d.n, 1, 99) | 0, typeof d.m === 'string' ? d.m : null); return; }
+      if (d.t === 're' || d.t === 'rre') { if (G.phase !== 'roundover' && G.phase !== 'matchover') { this.scores = cleanScores(d.sc); this.roundEndLocal(fin(d.w, -1, 7) | 0); } return; }
+      if (d.t === 'rme') { this.later(2200, () => this.finish(fin(d.w, -1, 7) | 0, '')); return; }
+      if (d.t === 'rkf') { if (typeof d.v === 'string' && /^[A-Za-z0-9_]{3,16}$/.test(d.v) && d.v !== Social.me().name) feed('<b style="color:#ff8a8a">' + esc(typeof d.k === 'string' ? d.k.slice(0, 16) : '☠') + '</b> ▸ ' + esc(d.v)); return; }
+      if (d.t === 'rleft') { const R = this.remotes[d.l]; if (R) { scene.remove(R.mesh); delete this.remotes[d.l]; } this.mem = this.mem.filter(x => x.l !== d.l); this.renderScore(); return; }
+    }
+    const sender = host ? from : (typeof d.f === 'string' ? d.f : from), R = this.remotes[sender]; if (!R) return;
     switch (d.t) {
       case 'ps': R.tx = fin(d.x, -40, 40); R.ty = fin(d.y, -10, 14); R.tz = fin(d.z, -40, 40); R.tyaw = fin(d.a, -50, 50); R.tpitch = fin(d.p, -1.6, 1.6); R.tcrouch = d.c ? 1 : 0; R.hp = fin(d.hp, 0, MAXHP, R.hp); if (d.d && !R.dead) { R.dead = true; R.deadT = 0; } else if (!d.d && R.dead && G.phase !== 'live') R.dead = false; this.setGun(R, d.w); break;
       case 'sh': { const v3 = (a, lim) => Array.isArray(a) && a.length === 3 ? [fin(a[0], -lim, lim), fin(a[1], -lim, lim), fin(a[2], -lim, lim)] : null; if (typeof d.w === 'string' && ITEMS[d.w]) remoteShotFx(d.w, v3(d.o, 80), v3(d.e, 160), v3(d.v, 200), R); break; }
       case 'wo': { const pp = Array.isArray(d.p) && d.p.length === 3 ? [fin(d.p[0], -40, 40), fin(d.p[1], -2, 14), fin(d.p[2], -40, 40)] : null; if (pp) { if (d.k === 'smoke') addSmoke(pp[0], pp[1], pp[2], 30); else if (d.k === 'fire') addFire(pp[0], pp[1], pp[2], 2.6, 5, 'vis'); else if (d.k === 'pad') addPad(pp[0], pp[1], pp[2], 'vis'); } break; }
       case 'bm': { const pp = Array.isArray(d.p) && d.p.length === 3 ? [fin(d.p[0], -60, 60), fin(d.p[1], -2, 16), fin(d.p[2], -60, 60)] : null; if (pp) explode(pp[0], pp[1], pp[2], fin(d.r, 1, 8, 4), 0, 'vis', { small: !!d.s }); break; }
-      case 'ht': if (G.phase === 'live') { const dm = fin(d.d, 0, 200); if (dm > 0) hurtPlayer(dm, R.x, R.z, !!d.h); applyStatus(P, cleanFx(d.f)); } break;
-      case 'dd': if (this.role === 'host') this.hostRoundEnd('host'); break;
-      case 'rd': if (this.role === 'guest') this.beginRound(fin(d.n, 1, 99) | 0, typeof d.m === 'string' ? d.m : null); break;
-      case 're': if (this.role === 'guest' && G.phase !== 'roundover' && G.phase !== 'matchover') { G.score.you = fin(d.sg, 0, 9) | 0; G.score.bot = fin(d.sh, 0, 9) | 0; this.roundEndLocal(d.w === 'guest' ? 'me' : d.w === 'host' ? 'opp' : 'draw'); } break;
-      case 'me': if (this.role === 'guest') this.later(2200, () => this.finish(d.w === 'guest', '')); break;
-      case 'lv': this.finish(true, 'left'); break;
+      case 'ht': if (d.to === me && G.phase === 'live' && R.team !== this.myTeam) { const dm = fin(d.d, 0, 200); P.lastAtt = R.name; if (dm > 0) hurtPlayer(dm, R.x, R.z, !!d.h, { killer: R.name }); applyStatus(P, cleanFx(d.f)); } break;
     }
   },
   update(dt) {
-    const R = this.remote; if (!R) return; const k = Math.min(1, dt * 14), px = R.x, pz = R.z;
-    R.x += (R.tx - R.x) * k; R.y += (R.ty - R.y) * k; R.z += (R.tz - R.z) * k; R.yaw += (((R.tyaw - R.yaw + Math.PI * 3) % (Math.PI * 2)) - Math.PI) * k; R.pitch += (R.tpitch - R.pitch) * k; R.crouch += (R.tcrouch - R.crouch) * k;
-    R.speed += (Math.hypot(R.x - px, R.z - pz) / Math.max(dt, 1e-3) - R.speed) * Math.min(1, dt * 8);
-    const m = R.mesh; m.position.set(R.x, R.y, R.z); m.rotation.set(0, R.yaw, 0); m.scale.y = 1 - 0.22 * R.crouch;
-    R.walkPh += dt * R.speed * 2.4; const sw = R.speed > 0.5 ? Math.sin(R.walkPh) * 0.7 : 0; m.userData.legs[0].rotation.x = sw; m.userData.legs[1].rotation.x = -sw; m.userData.aimG.rotation.x = R.pitch;
-    if (R.dead) { R.deadT += dt; const f = clamp(R.deadT / 0.5, 0, 1); m.rotation.set(-f * 1.45, R.yaw, 0, 'YXZ'); m.position.y = R.y + 0.1 * f; m.userData.sprite.visible = false; }
-    if (Math.ceil(R.hp) !== R.hpShown) { R.hpShown = Math.ceil(R.hp); m.userData.sprite.material.map = hpSpriteTex(Math.max(0, R.hp)); m.userData.sprite.material.needsUpdate = true; }
-    if (R.flashT > 0) { R.flashT -= dt; if (R.gun && R.flashT <= 0) R.gun.userData.flash.visible = false; }
-    this.sendT -= dt; if (this.sendT <= 0 && this.active && !this.ended) { this.sendT = 0.05; Social.sendTo(this.lower, { t: 'ps', x: r2(P.x), y: r2(P.y), z: r2(P.z), a: r3(P.yaw + P.recoilY), p: r3(P.pitch + P.recoilP), c: P.crouch ? 1 : 0, hp: Math.round(P.hp), w: P.inv ? P.inv[P.cur].id : 'rifle', d: P.dead ? 1 : 0 }); }
+    const rs = Object.values(this.remotes); if (!rs.length) return; const k = Math.min(1, dt * 14);
+    for (const R of rs) {
+      const px = R.x, pz = R.z; R.x += (R.tx - R.x) * k; R.y += (R.ty - R.y) * k; R.z += (R.tz - R.z) * k; R.yaw += (((R.tyaw - R.yaw + Math.PI * 3) % (Math.PI * 2)) - Math.PI) * k; R.pitch += (R.tpitch - R.pitch) * k; R.crouch += (R.tcrouch - R.crouch) * k;
+      R.speed += (Math.hypot(R.x - px, R.z - pz) / Math.max(dt, 1e-3) - R.speed) * Math.min(1, dt * 8);
+      const m = R.mesh; m.position.set(R.x, R.y, R.z); m.rotation.set(0, R.yaw, 0); m.scale.y = 1 - 0.22 * R.crouch;
+      R.walkPh += dt * R.speed * 2.4; const sw = R.speed > 0.5 ? Math.sin(R.walkPh) * 0.7 : 0; m.userData.legs[0].rotation.x = sw; m.userData.legs[1].rotation.x = -sw; m.userData.aimG.rotation.x = R.pitch;
+      if (R.dead) { R.deadT += dt; const f = clamp(R.deadT / 0.5, 0, 1); m.rotation.set(-f * 1.45, R.yaw, 0, 'YXZ'); m.position.y = R.y + 0.1 * f; m.userData.sprite.visible = false; }
+      if (Math.ceil(R.hp) !== R.hpShown) { R.hpShown = Math.ceil(R.hp); m.userData.sprite.material.map = hpSpriteTex(Math.max(0, R.hp), R.ci); m.userData.sprite.material.needsUpdate = true; }
+      if (R.flashT > 0) { R.flashT -= dt; if (R.gun && R.flashT <= 0) R.gun.userData.flash.visible = false; }
+    }
+    this.sendT -= dt; if (this.sendT <= 0 && this.active && !this.ended) { this.sendT = this.mem.length > 4 ? 0.08 : 0.05; this.gameSend({ t: 'ps', x: r2(P.x), y: r2(P.y), z: r2(P.z), a: r3(P.yaw + P.recoilY), p: r3(P.pitch + P.recoilP), c: P.crouch ? 1 : 0, hp: Math.round(P.hp), w: P.inv ? P.inv[P.cur].id : 'rifle', d: P.dead ? 1 : 0 }); }
   },
-  finish(meWon, why) {
+  finish(winTeam, why) {
     if (this.ended) return; this.ended = true; G.phase = 'matchover'; G.over = true; document.body.classList.remove('playing'); document.exitPointerLock && document.exitPointerLock(); $('pause').classList.remove('on');
-    Social.recordMatch(meWon, G.stats); Social.setStatus('menu'); const s = G.stats, acc = s.fired ? Math.round(s.hit / s.fired * 100) : 0;
-    $('overTitle').innerHTML = (meWon ? '<span style="color:#7fd0ff">YOU WIN!</span>' : '<span style="color:#ff8a8a">YOU LOSE</span>') + (why === 'left' ? '<br><small style="font-size:18px;opacity:.85">' + esc(this.name) + ' left the match</small>' : '');
-    $('overScore').textContent = G.score.you + ' : ' + G.score.bot + '   (you vs ' + this.name + ')'; $('overStats').innerHTML = 'Kills: <b>' + s.kills + '</b> · Headshots: <b>' + s.head + '</b><br>Accuracy: <b>' + acc + '%</b> · Damage dealt: <b>' + Math.round(s.dmg) + '</b>';
-    $('againBtn').style.display = 'none'; $('hud').classList.remove('on'); victoryScene({ won: meWon, name: this.name, cloth: meWon ? 0x2d6fb7 : 0xb23a3a, gun: meWon ? (P.inv ? P.inv.primary.id : 'rifle') : (this.remote && this.remote.gunId) || 'rifle', score: G.score.you + ' : ' + G.score.bot });
+    const meWon = winTeam >= 0 && winTeam === this.myTeam, s = G.stats, acc = s.fired ? Math.round(s.hit / s.fired * 100) : 0; if (winTeam !== -2) Social.recordMatch(meWon, G.stats); Social.setStatus('menu');
+    const sc = t => this.scores[t] || 0, other = this.mem.find(m => m.t !== this.myTeam), scoreTxt = this.ffa ? this.mem.map(m => m.n + ' ' + sc(m.t)).join(' · ') : sc(this.myTeam) + ' : ' + (other ? sc(other.t) : 0);
+    $('overTitle').innerHTML = winTeam === -2 ? 'MATCH ENDED<br><small style="font-size:18px;opacity:.85">The host left the room</small>' : (meWon ? '<span style="color:#7fd0ff">YOU WIN!</span>' : '<span style="color:#ff8a8a">YOU LOSE</span>') + (why === 'left' ? '<br><small style="font-size:18px;opacity:.85">The other players left the match</small>' : '');
+    $('overScore').textContent = scoreTxt; $('overStats').innerHTML = 'Kills: <b>' + s.kills + '</b> · Headshots: <b>' + s.head + '</b><br>Accuracy: <b>' + acc + '%</b> · Damage dealt: <b>' + Math.round(s.dmg) + '</b>';
+    $('againBtn').style.display = 'none'; $('hud').classList.remove('on');
+    if (winTeam < 0) { $('over').classList.add('on'); victoryEnd(); return; }
+    const winners = this.mem.filter(m => m.t === winTeam), wm = meWon ? null : (winners.find(m => this.remotes[m.l]) || winners[0]), wr = wm && this.remotes[wm.l];
+    victoryScene({ won: meWon, name: meWon ? 'YOU' : (winners.length > 1 && !this.ffa ? 'THE ENEMY TEAM' : (wm ? wm.n : 'ENEMY')), cloth: meWon ? TEAMCOL[0] : TEAMCOL[1], gun: meWon ? (P.inv ? P.inv.primary.id : 'rifle') : ((wr && wr.gunId) || 'rifle'), score: scoreTxt });
   },
   cleanup() {
-    if (!this.active) return; if (!this.ended) Social.sendTo(this.lower, { t: 'lv' });
-    this.active = false; this.ended = true; this.timers.forEach(clearTimeout); this.timers = []; this.cancelInv(); this.pendingInv = null;
-    if (this.remote) { scene.remove(this.remote.mesh); this.remote = null; }
-    G.online = false; G.oppName = 'BOT'; $('lblBot').textContent = 'BOT'; $('againBtn').style.display = ''; Social.setStatus('menu');
+    if (!this.active && !this.inRoom()) return;
+    if (!this.ended) { if (this.role === 'host') this.hostBcast({ t: 'rclose', id: this.roomId }); else if (this.role === 'guest') this.send(this.hostL, { t: 'rlv', id: this.roomId }); }
+    this.active = false; this.ended = true; this.timers.forEach(clearTimeout); this.timers = []; this.cancelInv(); this.clearRemotes(); this.resetRoom(); hide('room'); hide('waitScreen');
+    G.online = false; G.oppName = 'BOT'; $('lblBot').textContent = 'BOT'; $('lblYou').textContent = 'YOU'; $('againBtn').style.display = ''; renderScore(); Social.setStatus('menu');
+  },
+
+  // ----- the room screen -----
+  renderRoom() {
+    if (!$('room').classList.contains('on')) return; const host = this.role === 'host', me = Social.me(), b = $('roomBody'); if (!this.inRoom()) { hide('room'); return; }
+    const mapName = host ? (CFG.map === 'random' ? '🎲 Random' : MAPBY[CFG.map].name) : (this.mapPick === 'random' ? '🎲 Random' : (MAPBY[this.mapPick] ? MAPBY[this.mapPick].name : 'Arena'));
+    const rows = this.mem.map(m => {
+      const f = me.friends[m.l], av = m.l === me.lower ? avatar(m.n, me.av, me.pic) : avatar(m.n, f && f.av, f && f.pic);
+      return '<div class="frow" data-l="' + m.l + '">' + av + '<div class="finfo"><b>' + esc(m.n) + (m.l === this.hostL ? ' 👑' : '') + (m.l === me.lower ? ' (you)' : '') + '</b></div><div class="fbtns">' + (this.ffa ? '' : '<button class="teamb t' + m.t + '" data-act="rteam"' + (host ? '' : ' disabled') + '>' + (m.t === 0 ? '🔵 Team A' : '🔴 Team B') + '</button>') + (host && m.l !== me.lower ? '<button data-act="rkick" class="danger">✕</button>' : '') + '</div></div>';
+    }).join('');
+    let html = '<h3>Players (' + this.mem.length + '/8)</h3>' + rows;
+    if (host) {
+      const inv = Social.friends().filter(f => f.status === 'online' && !this.memberOf(f.lower));
+      html += '<h3>Settings</h3><div class="row" style="margin:6px 0"><span>Style</span><div class="seg"><button data-act="rstyle" data-v="teams" class="' + (this.ffa ? '' : 'on') + '">Teams</button><button data-act="rstyle" data-v="ffa" class="' + (this.ffa ? 'on' : '') + '">Free for all</button></div></div>' +
+        '<div class="row" style="margin:6px 0"><span>Rounds to win</span><div class="seg">' + [2, 3, 5].map(n => '<button data-act="rrounds" data-v="' + n + '" class="' + (this.rounds === n ? 'on' : '') + '">' + n + '</button>').join('') + '</div></div>' +
+        '<div class="row" style="margin:6px 0"><span>Map</span><button class="btn2" data-act="rmap">🗺 ' + esc(mapName) + ' ▸ change</button></div>' +
+        '<h3>Invite friends</h3>' + (inv.length ? inv.map(f => '<div class="frow" data-l="' + f.lower + '">' + avatar(f.name, f.av, f.pic) + '<div class="finfo"><b>' + esc(f.name) + '</b></div><div class="fbtns">' + (this.invited[f.lower] ? '<button disabled>Invited…</button>' : '<button class="go" data-act="rinvite">Invite</button>') + '</div></div>').join('') : '<div class="empty small">None of your friends are online right now.<br>Ask them to open the game, then they show up here.</div>') +
+        '<button class="play" data-act="rstart" style="margin-top:14px;font-size:20px;padding:12px 34px"' + (this.canStart() ? '' : ' disabled') + '>START MATCH</button>' + (this.canStart() ? '' : '<div class="note">' + (this.mem.length < 2 ? 'Invite at least one friend to start.' : 'Both teams need at least one player.') + '</div>');
+    } else html += '<h3>Settings</h3><div class="note" style="font-size:15px">' + (this.ffa ? 'Free for all' : 'Teams') + ' · first to ' + this.rounds + ' · map: ' + esc(mapName) + '</div><div class="empty">Waiting for the host to start the match…</div>';
+    b.innerHTML = html;
   }
 };
-$('waitCancel').onclick = () => { if (Online.outInv) { Online.cancelInv(); } else { if (Online.pendingInv) Social.sendTo(Online.pendingInv.lower, { t: 'invA', id: Online.pendingInv.id, ok: 0 }); Online.pendingInv = null; hide('waitScreen'); } };
+$('waitCancel').onclick = () => { if (Online.outInv) { Online.cancelInv(); Online.leaveRoom(); } else { const pj = Online.pendingJoin; if (pj) { Social.sendTo(pj.host, { t: 'rja', id: pj.id, ok: 0 }); Online.pendingJoin = null; } hide('waitScreen'); } };
+$('roomLeave').onclick = () => Online.leaveRoom();
+$('roomBody').addEventListener('click', e => {
+  const btn = e.target.closest('[data-act]'); if (!btn || btn.disabled) return; const act = btn.dataset.act, row = btn.closest('[data-l]'), l = row ? row.dataset.l : null;
+  if (act === 'rteam') Online.swapTeam(l); else if (act === 'rkick') { const m = Online.memberOf(l); if (m) { Online.send(l, { t: 'rclose', id: Online.roomId }); Online.removeMember(l); } }
+  else if (act === 'rstyle') Online.setFfa(btn.dataset.v === 'ffa'); else if (act === 'rrounds') Online.setRounds(+btn.dataset.v);
+  else if (act === 'rmap') { $('btnMap').click(); } else if (act === 'rinvite') Online.invite(l); else if (act === 'rstart') Online.start();
+});
+
+$('btnRoom').onclick = () => { if (!Social) { notify('Friends need the online library, which did not load. Check your internet and reload.'); return; } if (!Social.me()) { openName(); return; } Online.openRoom(); };
 
 // ---------- invite links and first start ----------
 function handleAddLink() { const who = qs.get('add'); if (who && Social && Social.me() && !handleAddLink.done) { handleAddLink.done = true; const go = () => openFriends('add', who); if (Social.state() === 'online') go(); else { const t = setInterval(() => { if (Social.state() === 'online') { clearInterval(t); go(); } }, 400); setTimeout(() => clearInterval(t), 15000); } } }
