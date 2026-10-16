@@ -36,6 +36,8 @@
   #scope::after { top:50%; left:calc(50% - 29vmin); height:2px; width:58vmin; margin-top:-1px; }
   #top { left:50%; top:10px; transform:translateX(-50%); text-align:center; }
   #score { font-size:26px; font-weight:800; letter-spacing:1px; }
+  #scoreF { font-size:20px; font-weight:800; } #scoreF .b2 { color:#c28bff; } #scoreF b { color:var(--acc); } #scoreF .you { color:#7fd0ff; } #scoreF .bot { color:#ff8a8a; }
+  #alive { font-size:14px; font-weight:700; margin-top:2px; opacity:0.95; } #segMode { flex-wrap:wrap; justify-content:flex-end; max-width:340px; }
   #score b { color:var(--acc); } #score .you { color:#7fd0ff; } #score .bot { color:#ff8a8a; }
   #roundInfo { font-size:13px; opacity:0.85; margin-top:1px; }
   #msg { left:50%; top:24%; transform:translateX(-50%); font-size:clamp(34px, 8vw, 70px); font-weight:900; letter-spacing:3px; text-align:center; white-space:nowrap; opacity:0; transition:opacity .3s; }
@@ -153,7 +155,7 @@ window.addEventListener('error', function (e) { if (document.getElementById('boo
   <div id="dmg"></div><div id="ring"><i></i></div><div id="scope"><i id="sdot"></i></div><div class="fxo" id="fxBlind"></div><div class="fxo" id="fxPaint"></div><div class="fxo" id="fxFreeze"></div><div class="fxo" id="fxBurn"></div>
   <div id="xh"><i class="l"></i><i class="r"></i><i class="u"></i><i class="d"></i><i class="dot"></i></div>
   <div id="hm"></div>
-  <div class="hud" id="top"><div id="score"><span class="you" id="lblYou">YOU</span> <b id="sYou">0</b> : <b id="sBot">0</b> <span class="bot" id="lblBot">BOT</span></div><div id="roundInfo"></div></div>
+  <div class="hud" id="top"><div id="scoreF" style="display:none"></div><div id="score"><span class="you" id="lblYou">YOU</span> <b id="sYou">0</b> : <b id="sBot">0</b> <span class="bot" id="lblBot">BOT</span></div><div id="roundInfo"></div><div id="alive"></div></div>
   <div class="hud" id="msg"></div>
   <div class="hud" id="reloadTxt">RELOADING</div>
   <div class="hud" id="feed"></div>
@@ -176,6 +178,9 @@ window.addEventListener('error', function (e) { if (document.getElementById('boo
   <div class="sub">First to win the rounds takes the match. Pick your weapons in the loadout!</div>
   <div class="card">
     <div class="row"><span>Bot level</span><div class="seg" id="segDiff"><button data-v="easy">Easy</button><button data-v="normal">Normal</button><button data-v="hard">Hard</button></div></div>
+    <div class="row"><span>Game mode</span><div class="seg" id="segMode"><button data-v="1v1">1v1</button><button data-v="2v2">2v2</button><button data-v="2v1">2v1</button><button data-v="1v2">1v2</button><button data-v="ffa">1v1v1</button><button data-v="big">∞ v ∞</button></div></div>
+    <div class="row" id="rowBig"><span>Players per team</span><span><input type="range" id="rngBig" min="3" max="10" step="1"> <b id="bigN"></b></span></div>
+    <div class="note" id="modeNote" style="margin:-2px 0 6px"></div>
     <div class="row"><span>Rounds to win</span><div class="seg" id="segRounds"><button data-v="2">2</button><button data-v="3">3</button><button data-v="5">5</button></div></div>
     <div class="row" id="rowLook"><span>Camera</span><div class="seg" id="segLook"><button data-v="rmb">Hold right-click</button><button data-v="lock">Mouse locked</button></div></div>
     <div class="row"><span>Look speed</span><input type="range" id="rngSens" min="0.4" max="3" step="0.1"></div>
@@ -754,15 +759,15 @@ function updateEffects(dt) {
 // the stuff that blows up, burns or sits in the arena
 const PROJ = [], WORLD = [], SMOKES = [];
 function clearWorld() { PROJ.forEach(p => scene.remove(p.mesh)); PROJ.length = 0; WORLD.forEach(o => o.remove()); WORLD.length = 0; SMOKES.length = 0; }
-function foeTargets(infl = 0) { return foesAlive().map(f => { const t = f === bot ? bot.target : Online.target(); return t ? Object.assign({ f }, t, { r: t.r + infl }) : null; }).filter(Boolean); }
+function foeTargets(infl = 0) { return foesAlive().map(f => { const t = f instanceof Bot ? f.target : Online.target(); return t ? Object.assign({ f }, t, { r: t.r + infl }) : null; }).filter(Boolean); }
 const playerTarget = () => ({ x: P.x, z: P.z, y: P.y, r: 0.34, h: P.crouch ? 1.3 : 1.72, headR: 0.17, me: true });
-function foesAlive() { if (G.online) { const R = Online.remote; return R && !R.dead ? [R] : []; } return bot && !bot.dead ? [bot] : []; }
+function foesAlive() { if (G.online) { const R = Online.remote; return R && !R.dead ? [R] : []; } return BOTS.filter(b => !b.dead && b.team !== 0); }
 function hitFoe(f, dmg, head, fx) {                          // returns true if this killed the target
   dmg *= P.buff.dmg;
   if (G.online) { G.stats.dmg += Math.min(dmg, Online.hp()); return Online.sendHit(dmg, head, fx); }
-  G.stats.dmg += Math.min(dmg, f.hp); const k = dmg > 0 ? f.damage(dmg, head) : false; if (fx) applyStatus(f, fx); return k;
+  G.stats.dmg += Math.min(dmg, f.hp); const k = dmg > 0 ? f.damage(dmg, head) : false; if (fx) applyStatus(f, fx); if (k) G.lastVictim = f.label; return k;
 }
-function reportHit(killed, head, icon) { showHitMarker(killed ? 'kill' : head ? 'head' : ''); sfxHit(head); if (killed) { G.stats.kills++; sfxKill(); feed('<b style="color:#7fd0ff">You</b> ▸ ' + G.oppName + (icon || (head ? ' 🎯' : ''))); } }
+function reportHit(killed, head, icon) { showHitMarker(killed ? 'kill' : head ? 'head' : ''); sfxHit(head); if (killed) { G.stats.kills++; sfxKill(); feed('<b style="color:#7fd0ff">You</b> ▸ ' + (G.lastVictim || G.oppName) + (icon || (head ? ' 🎯' : ''))); G.lastVictim = null; } }
 function applyStatus(e, fx) {
   const s = e.st; if (!fx || !s) return;
   if (fx.burn) s.burn = Math.max(s.burn, 3);
@@ -798,7 +803,11 @@ function explode(x, y, z, r, dmg, owner, o = {}) {
     for (const f of foesAlive()) { const fy = f.y + 1.0, d2 = Math.hypot(f.x - x, fy - y, f.z - z); if (d2 > r + 0.3 || !hasLOS(x, y + 0.2, z, f.x, fy, f.z)) continue; const k = 1 - 0.55 * clamp(d2 / r, 0, 1); any = true; if (hitFoe(f, dmg * k, false, o.fx)) kill = true; }
     if (any) { G.stats.hit++; reportHit(kill, false, ' 💥'); }
     if (dd < r + 0.3 && !P.dead && hasLOS(x, y + 0.2, z, P.x, P.y + 1, P.z)) { const k = 1 - clamp(dd / r, 0, 1); hurtPlayer(dmg * 0.4 * k, x, z, false, { self: true }); const l = Math.hypot(P.x - x, P.z - z) || 1; P.vx += (P.x - x) / l * 9 * k; P.vz += (P.z - z) / l * 9 * k; P.vy = Math.max(P.vy, 7 * k); if (k > 0.2) P.ground = false; }
-  } else if (owner === 'foe' && !P.dead && dd < r + 0.3 && hasLOS(x, y + 0.2, z, P.x, P.y + 1, P.z)) { const k = 1 - 0.55 * clamp(dd / r, 0, 1); hurtPlayer(dmg * k, x, z, false); const l = Math.hypot(P.x - x, P.z - z) || 1; P.vx += (P.x - x) / l * 8 * k; P.vz += (P.z - z) / l * 8 * k; P.vy = Math.max(P.vy, 5 * k); P.ground = false; }
+  } else if (owner === 'foe') {
+    const team = o.team === undefined ? 1 : o.team, att = o.att;
+    if (team !== 0 && !P.dead && dd < r + 0.3 && hasLOS(x, y + 0.2, z, P.x, P.y + 1, P.z)) { const k = 1 - 0.55 * clamp(dd / r, 0, 1); hurtPlayer(dmg * k, x, z, false, { killer: att && att.label }); const l = Math.hypot(P.x - x, P.z - z) || 1; P.vx += (P.x - x) / l * 8 * k; P.vz += (P.z - z) / l * 8 * k; P.vy = Math.max(P.vy, 5 * k); P.ground = false; }
+    for (const b of BOTS) { if (b.dead || b.team === team) continue; const d2 = Math.hypot(b.x - x, b.y + 1 - y, b.z - z); if (d2 > r + 0.3 || !hasLOS(x, y + 0.2, z, b.x, b.y + 1, b.z)) continue; if (b.damage(dmg * (1 - 0.55 * clamp(d2 / r, 0, 1)), false) && att) feed('<b style="color:' + TEAMTRI[att.team] + '">' + att.label + '</b> ▸ ' + b.label + ' 💥'); }
+  }
 }
 // ----- projectiles -----
 const _pg = {}, _pm = {};
@@ -822,14 +831,14 @@ function projMesh(kind, col) {
   return g;
 }
 function spawnProj(owner, def, pos, vel, o = {}) {
-  const p = { owner, def, x: pos[0], y: pos[1], z: pos[2], vx: vel[0], vy: vel[1], vz: vel[2], life: def.life || 4, fuse: def.fuse || 0, dmg: o.dmg || 0, fx: o.fx || null, hs: o.hs || 1, sx: o.sx || 0, sz: o.sz || 0, bounces: def.bounces || 0, stuck: 0, trail: 0 };
+  const p = { owner, def, x: pos[0], y: pos[1], z: pos[2], vx: vel[0], vy: vel[1], vz: vel[2], life: def.life || 4, fuse: def.fuse || 0, dmg: o.dmg || 0, fx: o.fx || null, hs: o.hs || 1, sx: o.sx || 0, sz: o.sz || 0, bounces: def.bounces || 0, stuck: 0, trail: 0, team: o.team === undefined ? 1 : o.team, att: o.att || null };
   p.mesh = projMesh(def.kind, def.color); p.mesh.position.set(p.x, p.y, p.z); scene.add(p.mesh); PROJ.push(p); return p;
 }
 function killProj(p) { scene.remove(p.mesh); const i = PROJ.indexOf(p); if (i >= 0) PROJ.splice(i, 1); }
 function endProj(p) {                                          // a projectile is finished: blow up, burst into flames, etc.
   const d = p.def, own = p.owner; killProj(p);
   if (own === 'vis') return;
-  if (d.explode) { explode(p.x, p.y, p.z, d.explode.r, d.explode.dmg, own, { small: d.explode.small, fx: p.fx }); if (own === 'me') Online.sendBoom(p.x, p.y, p.z, d.explode.r, d.explode.small); }
+  if (d.explode) { explode(p.x, p.y, p.z, d.explode.r, d.explode.dmg, own, { small: d.explode.small, fx: p.fx, team: p.team, att: p.att }); if (own === 'me') Online.sendBoom(p.x, p.y, p.z, d.explode.r, d.explode.small); }
   else if (d.flash) flashPop(p.x, p.y, p.z, own, d.blind || 4);
   else if (d.smoke) { addSmoke(p.x, p.y, p.z, d.smokeT || 30); if (own === 'me') Online.sendWorld('smoke', p.x, p.y, p.z); }
   else if (d.molo) { addFire(p.x, Math.max(0, p.y - 0.05), p.z, 2.6, d.fireT || 5, own); if (own === 'me') Online.sendWorld('fire', p.x, Math.max(0, p.y - 0.05), p.z); }
@@ -845,11 +854,11 @@ function updateProj(dt) {
     if (p.stuck > 0) { p.stuck -= dt; if (p.stuck <= 0) killProj(p); continue; }
     p.life -= dt; if (p.life <= 0) { endProj(p); continue; }
     if (p.fuse > 0) { p.fuse -= dt; if (p.fuse <= 0) { endProj(p); continue; } }
-    if (d.homing && p.owner !== 'vis') { const tg = p.owner === 'me' ? foeTargets()[0] : (P.dead ? null : playerTarget()); if (tg) { const tx = tg.x - p.x, ty = tg.y + 1.0 - p.y, tz = tg.z - p.z, l = Math.hypot(tx, ty, tz) || 1, sp0 = Math.hypot(p.vx, p.vy, p.vz), k = Math.min(1, d.homing * 3 * dt); p.vx = lerp(p.vx, tx / l * sp0, k); p.vy = lerp(p.vy, ty / l * sp0, k); p.vz = lerp(p.vz, tz / l * sp0, k); } }
+    if (d.homing && p.owner !== 'vis') { const tg = (p.owner === 'me' ? foeTargets() : teamTargets(p.team)).sort((a, b) => Math.hypot(a.x - p.x, a.z - p.z) - Math.hypot(b.x - p.x, b.z - p.z))[0]; if (tg) { const tx = tg.x - p.x, ty = tg.y + 1.0 - p.y, tz = tg.z - p.z, l = Math.hypot(tx, ty, tz) || 1, sp0 = Math.hypot(p.vx, p.vy, p.vz), k = Math.min(1, d.homing * 3 * dt); p.vx = lerp(p.vx, tx / l * sp0, k); p.vy = lerp(p.vy, ty / l * sp0, k); p.vz = lerp(p.vz, tz / l * sp0, k); } }
     p.vy -= (d.grav || 0) * dt;
     const sp = Math.hypot(p.vx, p.vy, p.vz); if (sp < 0.05) { p.mesh.position.set(p.x, p.y, p.z); continue; }
     const dist = sp * dt, nx = p.vx / sp, ny = p.vy / sp, nz = p.vz / sp;
-    const targets = p.owner === 'me' ? foeTargets(d.r * 0.6 || 0) : p.owner === 'foe' && !P.dead ? [playerTarget()] : [];
+    const targets = p.owner === 'me' ? foeTargets(d.r * 0.6 || 0) : p.owner === 'foe' ? teamTargets(p.team) : [];
     const hit = traceRay(p.x, p.y, p.z, nx, ny, nz, dist, targets);
     if (hit.kind === 'none') { p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt; }
     else {
@@ -884,7 +893,7 @@ function projBody(p, hit) {
     burst(p.x, p.y, p.z, -p.vx * 0.05, 0.3, -p.vz * 0.05, head ? 8 : 5, d.splat ? d.color : 0xd62a2a, 2.2); if (d.splat) addPaintDecal(p.x, p.y, p.z, 0, 0, 1, d.color);
     if (d.explode || d.flash || d.smoke || d.molo || d.tele) endProj(p); else killProj(p);
   } else if (p.owner === 'foe') {
-    hurtPlayer(p.dmg * (head ? p.hs : 1), p.sx, p.sz, head); if (p.fx) applyStatus(P, p.fx); burst(p.x, p.y, p.z, 0, 0.3, 0, 4, d.color || 0xd62a2a, 2);
+    botHitTg(p.att || { x: p.sx, z: p.sz, team: p.team, label: 'Enemy' }, hit.tg, p.dmg * (head ? p.hs : 1), head, p.fx); burst(p.x, p.y, p.z, 0, 0.3, 0, 4, d.color || 0xd62a2a, 2);
     if (d.explode) endProj(p); else killProj(p);
   } else killProj(p);
 }
@@ -945,7 +954,7 @@ function remoteShotFx(d, o, end, v, R) {
 
 // ---------- bots ----------
 const DIFF = { easy: { react: 0.75, err: 0.055, dmg: 0.7, speed: 0.8, track: 1.3, burst: [3, 6], pause: [0.5, 1.2] }, normal: { react: 0.34, err: 0.026, dmg: 1.0, speed: 1.0, track: 0.6, burst: [6, 11], pause: [0.3, 0.8] }, hard: { react: 0.15, err: 0.011, dmg: 1.2, speed: 1.14, track: 0.25, burst: [8, 16], pause: [0.15, 0.45] } };
-const hpSpriteTex = hp => makeTex((g, s) => { const f = hp / MAXHP; g.clearRect(0, 0, 64, 64); g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(0, 26, 64, 10); g.fillStyle = f > 0.5 ? '#44e07a' : f > 0.25 ? '#ffc247' : '#ff4455'; g.fillRect(2, 28, 60 * clamp(f, 0, 1), 6); }, 64, false);
+const hpSpriteTex = (hp, team = 1) => makeTex((g, s) => { const f = hp / MAXHP; g.clearRect(0, 0, 64, 64); g.fillStyle = TEAMTRI[team] || '#ff5a5a'; g.beginPath(); g.moveTo(24, 6); g.lineTo(40, 6); g.lineTo(32, 20); g.fill(); g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(0, 26, 64, 10); g.fillStyle = f > 0.5 ? '#44e07a' : f > 0.25 ? '#ffc247' : '#ff4455'; g.fillRect(2, 28, 60 * clamp(f, 0, 1), 6); }, 64, false);
 function makeHumanoid(cloth) {
   const g = new THREE.Group(), skin = new THREE.MeshStandardMaterial({ color: 0xd8a27c, roughness: 0.8 }), clothM = new THREE.MeshStandardMaterial({ color: cloth, roughness: 0.75 }), pants = new THREE.MeshStandardMaterial({ color: 0x2a2f38, roughness: 0.85 });
   const legs = [-1, 1].map(s => { const p = new THREE.Group(); p.position.set(s * 0.11, 0.78, 0); const l = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.78, 0.2), pants); l.position.y = -0.39; l.castShadow = true; p.add(l); const bt = new THREE.Mesh(new THREE.BoxGeometry(0.19, 0.1, 0.28), DARK); bt.position.set(0, -0.75, -0.04); p.add(bt); g.add(p); return p; });
@@ -961,13 +970,31 @@ function makeHumanoid(cloth) {
   g.userData = { legs, aimG, sprite, gunHolder: aimG };
   return g;
 }
-let bot = null;
+// ---------- teams and bots ----------
+let BOTS = [], bot = null;                                     // bot = the first enemy bot (kept for old code)
+const TEAMCOL = [0x2d6fb7, 0xb23a3a, 0x7a3ab2], TEAMTRI = ['#4aa3ff', '#ff5a5a', '#c28bff'];
+function clearBots() { BOTS.forEach(b => { scene.remove(b.mesh); b.mesh.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }); BOTS = []; bot = null; }
+const teamTargets = team => { const L = []; if (team !== 0 && !P.dead) L.push(playerTarget()); for (const b of BOTS) if (!b.dead && b.team !== team) L.push(b.target); return L; };
+const enemiesOf = b => { const L = []; if (b.team !== 0 && !P.dead) L.push(P); for (const o of BOTS) if (!o.dead && o.team !== b.team) L.push(o); return L; };
+function botHitTg(att, tg, dmg, head, fx, quiet) {              // a bot hurts whoever the shot hit: you or another team's bot
+  if (tg.me) { hurtPlayer(dmg, att.x, att.z, head, { quiet, killer: att.label }); if (fx) applyStatus(P, fx); return; }
+  const v = tg.ref; if (!v || v.dead || v.team === att.team) return; const k = v.damage(dmg, head); if (fx) applyStatus(v, fx); if (k && G.phase === 'live') feed('<b style="color:' + TEAMTRI[att.team] + '">' + att.label + '</b> ▸ ' + v.label + (head ? ' 🎯' : ''));
+}
+function spawnPoints(side, n, zc, taken) {                      // find n walkable, spread-out starting spots on one side of the map
+  const sx = spawnX(), out = [], order = [0]; for (let i = 1; i < 8; i++) order.push(i, -i);
+  for (let col = 0; col < 8 && out.length < n; col++) for (const r of order) {
+    if (out.length >= n) break; const x = side * (sx - col * 2.0), z = zc + r * 2.3; const [i, j] = nearestFree(...toCell(x, z)); if (!cellFree(i, j)) continue;
+    const cx = NAV_O + (i + 0.5) * NAV_CELL, cz = NAV_O + (j + 0.5) * NAV_CELL; if (Math.abs(cx - x) > 4 || Math.abs(cz - z) > 4) continue;
+    if (taken.every(p => Math.hypot(p.x - cx, p.z - cz) > 1.7)) { const pt = { x: cx, z: cz }; taken.push(pt); out.push(pt); }
+  }
+  return out;
+}
 class Bot {
-  constructor(L, level) {
-    this.lv = DIFF[level]; this.mesh = makeHumanoid(0xb23a3a); scene.add(this.mesh);
-    this.x = spawnX(); this.z = rand(-3, 3); this.y = 0; this.vy = 0; this.yaw = Math.PI / 2; this.hp = MAXHP; this.dead = false; this.deadT = 0; this.st = newSt(); this.burnAcc = 0;
+  constructor(L, level, o) {
+    this.team = o.team; this.label = o.label; this.lv = DIFF[level]; this.mesh = makeHumanoid(TEAMCOL[o.team]); scene.add(this.mesh); this.mesh.userData.sprite.material.map = hpSpriteTex(MAXHP, o.team);
+    this.x = o.x; this.z = o.z; this.y = 0; this.vy = 0; this.vx = 0; this.vz = 0; this.yaw = o.team === 0 ? -Math.PI / 2 : Math.PI / 2; this.hp = MAXHP; this.dead = false; this.deadT = 0; this.st = newSt(); this.burnAcc = 0; this.T = null; this.tgtT = 0; this.lastT = null;
     this.inv = { primary: ammoFor(ITEMS[L.primary]), secondary: ammoFor(ITEMS[L.secondary]), melee: ammoFor(ITEMS[L.melee]) }; this.L = L; this.slot = ''; this.reloadT = 0; this.cd = 0; this.seenT = 0; this.sees = false;
-    this.path = []; this.pathT = 0; this.strafeDir = Math.random() < 0.5 ? -1 : 1; this.strafeT = rand(1.2, 2.4); this.holdT = 0; this.burstLeft = 0; this.pauseT = 0.8; this.walkPh = 0; this.moving = false; this.lastSeenX = 0; this.lastSeenZ = 0; this.flashT = 0; this.speedNow = 0; this.hpShown = MAXHP; this.alt = 1;
+    this.path = []; this.pathT = rand(0, 0.5); this.strafeDir = Math.random() < 0.5 ? -1 : 1; this.strafeT = rand(1.2, 2.4); this.holdT = 0; this.burstLeft = 0; this.pauseT = 0.8; this.walkPh = 0; this.moving = false; this.flashT = 0; this.speedNow = 0; this.hpShown = MAXHP; this.alt = 1;
     this.setSlot('primary');
   }
   get d() { return ITEMS[this.inv[this.slot].id]; }
@@ -981,26 +1008,35 @@ class Bot {
   }
   get target() { return { x: this.x, z: this.z, y: this.y, r: 0.34, h: 1.72, headR: 0.17, ref: this }; }
   damage(n, head) {
-    if (this.dead) return false; this.hp -= n; if (this.hpShown !== Math.ceil(this.hp)) { this.hpShown = Math.ceil(this.hp); this.mesh.userData.sprite.material.map = hpSpriteTex(Math.max(0, this.hp)); this.mesh.userData.sprite.material.needsUpdate = true; }
+    if (this.dead) return false; this.hp -= n; if (this.hpShown !== Math.ceil(this.hp)) { this.hpShown = Math.ceil(this.hp); this.mesh.userData.sprite.material.map = hpSpriteTex(Math.max(0, this.hp), this.team); this.mesh.userData.sprite.material.needsUpdate = true; }
     if (this.hp <= 0) { this.dead = true; this.hp = 0; this.deadT = 0; this.mesh.userData.sprite.visible = false; return true; } return false;
+  }
+  canSee(e) { const ex = this.x, ey = this.y + 1.55, ez = this.z, c = e.y + (e.crouch ? 1.0 : 1.4), hh = e.y + (e.crouch ? 1.3 : 1.62); return (hasLOS(ex, ey, ez, e.x, c, e.z) || hasLOS(ex, ey, ez, e.x, hh, e.z)) && !smokeBlocks(ex, ey, ez, e.x, c, e.z); }
+  pickTarget() {                                                  // the closest enemy we can see, otherwise the closest one at all
+    this.tgtT = rand(0.25, 0.5); let best = null, bd = 1e9, bv = false;
+    for (const e of enemiesOf(this)) { const d = Math.hypot(e.x - this.x, e.z - this.z), vis = d < 80 && this.canSee(e); if ((vis && !bv) || (vis === bv && d < bd)) { best = e; bd = d; bv = vis; } }
+    this.T = best;
   }
   update(dt) {
     const m = this.mesh; m.position.set(this.x, this.y, this.z);
     if (this.dead) { this.deadT += dt; const k = clamp(this.deadT / 0.5, 0, 1); m.rotation.set(-k * 1.45, this.yaw, 0, 'YXZ'); m.position.y = this.y + 0.1 * k; return; }
-    tickStatus(this, dt, n => { this.burnAcc += n; if (this.burnAcc >= 1.5) { const k = this.damage(this.burnAcc, false); this.burnAcc = 0; if (k && G.phase === 'live') { G.stats.kills++; feed('<b style="color:#7fd0ff">You</b> ▸ ' + G.oppName + ' 🔥'); } } });
+    tickStatus(this, dt, n => { this.burnAcc += n; if (this.burnAcc >= 1.5) { const k = this.damage(this.burnAcc, false); this.burnAcc = 0; if (k && G.phase === 'live') feed('🔥 ' + this.label + ' burned to death'); } });
     if (this.dead) return;
     if (G.phase === 'live' && Math.random() < dt * 14 && this.st.burn > 0) puff(this.x + rand(-0.2, 0.2), this.y + rand(0.3, 1.6), this.z + rand(-0.2, 0.2), 0, 1.5, 0, 0.4, 0.3, 0.7, 0xff7a2a, 0.7, 0, true);
     if (this.st.freeze > 0) { m.rotation.set(0, this.yaw, 0); this.cd = Math.max(this.cd, 0.1); if (Math.random() < dt * 8) puff(this.x + rand(-0.3, 0.3), this.y + rand(0.2, 1.6), this.z + rand(-0.3, 0.3), 0, 0.3, 0, 0.5, 0.3, 0.6, 0xaef0ff, 0.7, 0, true); return; }
+    if (G.phase !== 'live') { m.rotation.set(0, this.yaw, 0); this.speedNow = 0; this.vx = this.vz = 0; return; }           // wait for the fight to start
     // pick the weapon: primary first, then secondary, then melee
-    if (!P.dead) { const want = this.hasAmmo('primary') ? 'primary' : this.hasAmmo('secondary') ? 'secondary' : 'melee'; if (want !== this.slot && this.reloadT <= 0 && this.burstLeft <= 0) this.setSlot(want); }
-    const W = this.d, A = this.a, px = P.x, pz = P.z;
-    const ex = this.x, ey = this.y + 1.55, ez = this.z, pyc = P.y + (P.crouch ? 1.0 : 1.4), phy = P.y + (P.crouch ? 1.3 : 1.62);
+    const want = this.hasAmmo('primary') ? 'primary' : this.hasAmmo('secondary') ? 'secondary' : 'melee'; if (want !== this.slot && this.reloadT <= 0 && this.burstLeft <= 0) this.setSlot(want);
+    this.tgtT -= dt; if (!this.T || this.T.dead || this.tgtT <= 0) this.pickTarget(); const T = this.T;
+    if (!T) { m.rotation.set(0, this.yaw, 0); this.speedNow = 0; this.vx = this.vz = 0; return; }                       // nobody left to fight
+    if (T !== this.lastT) { this.lastT = T; this.seenT = 0; }
+    const W = this.d, A = this.a, px = T.x, pz = T.z;
+    const ex = this.x, ey = this.y + 1.55, ez = this.z, pyc = T.y + (T.crouch ? 1.0 : 1.4);
     const dx = px - ex, dz = pz - ez, dist = Math.hypot(dx, dz);
-    const wasSeeing = this.sees; this.sees = !P.dead && (hasLOS(ex, ey, ez, px, pyc, pz) || hasLOS(ex, ey, ez, px, phy, pz)) && !smokeBlocks(ex, ey, ez, px, pyc, pz);
-    if (this.sees) { this.seenT += dt; this.lastSeenX = px; this.lastSeenZ = pz; } else this.seenT = Math.max(0, this.seenT - dt * 2);
-    if (this.sees && !wasSeeing && this.seenT < 0.05) this.seenT = 0;
+    this.sees = this.canSee(T);
+    if (this.sees) this.seenT += dt; else this.seenT = Math.max(0, this.seenT - dt * 2);
     const prefer = W.kind === 'melee' ? [0.6, Math.max(1.4, W.reach - 0.5)] : W.prefer;
-    // face the player when we see them, otherwise face where we walk
+    // face the target when we see it, otherwise face where we walk
     let wantYaw = this.yaw; if (this.sees || dist < 6) wantYaw = Math.atan2(-dx, -dz);
     else if (this.path.length) { const n = this.path[0]; wantYaw = Math.atan2(-(n.x - this.x), -(n.z - this.z)); }
     let dy = ((wantYaw - this.yaw + Math.PI * 3) % (Math.PI * 2)) - Math.PI; this.yaw += clamp(dy, -dt * 7, dt * 7);
@@ -1009,7 +1045,7 @@ class Bot {
     const ready = this.sees && this.seenT > this.lv.react;
     this.pathT -= dt;
     if (!this.sees || dist > prefer[1] + 3) {
-      if (this.pathT <= 0) { this.pathT = this.lv.track * 0.6 + 0.25; this.path = findPath(this.x, this.z, this.sees ? px : (P.dead ? this.x : px), this.sees ? pz : (P.dead ? this.z : pz)); if (this.path.length > 1) this.path.shift(); }
+      if (this.pathT <= 0) { this.pathT = this.lv.track * 0.6 + 0.25 + rand(0, 0.2); this.path = findPath(this.x, this.z, px, pz); if (this.path.length > 1) this.path.shift(); }
       while (this.path.length && Math.hypot(this.path[0].x - this.x, this.path[0].z - this.z) < 0.5) this.path.shift();
       if (this.path.length) { const n = this.path[0], d = Math.hypot(n.x - this.x, n.z - this.z) || 1; mx = (n.x - this.x) / d; mz = (n.z - this.z) / d; this.moving = true; }
     }
@@ -1023,7 +1059,8 @@ class Bot {
     }
     if (this.reloadT > 0) { this.reloadT -= dt; if (this.reloadT <= 0) { const need = W.mag - A.mag, take = W.free || W.infinite ? need : Math.min(need, A.reserve); A.mag += take; if (!W.free && !W.infinite) A.reserve -= take; } }
     const spd = this.spd * (this.reloadT > 0 ? 0.8 : 1) * (this.burstLeft > 0 && this.sees ? 0.6 : 1) * (this.st.slow > 0 ? this.st.slowK : 1); this.speedNow = lerp(this.speedNow, this.moving ? spd : 0, Math.min(1, dt * 4));
-    this.x += mx * this.speedNow * dt; this.z += mz * this.speedNow * dt; pushOut(this, 0.38);
+    this.vx = mx * this.speedNow; this.vz = mz * this.speedNow; this.x += this.vx * dt; this.z += this.vz * dt; pushOut(this, 0.38);
+    for (const o of BOTS) if (o !== this && !o.dead) { const ox = this.x - o.x, oz = this.z - o.z, d2 = ox * ox + oz * oz; if (d2 < 0.81 && d2 > 1e-6) { const d = Math.sqrt(d2), k = (0.9 - d) * 0.5; this.x += ox / d * k; this.z += oz / d * k; } }     // do not stand inside each other
     this.x = clamp(this.x, -HALF_SIZE + 0.5, HALF_SIZE - 0.5); this.z = clamp(this.z, -HALF_SIZE + 0.5, HALF_SIZE - 0.5);
     this.walkPh += dt * this.speedNow * 2.4; const lg = m.userData.legs; const sw = this.speedNow > 0.2 ? Math.sin(this.walkPh) * 0.7 : 0; lg[0].rotation.x = sw; lg[1].rotation.x = -sw;
     m.rotation.set(0, this.yaw, 0);
@@ -1033,42 +1070,43 @@ class Bot {
     if (this.flashT > 0) { this.flashT -= dt; this.flashSprite.visible = this.flashT > 0; }
     if (W.kind !== 'melee' && A.mag <= 0 && this.reloadT <= 0 && (A.reserve > 0 || W.free)) { this.reloadT = Math.max(0.6, W.reload * 1.05); }
     const reach = W.kind === 'melee' ? W.reach + 0.4 : W.kind === 'stream' ? W.range : (W.rng[1] * 1.6);
-    if (ready && this.reloadT <= 0 && !P.dead && dist < reach && G.phase === 'live' && (W.kind === 'melee' || A.mag > 0)) {
+    if (ready && this.reloadT <= 0 && !T.dead && dist < reach && (W.kind === 'melee' || A.mag > 0)) {
       this.pauseT -= dt;
       if (this.pauseT <= 0 && this.cd <= 0) {
         if (this.burstLeft <= 0) { this.burstLeft = (W.auto || W.kind === 'stream') ? Math.max(1, Math.round(rand(this.lv.burst[0], this.lv.burst[1]) * Math.max(1, W.rpm / 600))) : (W.burst || 1); if (W.spin) this.pauseT = W.spin; }
         if (this.pauseT <= 0) {
-          this.botShoot(W, A, ex, ey, ez, px, pyc, pz, dist); this.burstLeft--; this.cd = 60 / W.rpm * ((W.auto || W.kind === 'stream' || W.burst) ? 1 : rand(1.1, 1.8)); if (W.burst && this.burstLeft <= 0) this.cd = W.burstDelay + rand(0.2, 0.6);
+          this.botShoot(W, A, T, dist); this.burstLeft--; this.cd = 60 / W.rpm * ((W.auto || W.kind === 'stream' || W.burst) ? 1 : rand(1.1, 1.8)); if (W.burst && this.burstLeft <= 0) this.cd = W.burstDelay + rand(0.2, 0.6);
           if (this.burstLeft <= 0) this.pauseT = rand(this.lv.pause[0], this.lv.pause[1]);
         }
       }
     }
   }
-  botShoot(W, A, ex, ey, ez, px, py, pz, dist) {
-    const pan = clamp(Math.sin(Math.atan2(this.x - P.x, this.z - P.z) - (P.yaw + Math.PI)) * -0.9, -1, 1), vol = clamp(1.2 - dist / 70, 0.25, 1);
-    if (W.kind === 'melee') { this.flashT = 0; sfxShot(W.snd, vol, pan); if (dist < W.reach + 0.4) hurtPlayer(W.dmg * this.lv.dmg * 0.8, this.x, this.z, false); return; }
+  botShoot(W, A, T, dist) {
+    const ex = this.x, ey = this.y + 1.55, ez = this.z, px = T.x, py = T.y + (T.crouch ? 1.0 : 1.4), pz = T.z, tvx = T.vx || 0, tvz = T.vz || 0, tgs = teamTargets(this.team);
+    const pan = clamp(Math.sin(Math.atan2(this.x - P.x, this.z - P.z) - (P.yaw + Math.PI)) * -0.9, -1, 1), vol = clamp(1.2 - Math.hypot(this.x - P.x, this.z - P.z) / 70, 0.2, 1);
+    if (W.kind === 'melee') { this.flashT = 0; sfxShot(W.snd, vol, pan); if (dist < W.reach + 0.4) botHitTg(this, T === P ? playerTarget() : T.target, W.dmg * this.lv.dmg * 0.8, false, null); return; }
     if (!W.infinite) A.mag--; this.flashT = 0.05; this.flashSprite.visible = true;
-    const moveErr = 1 + Math.hypot(P.vx, P.vz) * 0.12, blindK = this.st.blind > 0 ? 3.5 : 1, paintK = this.st.paint > 0 ? 2 : 1; sfxShot(W.snd, vol, pan);
+    const moveErr = 1 + Math.hypot(tvx, tvz) * 0.12, blindK = this.st.blind > 0 ? 3.5 : 1, paintK = this.st.paint > 0 ? 2 : 1; sfxShot(W.snd, vol, pan);
     if (W.kind === 'proj') {
       const sp = W.proj.speed, lead = dist / sp, err = this.lv.err * moveErr * dist * 0.7 * blindK * paintK;
-      const tx = px + P.vx * lead * 0.6 + rand(-1, 1) * err, ty = py + rand(-1, 1) * err * 0.6 + (W.proj.grav ? 0.5 * W.proj.grav * lead * lead * 0.6 : 0), tz = pz + P.vz * lead * 0.6 + rand(-1, 1) * err; let dx = tx - ex, dy = ty - ey, dz = tz - ez; const l = Math.hypot(dx, dy, dz); dx /= l; dy /= l; dz /= l;
-      const def = W.proj; spawnProj('foe', def, [ex + dx * 0.7, ey - 0.2 + dy * 0.7, ez + dz * 0.7], [dx * def.speed, dy * def.speed, dz * def.speed], { dmg: (def.explode && def.explode.dmg >= W.dmg ? 0 : W.dmg) * this.lv.dmg, hs: W.hs, fx: W.fx, sx: this.x, sz: this.z }); return;
+      const tx = px + tvx * lead * 0.6 + rand(-1, 1) * err, ty = py + rand(-1, 1) * err * 0.6 + (W.proj.grav ? 0.5 * W.proj.grav * lead * lead * 0.6 : 0), tz = pz + tvz * lead * 0.6 + rand(-1, 1) * err; let dx = tx - ex, dy = ty - ey, dz = tz - ez; const l = Math.hypot(dx, dy, dz); dx /= l; dy /= l; dz /= l;
+      const def = W.proj; spawnProj('foe', def, [ex + dx * 0.7, ey - 0.2 + dy * 0.7, ez + dz * 0.7], [dx * def.speed, dy * def.speed, dz * def.speed], { dmg: (def.explode && def.explode.dmg >= W.dmg ? 0 : W.dmg) * this.lv.dmg, hs: W.hs, fx: W.fx, sx: this.x, sz: this.z, team: this.team, att: this }); return;
     }
     if (W.kind === 'stream') {
       const err = (W.hip + this.lv.err) * blindK; let dx = px - ex + rand(-1, 1) * err * dist, dy = py - ey + rand(-1, 1) * err * dist * 0.6, dz = pz - ez + rand(-1, 1) * err * dist; const l = Math.hypot(dx, dy, dz); dx /= l; dy /= l; dz /= l;
-      const hit = traceRay(ex, ey, ez, dx, dy, dz, W.range, P.dead ? [] : [playerTarget()]); const sx = ex + dx * 0.6, sy = ey - 0.2 + dy * 0.6, sz = ez + dz * 0.6;
+      const hit = traceRay(ex, ey, ez, dx, dy, dz, W.range, tgs); const sx = ex + dx * 0.6, sy = ey - 0.2 + dy * 0.6, sz = ez + dz * 0.6;
       streamFx(W.streamFx, sx, sy, sz, dx, dy, dz, Math.min(hit.t, W.range), hit.kind === 'wall' ? hit : null);
-      if (hit.kind === 'body' || hit.kind === 'head') { hurtPlayer(W.dmg * this.lv.dmg * 0.7, this.x, this.z, false, { quiet: Math.random() < 0.6 }); applyStatus(P, W.fx); } return;
+      if (hit.kind === 'body' || hit.kind === 'head') botHitTg(this, hit.tg, W.dmg * this.lv.dmg * 0.7, false, W.fx, Math.random() < 0.6); return;
     }
     const pel = W.pellets;
     for (let i = 0; i < pel; i++) {
       const err = (this.lv.err * moveErr * dist + (pel > 1 ? W.hip * dist * 0.6 : 0)) * blindK * paintK;
       const tx = px + rand(-1, 1) * err, ty = py + rand(-1, 1) * err * 0.8, tz = pz + rand(-1, 1) * err; let dx = tx - ex, dy = ty - ey, dz = tz - ez; const l = Math.hypot(dx, dy, dz); dx /= l; dy /= l; dz /= l;
-      const hit = traceRay(ex, ey, ez, dx, dy, dz, W.rng[1] * 1.6, P.dead ? [] : [playerTarget()]);
+      const hit = traceRay(ex, ey, ez, dx, dy, dz, W.rng[1] * 1.6, tgs);
       const sx = ex + dx * 0.6, sy = ey - 0.2 + dy * 0.6, sz = ez + dz * 0.6, hx = ex + dx * hit.t, hy = ey + dy * hit.t, hz = ez + dz * hit.t;
-      if (i < 3) addTracer(sx, sy, sz, hx, hy, hz, 0xff9a7a);
+      if (i < 3) addTracer(sx, sy, sz, hx, hy, hz, this.team === 0 ? 0x9ad0ff : 0xff9a7a);
       if (hit.kind === 'wall') { burst(hx, hy, hz, hit.nx, hit.ny, hit.nz, 3, 0xffd9a0, 2.2); addDecal(hx, hy, hz, hit.nx, hit.ny, hit.nz); }
-      else if (hit.kind === 'body' || hit.kind === 'head') { const fall = 1 - (1 - W.fall) * clamp((hit.t - W.rng[0]) / (W.rng[1] - W.rng[0]), 0, 1); hurtPlayer(W.dmg * (hit.kind === 'head' ? W.hs : 1) * fall * this.lv.dmg, this.x, this.z, hit.kind === 'head'); if (W.fx) applyStatus(P, W.fx); }
+      else if (hit.kind === 'body' || hit.kind === 'head') { const fall = 1 - (1 - W.fall) * clamp((hit.t - W.rng[0]) / (W.rng[1] - W.rng[0]), 0, 1); botHitTg(this, hit.tg, W.dmg * (hit.kind === 'head' ? W.hs : 1) * fall * this.lv.dmg, hit.kind === 'head', W.fx); }
     }
   }
 }
@@ -1087,36 +1125,58 @@ function hurtPlayer(n, fx, fz, head, o) {
     const ax = fx - P.x, az = fz - P.z, fwdX = -Math.sin(P.yaw), fwdZ = -Math.cos(P.yaw), rtX = Math.cos(P.yaw), rtZ = -Math.sin(P.yaw);
     $('ring').style.transform = 'rotate(' + (Math.atan2(ax * rtX + az * rtZ, ax * fwdX + az * fwdZ) * 180 / Math.PI) + 'deg)'; $('ring').style.transition = 'none'; $('ring').style.opacity = 1; void $('ring').offsetWidth; $('ring').style.transition = 'opacity 1.2s'; $('ring').style.opacity = 0;
   }
-  if (P.hp <= 0) { P.hp = 0; P.dead = true; P.deadT = 0; P.using = null; P.useT = 0; P.grapple = null; feed(o.msg ? o.msg : o.self ? '<b style="color:#ff8a8a">You</b> ☠ blew yourself up' : '<b style="color:#ff8a8a">' + G.oppName + '</b> ▸ You' + (head ? ' 🎯' : '')); if (G.online && window.Online) Online.iDied(); }
+  if (P.hp <= 0) { P.hp = 0; P.dead = true; P.deadT = 0; P.using = null; P.useT = 0; P.grapple = null; feed(o.msg ? o.msg : o.self ? '<b style="color:#ff8a8a">You</b> ☠ blew yourself up' : '<b style="color:#ff8a8a">' + (o.killer || G.oppName) + '</b> ▸ You' + (head ? ' 🎯' : '')); if (G.online && window.Online) Online.iDied(); }
+}
+const MODE_NAMES = { '1v1': '1v1', '2v2': '2v2', '2v1': '2v1', '1v2': '1v2', ffa: '1v1v1', big: '∞ v ∞' };
+function modeSizes() { const m = CFG.mode; return m === '2v2' ? [2, 2] : m === '2v1' ? [2, 1] : m === '1v2' ? [1, 2] : m === 'ffa' ? [1, 1, 1] : m === 'big' ? [CFG.bigSize, CFG.bigSize] : [1, 1]; }
+function renderScore() {
+  const ffa = G.ffa && !G.online; $('score').style.display = ffa ? 'none' : ''; $('scoreF').style.display = ffa ? '' : 'none'; $('sYou').textContent = G.score.you; $('sBot').textContent = G.score.bot;
+  if (ffa) $('scoreF').innerHTML = '<span class="you">YOU</span> <b>' + G.score.you + '</b> · <span class="bot">BOT A</span> <b>' + G.score.bot + '</b> · <span class="b2">BOT B</span> <b>' + G.score.b2 + '</b>';
 }
 function startMatch() {
   G.paused = false; looking = false; G.online = false; G.oppName = 'BOT'; G.menuOpen = false; $('lblBot').textContent = 'BOT'; $('againBtn').style.display = ''; $('pauseNote').textContent = '';
   document.body.classList.add('playing');
-  audioInit(); loadMap(resolveMap(CFG.map)); G.score = { you: 0, bot: 0 }; G.round = 0; G.stats = newStats(); G.over = false; $('over').classList.remove('on'); $('menu').classList.remove('on'); $('pause').classList.remove('on'); $('hud').classList.add('on');
+  audioInit(); loadMap(resolveMap(CFG.map)); G.score = { you: 0, bot: 0, b2: 0 }; G.round = 0; G.stats = newStats(); G.over = false; $('over').classList.remove('on'); $('menu').classList.remove('on'); $('pause').classList.remove('on'); $('hud').classList.add('on');
   nextRound();
 }
 function nextRound() {
-  G.round++; clearDecals(); clearWorld(); if (bot) { scene.remove(bot.mesh); bot = null; }
-  const mine = myLoadout(), theirs = randomLoadout(); theirs.melee = theirs.melee;
+  G.round++; clearDecals(); clearWorld(); clearBots();
+  const sizes = modeSizes(), total = sizes.reduce((a, b) => a + b, 0), mine = myLoadout(); G.sizes = sizes; G.ffa = sizes.length === 3; G.roundMax = total > 6 ? 150 : total > 2 ? 100 : 80;
   Object.assign(P, { x: -spawnX(), z: rand(-3, 3), y: 0, vx: 0, vz: 0, vy: 0, yaw: -Math.PI / 2, pitch: 0, hp: MAXHP, dead: false, deadT: 0, crouch: false, eye: 1.6, ads: 0, wantAds: false, recoilP: 0, recoilY: 0, bloom: 0 });
-  giveLoadout(mine); bot = new Bot(theirs, CFG.diff); G.phase = 'countdown'; G.t = 3.3; G.last = 4; $('sYou').textContent = G.score.you; $('sBot').textContent = G.score.bot;
-  $('roundInfo').textContent = 'Round ' + G.round + '  ·  first to ' + CFG.rounds; setMsg('ROUND ' + G.round + '<small>' + MAP.name + ' · You: ' + ITEMS[mine.primary].name + ' + ' + ITEMS[mine.secondary].name + ' · they have the ' + ITEMS[theirs.primary].name + '</small>');
+  giveLoadout(mine); const taken = [{ x: P.x, z: P.z }];
+  sizes.forEach((n, t) => {
+    const cnt = t === 0 ? n - 1 : n; if (cnt <= 0) return;
+    const pts = t === 0 ? spawnPoints(-1, cnt, 0, taken) : spawnPoints(1, cnt, G.ffa ? (t === 1 ? -9 : 9) : rand(-1.5, 1.5), taken);
+    pts.forEach((pt, i) => { BOTS.push(new Bot(randomLoadout(), CFG.diff, { team: t, x: pt.x, z: pt.z, label: t === 0 ? 'Ally ' + (i + 1) : G.ffa ? 'Bot ' + 'AB'[t - 1] : (total > 2 ? 'Enemy ' + (i + 1) : 'BOT') })); });
+  });
+  bot = BOTS.find(b => b.team !== 0) || null; G.oppName = G.ffa ? 'THE BOTS' : total > 2 ? 'ENEMY' : 'BOT';
+  $('lblYou').textContent = sizes[0] > 1 ? 'TEAM' : 'YOU'; $('lblBot').textContent = total > 2 && !G.ffa ? 'ENEMY' : 'BOT'; renderScore();
+  G.phase = 'countdown'; G.t = 3.3; G.last = 4;
+  const who = G.ffa ? 'You vs 2 bots' : sizes[0] > 1 ? 'Your team of ' + sizes[0] + ' vs ' + sizes[1] : sizes[1] > 1 ? 'You vs ' + sizes[1] + ' bots' : '';
+  $('roundInfo').textContent = 'Round ' + G.round + '  ·  first to ' + CFG.rounds; setMsg('ROUND ' + G.round + '<small>' + MAP.name + ' · ' + MODE_NAMES[CFG.mode] + (who ? ' · ' + who : '') + ' · ' + ITEMS[mine.primary].name + ' + ' + ITEMS[mine.secondary].name + '</small>');
+}
+function roundWinner() {                                        // null while more than one team is still standing
+  const alive = [(!P.dead || BOTS.some(b => !b.dead && b.team === 0)) ? 'you' : null, BOTS.some(b => !b.dead && b.team === 1) ? 'bot' : null, BOTS.some(b => !b.dead && b.team === 2) ? 'b2' : null].filter(Boolean);
+  return alive.length > 1 ? null : alive[0] || 'draw';
+}
+function timeoutWinner() {                                      // time is up: the team with the most health left wins
+  const hp = [P.dead ? 0 : P.hp, 0, 0]; for (const b of BOTS) if (!b.dead) hp[b.team] += b.hp; const mx = Math.max(...hp); const w = hp.map((v, i) => v === mx ? i : -1).filter(i => i >= 0); return w.length === 1 ? ['you', 'bot', 'b2'][w[0]] : 'draw';
 }
 function endRound(winner, why) {
-  if (G.phase !== 'live') return; G.phase = 'roundover'; G.t = 3.2; if (winner === 'you') G.score.you++; else if (winner === 'bot') G.score.bot++;
-  $('sYou').textContent = G.score.you; $('sBot').textContent = G.score.bot;
-  setMsg(winner === 'you' ? '<span style="color:#7fd0ff">ROUND WON</span>' : winner === 'bot' ? '<span style="color:#ff8a8a">ROUND LOST</span>' : 'DRAW', 0); if (winner === 'you') sfxWin(); else if (winner === 'bot') sfxLose();
-  if (G.score.you >= CFG.rounds || G.score.bot >= CFG.rounds) G.matchEnd = true; else G.matchEnd = false;
+  if (G.phase !== 'live') return; G.phase = 'roundover'; G.t = 3.2; if (winner === 'you' || winner === 'bot' || winner === 'b2') G.score[winner]++;
+  renderScore(); setMsg(winner === 'you' ? '<span style="color:#7fd0ff">ROUND WON</span>' : winner === 'draw' ? 'DRAW' : '<span style="color:#ff8a8a">ROUND LOST</span>', 0); if (winner === 'you') sfxWin(); else if (winner !== 'draw') sfxLose();
+  G.matchEnd = G.score.you >= CFG.rounds || G.score.bot >= CFG.rounds || G.score.b2 >= CFG.rounds;
 }
 function showMatchOver() {
   document.body.classList.remove('playing');
-  G.phase = 'matchover'; G.over = true; const won = G.score.you > G.score.bot; document.exitPointerLock && document.exitPointerLock();
-  $('overTitle').innerHTML = won ? '<span style="color:#7fd0ff">YOU WIN!</span>' : '<span style="color:#ff8a8a">YOU LOSE</span>'; $('overScore').textContent = G.score.you + ' : ' + G.score.bot;
+  G.phase = 'matchover'; G.over = true; const best = Math.max(G.score.bot, G.score.b2 || 0), won = G.score.you > best; document.exitPointerLock && document.exitPointerLock();
+  const wt = won ? 0 : (G.score.b2 > G.score.bot ? 2 : 1), wb = BOTS.find(b => b.team === wt), scoreTxt = G.ffa ? G.score.you + ' : ' + G.score.bot + ' : ' + G.score.b2 : G.score.you + ' : ' + G.score.bot;
+  $('overTitle').innerHTML = won ? '<span style="color:#7fd0ff">YOU WIN!</span>' : '<span style="color:#ff8a8a">YOU LOSE</span>'; $('overScore').textContent = scoreTxt;
   const s = G.stats, acc = s.fired ? Math.round(s.hit / s.fired * 100) : 0;
   $('overStats').innerHTML = 'Kills: <b>' + s.kills + '</b> · Headshots: <b>' + s.head + '</b><br>Accuracy: <b>' + acc + '%</b> · Damage dealt: <b>' + Math.round(s.dmg) + '</b>';
-  $('hud').classList.remove('on'); victoryScene({ won, name: won ? 'YOU' : G.oppName, cloth: won ? 0x2d6fb7 : 0xb23a3a, gun: won ? P.inv.primary.id : (bot ? bot.L.primary : 'rifle'), score: G.score.you + ' : ' + G.score.bot });
+  $('hud').classList.remove('on'); victoryScene({ won, name: won ? 'YOU' : (wb ? wb.label : G.oppName), cloth: TEAMCOL[wt], gun: won ? P.inv.primary.id : (wb ? wb.L.primary : 'rifle'), score: scoreTxt });
 }
-function toMenu() { if (G.online && window.Online) Online.cleanup(); G.menuOpen = false; document.body.classList.remove('playing'); G.phase = 'menu'; $('hud').classList.remove('on'); $('over').classList.remove('on'); $('pause').classList.remove('on'); $('menu').classList.add('on'); if (bot) { scene.remove(bot.mesh); bot = null; } clearWorld(); victoryEnd(); document.exitPointerLock && document.exitPointerLock(); }
+function toMenu() { if (G.online && window.Online) Online.cleanup(); G.menuOpen = false; document.body.classList.remove('playing'); G.phase = 'menu'; $('hud').classList.remove('on'); $('over').classList.remove('on'); $('pause').classList.remove('on'); $('menu').classList.add('on'); clearBots(); clearWorld(); victoryEnd(); document.exitPointerLock && document.exitPointerLock(); }
 
 // ---------- shooting ----------
 function camForward(pitch, yaw) { const cp = Math.cos(pitch); return [-Math.sin(yaw) * cp, Math.sin(pitch), -Math.cos(yaw) * cp]; }
@@ -1182,7 +1242,7 @@ function meleeAttack(d) {
     const ang = d.arc + Math.atan(0.4 / dist); if ((dx * fx + dz * fz) / (dist * hl) < Math.cos(ang)) continue; if (!hasLOS(ex, ey, ez, f.x, f.y + 1.1, f.z)) continue;
     const back = (-Math.sin(f.yaw) * fx + -Math.cos(f.yaw) * fz) / hl > 0.4; any = true;
     if (hitFoe(f, d.dmg * (back ? d.backstab : 1), false, d.fx)) killed = true; burst(f.x, f.y + 1.2, f.z, -fx, 0.2, -fz, 6, 0xd62a2a, 2);
-    if (d.heal) P.hp = Math.min(MAXHP, P.hp + d.heal); if (d.knock && !G.online && f === bot) { bot.x += fx / hl * d.knock * 0.15; bot.z += fz / hl * d.knock * 0.15; pushOut(bot, 0.38); }
+    if (d.heal) P.hp = Math.min(MAXHP, P.hp + d.heal); if (d.knock && !G.online && f instanceof Bot) { f.x += fx / hl * d.knock * 0.15; f.z += fz / hl * d.knock * 0.15; pushOut(f, 0.38); }
   }
   if (any) { G.stats.hit++; reportHit(killed, false, ' 🔪'); }
   else { const hit = traceRay(ex, ey, ez, fx, fy, fz, d.reach, []); if (hit.kind === 'wall') burst(ex + fx * hit.t, ey + fy * hit.t, ez + fz * hit.t, hit.nx, hit.ny, hit.nz, 3, 0xffffff, 2); }
@@ -1536,7 +1596,7 @@ B.spleef = f => {
   for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { const s = addSolid(-H + ts * (i + 0.5), -H + ts * (j + 0.5), ts - 0.06, ts - 0.06, 0.35, 'ice', -0.35); s.ring = Math.min(i, j, n - 1 - i, n - 1 - j); s.gone = false; s.fall = 0; tiles.push(s); }
   MAP.tiles = tiles; MAP.n = n;
   MAPOBJ.push({ update(dt) {
-    const el = G.phase === 'live' ? 80 - G.roundTime : (G.phase === 'countdown' ? -1 : 999);
+    const el = G.phase === 'live' ? (G.roundMax || 80) - G.roundTime : (G.phase === 'countdown' ? -1 : 999);
     for (const s of tiles) {
       if (s.gone) { if (s.fall < 1) { s.fall += dt; s.mesh.position.y -= dt * 7; if (s.fall >= 1) s.mesh.visible = false; } continue; }
       const at = 12 + s.ring * 7.5; if (el < at - 2.5) continue; if (el < at) { s.mesh.visible = Math.floor(el * 7) % 2 === 0; continue; }
@@ -1731,6 +1791,10 @@ if (TOUCH) {
 // ---------- menus ----------
 function setSeg(id, val, onset) { const seg = $(id); seg.querySelectorAll('button').forEach(b => { b.classList.toggle('on', b.dataset.v === String(val)); b.onclick = () => { onset(b.dataset.v); setSeg(id, b.dataset.v, onset); saveCfg(); }; }); }
 function applyQuality() { renderer.shadowMap.enabled = CFG.quality === 'high'; scene.traverse(o => { if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { m.needsUpdate = true; }); }); }
+const MODE_INFO = { '1v1': 'You against 1 bot.', '2v2': 'You and 1 bot teammate against 2 bots.', '2v1': 'You and 1 bot teammate against 1 bot.', '1v2': 'You alone against 2 bots. A challenge!', ffa: 'Three-way fight: you and 2 bots, every fighter for themselves. Last one standing wins.', big: 'A huge battle: you and your bot team against a whole enemy team.' };
+if (!MODE_INFO[CFG.mode]) CFG.mode = '1v1'; CFG.bigSize = clamp(Math.round(+CFG.bigSize || 8), 3, 10);
+function updMode() { $('rowBig').style.display = CFG.mode === 'big' ? '' : 'none'; $('bigN').textContent = CFG.bigSize + ' v ' + CFG.bigSize; $('modeNote').textContent = MODE_INFO[CFG.mode] + ' (Matches against friends online are always 1v1.)'; }
+setSeg('segMode', CFG.mode, v => { CFG.mode = v; updMode(); }); $('rngBig').value = CFG.bigSize; $('rngBig').oninput = e => { CFG.bigSize = +e.target.value; saveCfg(); updMode(); }; updMode();
 setSeg('segDiff', CFG.diff, v => { CFG.diff = v; }); setSeg('segRounds', CFG.rounds, v => { CFG.rounds = +v; });
 const HELP = {
   rmb: '<b>W A S D</b> move · <b>Hold right-click + move mouse</b> to look · <b>Click</b> shoot · <b>E</b> (hold) aim · <b>Shift</b> sprint · <b>Space</b> jump · <b>C</b> crouch (while running: slide) · <b>R</b> reload · <b>1 2 3 4</b> items · <b>Esc</b> pause',
@@ -1774,10 +1838,10 @@ const FXE = { blind: $('fxBlind'), paint: $('fxPaint'), freeze: $('fxFreeze'), b
 function step(dt) {
   if (G.paused || G.phase === 'menu') return;
   // flow
-  if (G.phase === 'countdown') { G.t -= dt; const n = Math.ceil(G.t); if (n !== G.last && n >= 1 && n <= 3) { G.last = n; setMsg(String(n)); sfxBeep(false); } if (G.t <= 0) { G.phase = 'live'; G.roundTime = 80; setMsg('FIGHT!', 900); sfxBeep(true); } }
+  if (G.phase === 'countdown') { G.t -= dt; const n = Math.ceil(G.t); if (n !== G.last && n >= 1 && n <= 3) { G.last = n; setMsg(String(n)); sfxBeep(false); } if (G.t <= 0) { G.phase = 'live'; G.roundTime = G.roundMax || 80; setMsg('FIGHT!', 900); sfxBeep(true); } }
   else if (G.phase === 'live') {
     if (G.online) Online.liveTick(dt);
-    else { G.roundTime -= dt; if (P.dead) endRound('bot'); else if (bot && bot.dead) endRound('you'); else if (G.roundTime <= 0) endRound(P.hp > bot.hp ? 'you' : bot.hp > P.hp ? 'bot' : 'draw'); }
+    else { G.roundTime -= dt; const w = roundWinner(); if (w) endRound(w); else if (G.roundTime <= 0) endRound(timeoutWinner()); }
   } else if (G.phase === 'roundover' && !G.online) { G.t -= dt; if (G.t <= 0) { if (G.matchEnd) showMatchOver(); else nextRound(); } }
   // player
   const frozen = G.phase === 'countdown' || G.phase === 'matchover' || G.menuOpen;
@@ -1818,13 +1882,17 @@ function step(dt) {
   P.firePrev = P.fire;
   P.recoilP = lerp(P.recoilP, 0, Math.min(1, dt * 5)); P.recoilY = lerp(P.recoilY, 0, Math.min(1, dt * 5)); mouseD.x *= 0.7; mouseD.y *= 0.7;
   if (P.dead) P.deadT += dt;
-  if (bot) bot.update(dt);
+  for (let i = 0; i < BOTS.length; i++) BOTS[i].update(dt);
   if (G.online) Online.update(dt);
   updateProj(dt); updateWorld(dt); updateEffects(dt); updateMap(dt);
   P.moving = moving;
 }
 function render(dt) {
   if (VIC.on) { renderVictory(dt); return; }
+  if (P.dead && P.deadT > 1.3 && !G.online && G.phase === 'live') {          // you are out: watch a teammate (or anyone still fighting)
+    const t = BOTS.find(b => !b.dead && b.team === 0) || BOTS.find(b => !b.dead);
+    if (t) { cam.fov = CFG.fov; cam.updateProjectionMatrix(); cam.position.set(t.x, t.y + 1.7, t.z); cam.rotation.set(t.mesh.userData.aimG.rotation.x, t.yaw, 0, 'YXZ'); t.mesh.visible = false; $('xh').style.opacity = 0; renderer.clear(); renderer.render(scene, cam); t.mesh.visible = true; return; }
+  }
   const w = P.inv ? curWeapon() : ITEMS.handgun;
   const zoom = lerp(1, w.zoom, P.ads), fov = CFG.fov / zoom; if (Math.abs(cam.fov - fov) > 0.05) { cam.fov = fov; cam.updateProjectionMatrix(); }
   camShake = Math.max(0, camShake - dt * 0.4);
@@ -1852,6 +1920,7 @@ function hud(dt) {
   const noAmmo = (w.kind === 'gun' || w.kind === 'stream' || w.kind === 'proj') && !w.infinite && !w.free && a.mag <= 0 && a.reserve <= 0;
   const sd = $('sdot'); if (P.inv[P.cur].id === 'sniper' && P.ads > 0.7 && !P.dead) { const [sx, sy, sz] = camForward(P.pitch + P.recoilP, P.yaw + P.recoilY), sh = traceRay(P.x, P.y + P.eye, P.z, sx, sy, sz, 300, foeTargets()); sd.classList.toggle('on', sh.kind === 'body' || sh.kind === 'head'); } else sd.classList.remove('on');
   $('reloadTxt').textContent = P.using ? (P.using.type === 'heal' ? 'HEALING' : 'DRINKING') : noAmmo ? 'NO AMMO' : 'RELOADING'; $('reloadTxt').style.opacity = (P.reloadT > 0 || P.using || noAmmo) ? 1 : 0;
+  const al = $('alive'), sz = G.sizes; if (!G.online && sz && (sz.length === 3 || sz[0] + sz[1] > 2)) { const cnt = t => BOTS.filter(b => !b.dead && b.team === t).length + (t === 0 && !P.dead ? 1 : 0); al.textContent = sz.length === 3 ? '❤ Alive: you ' + (P.dead ? 0 : 1) + ' · Bot A ' + cnt(1) + ' · Bot B ' + cnt(2) : '❤ Your team ' + cnt(0) + '/' + sz[0] + '  ·  Enemy ' + cnt(1) + '/' + sz[1]; } else al.textContent = '';
   if (G.phase === 'live') { const t = Math.max(0, Math.ceil(G.roundTime)); $('roundInfo').textContent = 'Round ' + G.round + '  ·  first to ' + (G.online ? Online.rounds : CFG.rounds) + '  ·  ' + Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
 }
 let slowFrames = 0;
@@ -2343,8 +2412,8 @@ const Online = window.Online = {
   begin(l, name, role, rounds) {
     hide('friends'); hide('menu'); hide('nameScreen'); hide('waitScreen'); $('over').classList.remove('on'); $('pause').classList.remove('on');
     this.mapId = role === 'host' ? resolveMap(CFG.map) : null; this.active = true; this.ended = false; this.lower = l; this.name = name; this.role = role; this.rounds = rounds; this.round = 0; this.sendT = 0;
-    G.online = true; G.oppName = name; G.menuOpen = false; G.paused = false; G.over = false; G.stats = newStats(); G.score = { you: 0, bot: 0 };
-    if (bot) { scene.remove(bot.mesh); bot = null; }
+    G.online = true; G.oppName = name; G.menuOpen = false; G.paused = false; G.over = false; G.stats = newStats(); G.score = { you: 0, bot: 0, b2: 0 }; G.ffa = false; G.sizes = null; G.roundMax = 80; $('lblYou').textContent = 'YOU'; renderScore();
+    clearBots();
     $('lblBot').textContent = name.toUpperCase(); $('againBtn').style.display = 'none'; $('lblYou').textContent = 'YOU'; $('sYou').textContent = 0; $('sBot').textContent = 0;
     document.body.classList.add('playing'); $('hud').classList.add('on'); audioInit(); this.makeRemote(name); Social.setStatus('match');
     G.phase = 'countdown'; G.t = 99; G.last = 99; setMsg('Get ready…<small>' + (role === 'host' ? 'Starting round 1' : 'Waiting for ' + esc(name)) + '</small>');
