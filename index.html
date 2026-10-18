@@ -75,6 +75,9 @@
   .play:active { transform:scale(0.98); }
   .help { margin-top:12px; font-size:12.5px; opacity:0.72; line-height:1.55; max-width:560px; }
   .help b { color:var(--acc); }
+  #scare { position:fixed; inset:0; display:none; z-index:70; pointer-events:none; align-items:center; justify-content:center; overflow:hidden; } #scare.on { display:flex; } #scare .vig { position:absolute; inset:0; background:radial-gradient(ellipse at center, rgba(0,0,0,0) 15%, rgba(0,0,0,0.9) 100%); opacity:0; transition:opacity 1s; } #scare.pre .vig, #scare.boom .vig { opacity:1; }
+  #scareFace { position:relative; width:min(96vw,96vh); height:min(96vw,96vh); opacity:0; transform:scale(0.2); filter:drop-shadow(0 0 40px #f00); } #scare.boom { background:rgba(12,0,0,0.9); } #scare.boom #scareFace { opacity:1; animation:scz 0.2s cubic-bezier(0.1,0.9,0.2,1) forwards, scs 0.07s 0.2s infinite alternate; } #scare.fade { background:rgba(12,0,0,0.6); opacity:0; transition:opacity 0.7s; } #scare.fade #scareFace { opacity:1; transform:scale(1.3); }
+  @keyframes scz { to { transform:scale(1.25); } } @keyframes scs { from { transform:scale(1.25) translate(-7px,4px) rotate(-1deg); } to { transform:scale(1.3) translate(8px,-5px) rotate(1deg); } }
   #vic { position:fixed; left:0; right:0; top:7%; text-align:center; pointer-events:none; opacity:0; transition:opacity .4s; z-index:15; } #vic.on { opacity:1; }
   #vicT { font-size:clamp(38px,9vw,86px); font-weight:900; letter-spacing:4px; background:linear-gradient(#fff6c0,#ffb020); -webkit-background-clip:text; background-clip:text; color:transparent; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.6)); } #vicS { font-size:24px; font-weight:800; text-shadow:0 2px 6px #000; }
   #over { background:linear-gradient(to bottom, rgba(4,8,18,0) 30%, rgba(4,8,18,0.85) 100%); justify-content:flex-end; padding-bottom:26px; }
@@ -160,6 +163,7 @@ window.addEventListener('error', function (e) { if (document.getElementById('boo
 </script>
 <div id="game"></div>
 
+<div id="scare"><div class="vig"></div><canvas id="scareFace" width="512" height="512"></canvas></div>
 <div id="vic"><div id="vicT"></div><div id="vicS"></div></div>
 <div id="hud">
   <div id="dmg"></div><div id="ring"><i></i></div><div id="scope"><i id="sdot"></i></div><div class="fxo" id="fxBlind"></div><div class="fxo" id="fxPaint"></div><div class="fxo" id="fxFreeze"></div><div class="fxo" id="fxBurn"></div>
@@ -196,6 +200,7 @@ window.addEventListener('error', function (e) { if (document.getElementById('boo
     <div class="row"><span>Look speed</span><input type="range" id="rngSens" min="0.4" max="3" step="0.1"></div>
     <div class="row"><span>Field of view</span><input type="range" id="rngFov" min="70" max="110" step="1"></div>
     <div class="row"><span>Graphics</span><div class="seg" id="segQ"><button data-v="high">High</button><button data-v="low">Fast</button></div></div>
+    <div class="row"><span>Scary jumpscares</span><div class="seg" id="segScare"><button data-v="1">On</button><button data-v="0">Off</button></div></div>
     <div class="row"><span>Sound</span><div class="seg" id="segSnd"><button data-v="1">On</button><button data-v="0">Off</button></div></div>
   </div>
   <button class="play" id="playBtn">PLAY</button>
@@ -485,6 +490,22 @@ function sfxVictory() {
     [[76, 0, 0.25], [79, 0.25, 0.25], [84, 0.5, 0.5], [81, 1, 0.5], [84, 1.5, 0.5], [83, 2, 0.5], [86, 2.5, 0.5], [88, 3, 2], [84, 5, 0.5], [81, 5.5, 0.5], [84, 6, 0.5], [86, 6.5, 0.5], [88, 7, 1], [91, 8, 2.5]].forEach(m => note(m[0], m[1], m[2], 0.1));
     [[72, 0, 0.5], [76, 3, 2], [72, 7, 3.5]].forEach(m => note(m[0] + 12, m[1], m[2], 0.04, 'square'));
     for (let b = 0; b < 10; b++) kick(b); [1.5, 2.5, 4.5, 5.5, 6.5, 8.5, 9.5].forEach(b => snare(b)); for (let k = 0; k < 8; k++) snare(2.25 + k * 0.09, 0.15 + k * 0.03);
+  });
+}
+
+// the jumpscare: a creepy heartbeat and drone, then a scream
+function sfxScare() {
+  snd(t => {
+    for (let i = 0; i < 4; i++) thump(t + i * 0.28, 72, 36, 0.22, 0.55, 0);
+    const o = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain(); o.type = 'sawtooth'; o.frequency.setValueAtTime(46, t); o.frequency.linearRampToValueAtTime(61, t + 1.1); f.type = 'lowpass'; f.frequency.value = 260;
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.16, t + 1.0); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.35); o.connect(f); f.connect(g); g.connect(outNode(1, 0)); o.start(t); o.stop(t + 1.4);
+    const s = t + 1.1;
+    for (const [ty, f0, f1, dt2] of [['sawtooth', 640, 1850, 0], ['square', 655, 1930, 7]]) {
+      const sc = ac.createOscillator(), sg = ac.createGain(), vib = ac.createOscillator(), vg = ac.createGain(); sc.type = ty; sc.frequency.setValueAtTime(f0, s); sc.frequency.exponentialRampToValueAtTime(f1, s + 0.28); sc.frequency.linearRampToValueAtTime(f1 * 0.8, s + 1.0); sc.detune.value = dt2;
+      vib.frequency.value = 38; vg.gain.value = 55; vib.connect(vg); vg.connect(sc.frequency); sg.gain.setValueAtTime(0.0001, s); sg.gain.linearRampToValueAtTime(0.17, s + 0.02); sg.gain.exponentialRampToValueAtTime(0.0001, s + 1.0);
+      sc.connect(sg); sg.connect(outNode(1, 0)); sc.start(s); vib.start(s); sc.stop(s + 1.05); vib.stop(s + 1.05);
+    }
+    noiseBurst(s, 0.9, 2800, 0.6, 0.45, 0); thump(s, 95, 28, 0.9, 1.0, 0);
   });
 }
 const sfxClick = () => snd(t => blip(t, 320, 0.03, 0.1));
@@ -1517,6 +1538,7 @@ const skyTex = new THREE.CanvasTexture(skyCanvas); skyTex.encoding = THREE.sRGBE
 function setSky(st) { const g = skyCanvas.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, 256); [0, 0.55, 0.82, 1].forEach((p, i) => gr.addColorStop(p, st[i])); g.fillStyle = gr; g.fillRect(0, 0, 8, 256); skyTex.needsUpdate = true; scene.background = new THREE.Color(st[1]); }
 (function () { const m = new THREE.Mesh(new THREE.SphereGeometry(180, 24, 16), new THREE.MeshBasicMaterial({ map: skyTex, side: THREE.BackSide, fog: false, depthWrite: false })); m.renderOrder = -1; scene.add(m); })();
 function updateMap(dt) {
+  scareTick(dt);
   TEX.water.offset.x += dt * 0.02; TEX.water.offset.y += dt * 0.015; TEX.lava.offset.x += dt * 0.012; TEX.lava.offset.y -= dt * 0.01;
   for (let i = MAPOBJ.length - 1; i >= 0; i--) if (MAPOBJ[i].update(dt) === false) MAPOBJ.splice(i, 1);
   if (!P.dead && G.phase === 'live') {                // hazards: the void, lava and water
@@ -1539,7 +1561,7 @@ function loadMap(id) {
   m.lights.forEach(l => { const pl = new THREE.PointLight(l[0], l[4] === undefined ? 1.1 : l[4], 32, 2); pl.position.set(l[1] * f, l[2], l[3] * f); MAPG.add(pl); });
   buildNav(); mapRoundReset();
 }
-function mapRoundReset() { if (MAP && MAP.reset) MAP.reset(); P.inWater = false; }
+function mapRoundReset() { if (MAP && MAP.reset) MAP.reset(); P.inWater = false; scareReset(); }
 
 // ---------- the 41 maps ----------
 F.deck = (x, z, w, d, h, m, s) => { addSolid(x, z, w, d, h, m); const n = Math.round(h / 0.4), run = (n - 1) * 0.9; F.stairs(x - s * (w / 2 + 0.45 + run), z, 'x', s, 2, n, m); };
@@ -1778,7 +1800,7 @@ RM('construction', 'Construction', 'Regular', 'construction', { note: 'Wooden pl
 RM('crossroads', 'Crossroads', 'Regular', 'crossroads', { note: 'Two roads, cars and buildings', build: f => B.crossroads(f) });
 RM('dimension', 'Dimension', 'Regular', 'dimension', { note: 'Glass platforms around a portal, do not fall', build: f => B.dimension(f) });
 RM('docks', 'Docks', 'Regular', 'docks', { note: 'Piers, boats, containers and a two-floor building', build: f => B.docks(f) });
-RM('graveyard', 'Graveyard', 'Regular', 'graveyard', { note: 'A foggy night cemetery', build: f => B.graveyard(f) });
+RM('graveyard', 'Graveyard', 'Regular', 'graveyard', { scare: true, note: 'A foggy night cemetery. Warning: it has a scary jumpscare!', build: f => B.graveyard(f) });
 RM('iceberg', 'Iceberg', 'Regular', 'iceberg', { note: 'Snow, ice blocks and igloos', build: f => B.iceberg(f) });
 RM('museum', 'Museum', 'Regular', 'museum', { note: 'Marble halls, statues and display cases', build: f => B.museum(f) });
 RM('onyx', 'Onyx', 'Regular', 'onyx', { note: 'Islands in a lava lake', build: f => B.onyx(f) });
@@ -1793,7 +1815,7 @@ RM('westown', 'Westown', 'Regular', 'westown', { note: 'A wild-west town with a 
 RM('big_arena', 'Big Arena', 'Big Team', 'arena', { half: 30, note: 'A stretched-out Arena', build: f => B.arena(f) });
 RM('big_backrooms', 'Big Backrooms', 'Big Team', 'backrooms', { half: 30, note: 'A much bigger Backrooms', build: f => B.backrooms(f) });
 RM('big_crossroads', 'Big Crossroads', 'Big Team', 'crossroads', { half: 30, note: 'A bigger Crossroads', build: f => B.crossroads(f) });
-RM('big_graveyard', 'Big Graveyard', 'Big Team', 'graveyard', { half: 30, note: 'Has a two-floor house and a tunnel', build: f => B.graveyard(f, true) });
+RM('big_graveyard', 'Big Graveyard', 'Big Team', 'graveyard', { scare: true, half: 30, note: 'Has a two-floor house and a tunnel. Warning: it has a scary jumpscare!', build: f => B.graveyard(f, true) });
 RM('big_onyx', 'Big Onyx', 'Big Team', 'onyx', { half: 30, note: 'Wider islands and more lava', build: f => B.onyx(f, true) });
 RM('big_splash', 'Big Splash', 'Big Team', 'splash', { half: 30, note: 'A bigger pool park', build: f => B.splash(f, true) });
 RM('big_station', 'Big Station', 'Big Team', 'station', { half: 30, note: 'A bigger station', build: f => B.station(f, true) });
@@ -1852,6 +1874,39 @@ function renderVictory(dt) {
   if (t < 4.5) for (let i = 0; i < 2; i++) puff(rand(-1.2, 1.2), Y + 2.6, rand(-1.2, 1.2), rand(-4, 4), rand(3, 8), rand(-4, 4), 1.8, 0.3, 0.3, [0xff4455, 0xffb020, 0x4ac96a, 0x3a9bf2, 0xf25aa9, 0xf5e04a][(Math.random() * 6) | 0], 0.95, 7, false);
   updateEffects(dt); if (t > 5.2) finishVictory();
   renderer.clear(); renderer.render(scene, cam);
+}
+
+// ---------- graveyard jumpscare ----------
+const SC = { done: true, t: 0, grave: null, busy: false, face: null };
+function scareReset() {                                          // each round of a scary map gets one jumpscare: a creepy grave, or a timer
+  SC.done = !(MAP && MAP.scare) || !CFG.scare; SC.t = rand(10, 34); SC.grave = null;
+  if (MAP && MAP.scare) { const L = SOLIDS.filter(s => s.mesh && !s.mesh.visible && s.x1 - s.x0 < 1.1 && s.z1 - s.z0 < 0.6 && Math.abs((s.x0 + s.x1) / 2) < HALF_SIZE - 9); SC.grave = L.length ? L[(Math.random() * L.length) | 0] : null; }
+}
+function drawScareFace() {
+  if (SC.face) return; const c = document.getElementById('scareFace'), g = c.getContext('2d'), S = 512; g.clearRect(0, 0, S, S);
+  let gr = g.createRadialGradient(S / 2, S / 2, 40, S / 2, S / 2, S / 2); gr.addColorStop(0, 'rgba(160,0,0,0.55)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, S, S);
+  g.strokeStyle = '#0a0a0c'; g.lineWidth = 7; g.lineCap = 'round'; for (let i = 0; i < 26; i++) { const a = Math.PI * (1.05 + Math.random() * 0.9), x = S / 2 + Math.cos(a) * 190, y = 250 + Math.sin(a) * 200; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + (Math.random() - 0.5) * 60, y - 60 - Math.random() * 70, x + (Math.random() - 0.5) * 90, y - 130 - Math.random() * 90); g.stroke(); }
+  gr = g.createRadialGradient(S / 2, 230, 30, S / 2, 250, 230); gr.addColorStop(0, '#f1f1e6'); gr.addColorStop(0.7, '#b9bcae'); gr.addColorStop(1, '#4a4d46'); g.fillStyle = gr; g.beginPath(); g.ellipse(S / 2, 255, 160, 205, 0, 0, 7); g.fill();
+  g.fillStyle = 'rgba(0,0,0,0.28)'; g.beginPath(); g.ellipse(150, 300, 26, 70, 0.3, 0, 7); g.fill(); g.beginPath(); g.ellipse(362, 300, 26, 70, -0.3, 0, 7); g.fill();
+  g.strokeStyle = 'rgba(20,20,20,0.7)'; g.lineWidth = 3; for (let i = 0; i < 9; i++) { let x = 190 + Math.random() * 130, y = 90 + Math.random() * 60; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 5; k++) { x += (Math.random() - 0.5) * 36; y += 18 + Math.random() * 26; g.lineTo(x, y); } g.stroke(); }
+  for (const sx of [-1, 1]) { const cx = S / 2 + sx * 72; g.save(); g.translate(cx, 215); g.rotate(sx * -0.28); g.fillStyle = '#000'; g.beginPath(); g.ellipse(0, 0, 50, 62, 0, 0, 7); g.fill(); const eg = g.createRadialGradient(0, 4, 2, 0, 4, 26); eg.addColorStop(0, '#fff'); eg.addColorStop(0.25, '#ff3030'); eg.addColorStop(1, 'rgba(255,0,0,0)'); g.fillStyle = eg; g.beginPath(); g.arc(0, 4, 26, 0, 7); g.fill(); g.restore(); }
+  g.fillStyle = '#0c0c0c'; g.beginPath(); g.moveTo(S / 2, 268); g.lineTo(S / 2 - 22, 322); g.lineTo(S / 2, 308); g.lineTo(S / 2 + 22, 322); g.closePath(); g.fill();
+  g.fillStyle = '#050505'; g.beginPath(); g.ellipse(S / 2, 410, 92, 86, 0, 0, 7); g.fill();
+  g.fillStyle = '#ebebdd'; for (let i = 0; i < 7; i++) { const x = S / 2 - 78 + i * 26; g.beginPath(); g.moveTo(x, 336); g.lineTo(x + 24, 336); g.lineTo(x + 12, 336 + 36 + Math.random() * 14); g.fill(); } for (let i = 0; i < 6; i++) { const x = S / 2 - 66 + i * 26; g.beginPath(); g.moveTo(x, 490); g.lineTo(x + 24, 490); g.lineTo(x + 12, 490 - 30 - Math.random() * 12); g.fill(); }
+  g.fillStyle = 'rgba(120,0,0,0.5)'; for (const x of [150, 250, 372]) { g.beginPath(); g.moveTo(x, 470); g.lineTo(x + 8, 470); g.lineTo(x + 4, 470 + 30 + Math.random() * 30); g.fill(); }
+  SC.face = true;
+}
+function triggerScare() {
+  if (SC.busy) return; SC.done = true; SC.busy = true; drawScareFace(); const el = document.getElementById('scare'); el.className = 'on pre'; sfxScare();
+  const dim = hemi.intensity; [0, 260, 520].forEach((d, i) => { setTimeout(() => { hemi.intensity = dim * 0.15; }, d + 150); setTimeout(() => { hemi.intensity = dim * (i === 2 ? 0.3 : 0.8); }, d + 230); });
+  setTimeout(() => { el.className = 'on boom'; camShake = Math.max(camShake, 0.3); }, 1100);
+  setTimeout(() => { el.className = 'on fade'; hemi.intensity = dim; }, 2050);
+  setTimeout(() => { el.className = ''; SC.busy = false; }, 2750);
+}
+function scareTick(dt) {
+  if (SC.done || !MAP || !MAP.scare || G.phase !== 'live' || P.dead || G.paused || G.roundTime < 8) return;
+  SC.t -= dt; const g = SC.grave, near = g && Math.hypot(P.x - (g.x0 + g.x1) / 2, P.z - (g.z0 + g.z1) / 2) < 3.2;
+  if (SC.t <= 0 || (near && SC.t < 28)) triggerScare();
 }
 
 // ---------- input ----------
@@ -1917,6 +1972,7 @@ const MODE_INFO = { '1v1': 'You against 1 bot.', '2v2': 'You and 1 bot teammate 
 if (!MODE_INFO[CFG.mode]) CFG.mode = '1v1'; CFG.bigSize = clamp(Math.round(+CFG.bigSize || 8), 3, 10);
 function updMode() { $('rowBig').style.display = CFG.mode === 'big' ? '' : 'none'; $('bigN').textContent = CFG.bigSize + ' v ' + CFG.bigSize; $('modeNote').textContent = MODE_INFO[CFG.mode] + ' (Matches against friends online are always 1v1.)'; }
 setSeg('segMode', CFG.mode, v => { CFG.mode = v; updMode(); }); $('rngBig').value = CFG.bigSize; $('rngBig').oninput = e => { CFG.bigSize = +e.target.value; saveCfg(); updMode(); }; updMode();
+if (CFG.scare === undefined) CFG.scare = 1; setSeg('segScare', CFG.scare, v => { CFG.scare = +v; });
 setSeg('segDiff', CFG.diff, v => { CFG.diff = v; }); setSeg('segRounds', CFG.rounds, v => { CFG.rounds = +v; });
 const HELP = {
   rmb: '<b>W A S D</b> move · <b>Hold right-click + move mouse</b> to look · <b>Click</b> shoot · <b>E</b> (hold) aim · <b>Shift</b> sprint · <b>Space</b> jump · <b>C</b> crouch (while running: slide) · <b>R</b> reload · <b>1 2 3 4</b> items · <b>Esc</b> pause',
