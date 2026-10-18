@@ -90,6 +90,14 @@
   .ldi { font:inherit; font-size:13px; padding:6px 10px; border-radius:9px; border:1px solid rgba(255,255,255,0.22); background:rgba(255,255,255,0.07); color:var(--ink); cursor:pointer; }
   .ldi.prime { border-color:rgba(120,190,255,0.6); } .ldi.contraband { border-color:rgba(255,120,200,0.65); } .ldi.on { background:var(--acc); color:#1d1300; font-weight:800; border-color:var(--acc); }
   .teamb { font:inherit; font-size:13px; padding:6px 10px; border-radius:9px; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.08); color:var(--ink); cursor:pointer; } .teamb:disabled { cursor:default; opacity:0.9; } .teamb.t0 { border-color:#4aa3ff; } .teamb.t1 { border-color:#ff5a5a; } #roomBody .play:disabled { opacity:0.45; cursor:default; } #roomBody .seg { flex-wrap:wrap; }
+  .chip .chipk { opacity:0.95; margin-left:4px; } .rdot { display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--red); margin-left:6px; vertical-align:middle; } .rdot[hidden] { display:none; } #caseOpen { z-index:30; background:#050914; }
+  .keybig { font-weight:800; color:var(--acc); margin:0 12px; font-size:18px; } #caseTabs { display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 12px; } #caseTabs button { font:inherit; font-size:14px; padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.06); color:var(--ink); cursor:pointer; } #caseTabs button.on { background:var(--acc); color:#1d1300; font-weight:800; border-color:var(--acc); } #caseTabs b { background:var(--red); color:#fff; border-radius:999px; padding:0 6px; margin-left:3px; font-size:12px; }
+  .casegrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; } .ccard { border:2px solid var(--c); border-radius:14px; padding:12px; background:rgba(255,255,255,0.05); display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; } .cico { font-size:46px; } .cprice { font-weight:800; color:var(--acc); } .codds { font-size:11.5px; display:flex; flex-direction:column; gap:1px; } .ccard button:disabled { opacity:0.45; cursor:default; }
+  .cc { width:150px; height:150px; flex:none; box-sizing:border-box; border-bottom:5px solid var(--rc); background:rgba(255,255,255,0.06); display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:11px; text-align:center; padding:4px; position:relative; border-radius:6px; } .cc img { width:130px; height:76px; object-fit:contain; }
+  .invgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; } .invc { cursor:pointer; } .invc .cc { width:100%; border-radius:10px; } .invc:hover .cc { background:rgba(255,255,255,0.12); } .cn { position:absolute; right:6px; top:4px; font-style:normal; font-weight:800; background:rgba(0,0,0,0.6); padding:1px 6px; border-radius:8px; } .ceq { position:absolute; left:6px; top:4px; font-style:normal; font-size:10px; font-weight:800; background:var(--acc); color:#1d1300; padding:1px 6px; border-radius:8px; }
+  #coTitle { font-size:26px; font-weight:900; letter-spacing:2px; } #coView { position:relative; width:min(720px,96vw); height:150px; overflow:hidden; border:2px solid rgba(255,255,255,0.2); border-radius:12px; background:rgba(0,0,0,0.45); margin:14px 0; } #coStrip { display:flex; position:absolute; top:0; left:0; will-change:transform; } #coPtr { position:absolute; left:50%; top:0; bottom:0; width:3px; margin-left:-1px; background:#ffb020; z-index:2; box-shadow:0 0 12px #ffb020; }
+  .coWin { text-align:center; padding:14px 26px; border:3px solid var(--rc); border-radius:16px; background:rgba(255,255,255,0.06); box-shadow:0 0 40px var(--rc); } .coWin img { width:240px; height:140px; } .coWin h2 { margin:6px 0; color:var(--rc); } .newtag { display:inline-block; background:var(--acc); color:#1d1300; font-weight:900; padding:2px 10px; border-radius:10px; } .newtag.dup { background:rgba(255,255,255,0.15); color:var(--ink); font-weight:600; }
+  .dgrid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; } .dday { position:relative; text-align:center; padding:10px 2px; border-radius:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); display:flex; flex-direction:column; gap:4px; font-size:13px; } .dday.done { opacity:0.55; } .dday.next { border-color:var(--acc); box-shadow:0 0 0 2px rgba(255,176,32,0.5); background:rgba(255,176,32,0.12); } .dday i { position:absolute; right:4px; top:2px; color:#5cf08a; font-style:normal; }
   .ldinfo { font-size:13px; opacity:0.9; margin-top:6px; line-height:1.45; min-height:38px; } .ldinfo small { opacity:0.7; }
   /* ---- friends and online ---- */
   #topbar { position:absolute; top:12px; right:12px; left:12px; display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap; z-index:5; }
@@ -97,7 +105,7 @@
   .chip.static { cursor:default; font-size:13px; opacity:0.9; }
   .chip b { background:var(--red); color:#fff; border-radius:999px; padding:1px 7px; margin-left:6px; font-size:12px; }
   .chip b[hidden] { display:none; }
-  #nameScreen, #friends, #waitScreen, #loadout, #maps, #room { background:rgba(4,8,18,0.96); z-index:20; }
+  #nameScreen, #friends, #waitScreen, #loadout, #maps, #room, #cases, #caseOpen { background:rgba(4,8,18,0.96); z-index:20; }
   #nameScreen input, .addrow input { width:100%; font:inherit; font-size:22px; padding:12px 14px; border-radius:12px; border:2px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.08); color:#fff; outline:none; text-align:center; }
   #nameScreen input:focus, .addrow input:focus { border-color:var(--acc); }
   #nameErr, .err { color:#ff8a8a; min-height:20px; margin:8px 0; font-size:14px; }
@@ -175,7 +183,7 @@ window.addEventListener('error', function (e) { if (document.getElementById('boo
 <div id="rotate"><div>📱↻</div>Turn your phone sideways to play</div>
 
 <div class="screen on" id="menu">
-  <div id="topbar"><span class="chip static" id="netState">⚪ Offline</span><button class="chip" id="btnProfile"><span id="meAv">👤</span> <span id="meName">Set your name</span></button><button class="chip" id="btnFriends">👥 Friends <b id="friendBadge" hidden>0</b></button></div>
+  <div id="topbar"><span class="chip static" id="netState">⚪ Offline</span><button class="chip" id="btnProfile"><span id="meAv">👤</span> <span id="meName">Set your name</span></button><button class="chip" id="btnCases">🎁 Cases <span class="chipk">🔑 <b id="keyN">0</b></span><i class="rdot" id="dailyDot" hidden></i></button><button class="chip" id="btnFriends">👥 Friends <b id="friendBadge" hidden>0</b></button></div>
   <h1>DUEL <em>ARENA</em></h1>
   <div class="sub">First to win the rounds takes the match. Pick your weapons in the loadout!</div>
   <div class="card">
@@ -191,13 +199,15 @@ window.addEventListener('error', function (e) { if (document.getElementById('boo
     <div class="row"><span>Sound</span><div class="seg" id="segSnd"><button data-v="1">On</button><button data-v="0">Off</button></div></div>
   </div>
   <button class="play" id="playBtn">PLAY</button>
-  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button class="btn2" id="btnLoadout" style="font-size:16px">🎒 Choose your loadout</button><button class="btn2" id="btnMap" style="font-size:16px">🗺 Map</button><button class="btn2" id="btnRoom" style="font-size:16px">👥 Play with friends</button></div>
+  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button class="btn2" id="btnLoadout" style="font-size:16px">🎒 Choose your loadout</button><button class="btn2" id="btnMap" style="font-size:16px">🗺 Map</button><button class="btn2" id="btnRoom" style="font-size:16px">👥 Play with friends</button><button class="btn2" id="btnCases2" style="font-size:16px">🎁 Cases &amp; Skins</button></div>
   <div class="help" id="help"><b>W A S D</b> move · <b>Mouse</b> look · <b>Click</b> shoot · <b>Right-click</b> aim · <b>Shift</b> sprint · <b>Space</b> jump · <b>C</b> crouch (while running: slide) · <b>R</b> reload · <b>1 2 3 4</b> items · <b>Esc</b> pause</div>
 </div>
 
 <div class="screen" id="loadout"><div class="card panel" style="width:min(760px,100%)"><div id="fHead"><h2>🎒 Your loadout</h2><button class="btn2" id="loadoutClose">✕ Done</button></div><div id="ldBody"></div><div class="note">Fan-made game inspired by Rivals. It is not made by or connected to Rivals or Roblox. Weapon names are used as a tribute; most numbers are my best guess.</div></div></div>
 
 <div class="screen" id="room"><div class="card panel" style="width:min(640px,100%)"><div id="fHead"><h2>👥 Play with friends</h2><button class="btn2" id="roomLeave">✕ Leave</button></div><div id="roomBody"></div><div class="note">Up to 8 friends can play together. Only friends you have accepted can be invited. Everyone connects through the person who made the room.</div></div></div>
+<div class="screen" id="cases"><div class="card panel" style="width:min(780px,100%)"><div id="fHead"><h2>🎁 Cases &amp; Skins</h2><span class="keybig" id="caseKeys"></span><button class="btn2" id="casesClose">✕ Close</button></div><div id="caseTabs"></div><div id="caseBody"></div><div class="note">Keys are free. You earn them by playing, by shooting accurately and with the daily reward. They cannot be bought with real money. Skins only change how your weapons look.</div></div></div>
+<div class="screen" id="caseOpen"><div id="coTitle"></div><div id="coView"><div id="coPtr"></div><div id="coStrip"></div></div><div id="coReveal"></div><div id="coBtns" style="margin-top:14px"></div></div>
 <div class="screen" id="maps"><div class="card panel" style="width:min(760px,100%)"><div id="fHead"><h2>🗺 Choose a map</h2><button class="btn2" id="mapsClose">✕ Done</button></div><div id="mapBody"></div><div class="note">The map names come from Rivals, but every layout is my own design, so they will not look like the real ones. Fan-made, not connected to Rivals or Roblox.</div></div></div>
 
 <div class="screen" id="pause"><h1 style="font-size:clamp(34px,7vw,60px)">PAUSED</h1><button class="play" id="resumeBtn">RESUME</button><button class="btn2" id="quitBtn" style="margin-top:14px">Quit to menu</button><div id="pauseNote" style="margin-top:12px;opacity:.8;font-size:14px"></div></div>
@@ -599,7 +609,7 @@ function sph(g, r, x, y, z, mat) { const m = new THREE.Mesh(new THREE.SphereGeom
 function cone(g, r, len, x, y, z, mat) { const m = new THREE.Mesh(new THREE.ConeGeometry(r, len, 12), mat); m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); g.add(m); return m; }
 const hands = (g, z1 = -0.04, z2 = -0.4, y = -0.1) => { bx(g, 0.07, 0.07, 0.08, 0, y, z1, GLOVE); if (z2 !== null) bx(g, 0.07, 0.07, 0.09, 0, y + 0.05, z2, GLOVE); };
 // builds an item that points down -Z; returns the group and where bullets leave
-function buildItemModel(id) {
+function buildItemModel(id, skin) {
   const d = ITEMS[id], g = new THREE.Group(); let tip = -0.5; const M = d.model, col = d.color, acc = d.accent; const C = MAT(col, 0.6, 0.4), A = MAT(acc, 0.4, 0.3, 0.6), AG = GLOW(acc);
   if (M === 'pistol') { bx(g, 0.05, 0.06, 0.26, 0, 0.02, -0.12, DARK); bx(g, 0.045, 0.03, 0.24, 0, 0.06, -0.12, STEEL); bx(g, 0.045, 0.13, 0.06, 0, -0.07, -0.03, DARK, 0.25); tip = -0.27; hands(g, 0, null, -0.1); }
   else if (M === 'revolver') { bx(g, 0.05, 0.07, 0.2, 0, 0.02, -0.12, STEEL); cyl(g, 0.045, 0.1, 0, 0.0, -0.1, DARK); cyl(g, 0.014, 0.2, 0, 0.03, -0.3, STEEL); bx(g, 0.045, 0.14, 0.06, 0, -0.08, -0.01, WOOD, 0.3); tip = -0.4; hands(g, 0, null, -0.1); }
@@ -655,8 +665,116 @@ function buildItemModel(id) {
   else if (M === 'ray') { bx(g, 0.07, 0.09, 0.3, 0, 0, -0.14, MAT(0x2c3e66, 0.6, 0.4)); cyl(g, 0.03, 0.2, 0, 0.0, -0.34, MAT(0x9fe9ff, 0.2, 0.1, 0.8)); bx(g, 0.04, 0.12, 0.05, 0, -0.09, 0.0, DARK, 0.3); tip = -0.45; hands(g, 0, -0.25); }
   else { bx(g, 0.06, 0.08, 0.4, 0, 0, -0.2, DARK); tip = -0.45; hands(g, 0, -0.2); }
   const flash = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.3), FLASHMAT); flash.position.set(0, 0.01, tip - 0.06); flash.visible = false; g.add(flash);
-  g.userData = { tip, flash }; return g;
+  g.userData = { tip, flash }; if (skin) applySkin(g, skin); return g;
 }
+
+// ---------- skins, keys and cases ----------
+// Keys are a free currency: you earn them by playing, by shooting accurately and from the daily reward. They cannot be bought with real money.
+const RARITY = [{ id: 'common', name: 'Common', col: '#b0b8c4' }, { id: 'uncommon', name: 'Uncommon', col: '#5ad06a' }, { id: 'rare', name: 'Rare', col: '#4aa3ff' }, { id: 'epic', name: 'Epic', col: '#b06aff' }, { id: 'legendary', name: 'Legendary', col: '#ffb020' }, { id: 'mythic', name: 'Mythic', col: '#ff3b5c' }];
+const STYLES = [
+  { id: 'factory', name: 'Factory', r: 0, c1: '#8a9099', c2: '#5a6068', pat: 'plain', metal: 0.5, rough: 0.5 }, { id: 'rust', name: 'Rusty', r: 0, c1: '#8a4b2a', c2: '#5a2f18', pat: 'plain', metal: 0.3, rough: 0.8 },
+  { id: 'sand', name: 'Desert', r: 0, c1: '#c8b27a', c2: '#8f7d4a', pat: 'plain', metal: 0.2, rough: 0.8 }, { id: 'slate', name: 'Slate', r: 0, c1: '#4a5560', c2: '#2e353c', pat: 'plain', metal: 0.6, rough: 0.4 },
+  { id: 'jungle', name: 'Jungle', r: 1, c1: '#4f8a3a', c2: '#243d1a', pat: 'camo', metal: 0.2, rough: 0.8 }, { id: 'ocean', name: 'Ocean', r: 1, c1: '#2a6fb0', c2: '#9fd0ff', pat: 'stripes', metal: 0.4, rough: 0.5 },
+  { id: 'sunset', name: 'Sunset', r: 1, c1: '#e0742a', c2: '#ffd24a', pat: 'stripes', metal: 0.4, rough: 0.5 }, { id: 'mint', name: 'Mint', r: 1, c1: '#3fc9a0', c2: '#e8fff6', pat: 'checks', metal: 0.3, rough: 0.5 },
+  { id: 'arctic', name: 'Arctic', r: 2, c1: '#9fe0ff', c2: '#3a7aa0', pat: 'hex', metal: 0.6, rough: 0.3 }, { id: 'neonpink', name: 'Neon Pink', r: 2, c1: '#ff4fa8', c2: '#3a0a24', pat: 'stripes', metal: 0.4, rough: 0.4, em: 0.35 },
+  { id: 'toxic', name: 'Toxic', r: 2, c1: '#8cff2a', c2: '#1d4a0a', pat: 'hex', metal: 0.4, rough: 0.4, em: 0.3 }, { id: 'cobalt', name: 'Cobalt', r: 2, c1: '#2848ff', c2: '#d8e0ff', pat: 'checks', metal: 0.7, rough: 0.3 },
+  { id: 'galaxy', name: 'Galaxy', r: 3, c1: '#8a4cff', c2: '#10062a', pat: 'stars', metal: 0.5, rough: 0.35, em: 0.4 }, { id: 'inferno', name: 'Inferno', r: 3, c1: '#ff5a10', c2: '#3a0800', pat: 'flames', metal: 0.4, rough: 0.4, em: 0.6 },
+  { id: 'royal', name: 'Royal', r: 3, c1: '#7a1fd0', c2: '#e8c14a', pat: 'scales', metal: 0.7, rough: 0.3 },
+  { id: 'gold', name: 'Golden', r: 4, c1: '#ffc23a', c2: '#ffe9a0', pat: 'plain', metal: 0.95, rough: 0.2 }, { id: 'rainbow', name: 'Rainbow', r: 4, c1: '#ffffff', c2: '#ffffff', pat: 'rainbow', metal: 0.5, rough: 0.3, em: 0.25 },
+  { id: 'dragon', name: 'Dragon', r: 4, c1: '#1fa850', c2: '#ffd24a', pat: 'scales', metal: 0.6, rough: 0.3, em: 0.15 },
+  { id: 'void', name: 'Void', r: 5, c1: '#0a0a14', c2: '#00e5ff', pat: 'hex', metal: 0.8, rough: 0.2, em: 0.9, glow: '#00cfff' }, { id: 'crimson', name: 'Crimson Fire', r: 5, c1: '#ff0a3c', c2: '#1a0006', pat: 'flames', metal: 0.5, rough: 0.3, em: 1.0 },
+];
+const STYLEBY = {}; STYLES.forEach(s => { STYLEBY[s.id] = s; });
+const SKIN_ITEMS = Object.keys(ITEMS).filter(id => ['primary', 'secondary', 'melee'].includes(ITEMS[id].slot));          // utility items have no skins
+const CASES = [
+  { id: 'std', name: 'Standard Case', cost: 5, icon: '📦', col: '#8fa3b8', odds: [60, 28, 9, 2.5, 0.45, 0.05], items: SKIN_ITEMS.filter(id => ITEMS[id].tier === 'Standard') },
+  { id: 'prime', name: 'Prime Case', cost: 10, icon: '🎁', col: '#4aa3ff', odds: [35, 35, 20, 8, 1.8, 0.2], items: SKIN_ITEMS.filter(id => ITEMS[id].tier !== 'Contraband') },
+  { id: 'cont', name: 'Contraband Case', cost: 20, icon: '💎', col: '#ff4fa8', odds: [0, 30, 40, 20, 8, 2], items: SKIN_ITEMS },
+];
+const DAILY = [3, 3, 4, 4, 5, 6, 10];
+const rollRarity = odds => { const tot = odds.reduce((a, b) => a + b, 0); let x = Math.random() * tot; for (let i = 0; i < odds.length; i++) { x -= odds[i]; if (x < 0) return i; } return odds.findIndex(v => v > 0); };
+const pickStyle = r => { const L = STYLES.filter(s => s.r === r); return L[(Math.random() * L.length) | 0]; };
+const rollStyle = odds => pickStyle(rollRarity(odds));
+const PAT = {
+  plain(g, z, s) { g.fillStyle = s.c1; g.fillRect(0, 0, z, z); speckle(g, z, 400, 30, 230); g.strokeStyle = s.c2; g.lineWidth = 6; g.strokeRect(0, 0, z, z); },
+  stripes(g, z, s) { g.fillStyle = s.c1; g.fillRect(0, 0, z, z); g.fillStyle = s.c2; for (let x = -z; x < z * 2; x += 32) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x + 16, 0); g.lineTo(x + 16 - z, z); g.lineTo(x - z, z); g.fill(); } },
+  camo(g, z, s) { g.fillStyle = s.c2; g.fillRect(0, 0, z, z); const cols = [s.c1, 'rgba(0,0,0,0.35)', s.c1]; for (let i = 0; i < 26; i++) { g.fillStyle = cols[i % 3]; g.beginPath(); g.ellipse(Math.random() * z, Math.random() * z, 10 + Math.random() * 22, 6 + Math.random() * 14, Math.random() * 3, 0, 7); g.fill(); } },
+  hex(g, z, s) { g.fillStyle = s.c1; g.fillRect(0, 0, z, z); g.strokeStyle = s.c2; g.lineWidth = 3; const r = 16; for (let row = -1; row < z / (r * 1.5) + 1; row++) for (let col = -1; col < z / (r * 1.75) + 1; col++) { const cx = col * r * 1.75 + (row % 2 ? r * 0.87 : 0), cy = row * r * 1.5; g.beginPath(); for (let k = 0; k < 6; k++) { const a = Math.PI / 3 * k + Math.PI / 6; g.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a)); } g.closePath(); g.stroke(); } },
+  checks(g, z, s) { for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { g.fillStyle = (i + j) % 2 ? s.c2 : s.c1; g.fillRect(i * z / 8, j * z / 8, z / 8, z / 8); } },
+  stars(g, z, s) { g.fillStyle = s.c2; g.fillRect(0, 0, z, z); const gr = g.createRadialGradient(z * 0.3, z * 0.4, 5, z / 2, z / 2, z * 0.8); gr.addColorStop(0, s.c1); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, z, z); g.fillStyle = '#fff'; for (let i = 0; i < 40; i++) { g.globalAlpha = 0.4 + Math.random() * 0.6; g.fillRect(Math.random() * z, Math.random() * z, 1 + Math.random() * 2, 1 + Math.random() * 2); } g.globalAlpha = 1; },
+  flames(g, z, s) { const gr = g.createLinearGradient(0, z, 0, 0); gr.addColorStop(0, s.c2); gr.addColorStop(0.35, s.c1); gr.addColorStop(1, '#ffe27a'); g.fillStyle = gr; g.fillRect(0, 0, z, z); g.fillStyle = s.c2; for (let x = 0; x < z; x += 16) { g.beginPath(); g.moveTo(x, 0); g.quadraticCurveTo(x + 8, z * (0.3 + Math.random() * 0.4), x + 16, 0); g.fill(); } },
+  scales(g, z, s) { g.fillStyle = s.c1; g.fillRect(0, 0, z, z); g.strokeStyle = s.c2; g.lineWidth = 3; for (let row = -1; row < z / 12 + 1; row++) for (let col = -1; col < z / 16 + 1; col++) { g.beginPath(); g.arc(col * 16 + (row % 2 ? 8 : 0), row * 12, 10, 0, Math.PI); g.stroke(); } },
+  rainbow(g, z) { for (let i = 0; i < 12; i++) { g.fillStyle = 'hsl(' + i * 30 + ' 85% 55%)'; g.fillRect(0, i * z / 12, z, z / 12 + 1); } },
+};
+function skinMats(s) {
+  if (!s._m) {
+    const t = makeTex((g, z) => PAT[s.pat](g, z, s), 128);
+    s._m = { main: new THREE.MeshStandardMaterial({ map: t, metalness: s.metal, roughness: s.rough, emissive: new THREE.Color(s.glow || s.c1), emissiveMap: s.em ? t : null, emissiveIntensity: s.em || 0 }),
+      acc: new THREE.MeshStandardMaterial({ color: s.c2, metalness: Math.min(1, s.metal + 0.3), roughness: 0.3, emissive: new THREE.Color(s.c2), emissiveIntensity: (s.em || 0) * 0.5 }) };
+  }
+  return s._m;
+}
+function applySkin(g, s) {                                          // dark parts get the pattern, light metal parts get the second colour
+  const M = skinMats(s);
+  g.traverse(o => { if (!o.isMesh || !o.material || !o.material.isMeshStandardMaterial || o.material === GLOVE || o.material.transparent) return; const c = o.material.color, lum = 0.299 * c.r + 0.587 * c.g + 0.114 * c.b; o.material = lum < 0.5 ? M.main : M.acc; });
+}
+const mySkin = itemId => { const e = Wallet.equipOf(itemId); return e ? STYLEBY[e] : null; };
+const Wallet = (function () {
+  const sfx = new URLSearchParams(location.search).get('p'), KEY = 'duelArenaWallet_v1' + (sfx ? '_' + sfx.replace(/\W/g, '') : '');
+  const d = { keys: 5, skins: {}, equip: {}, lastDaily: '', streak: 0, earnedDay: '', earnedToday: 0, opened: 0 };            // new players start with 5 keys: one Standard Case
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (s && typeof s === 'object') {
+      d.keys = clamp(Math.floor(+s.keys) || 0, 0, 99999); d.opened = clamp(Math.floor(+s.opened) || 0, 0, 1e6); d.streak = clamp(Math.floor(+s.streak) || 0, 0, 7);
+      d.lastDaily = /^\d{4}-\d\d-\d\d$/.test(s.lastDaily) ? s.lastDaily : ''; d.earnedDay = /^\d{4}-\d\d-\d\d$/.test(s.earnedDay) ? s.earnedDay : ''; d.earnedToday = clamp(Math.floor(+s.earnedToday) || 0, 0, 1000);
+      for (const k of Object.keys(s.skins || {})) { const [it, st] = k.split(':'); if (SKIN_ITEMS.includes(it) && STYLEBY[st]) d.skins[k] = clamp(Math.floor(+s.skins[k]) || 1, 1, 999); }
+      for (const it of Object.keys(s.equip || {})) if (SKIN_ITEMS.includes(it) && STYLEBY[s.equip[it]] && d.skins[it + ':' + s.equip[it]]) d.equip[it] = s.equip[it];
+    }
+  } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {} if (W.on) W.on(); };
+  const ymd = t => t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+  const today = () => ymd(new Date()), yesterday = () => ymd(new Date(Date.now() - 864e5));
+  const W = {
+    on: null, _d: d,
+    get keys() { return d.keys; }, get skins() { return d.skins; }, get equip() { return d.equip; }, get opened() { return d.opened; },
+    equipOf: it => d.equip[it] || '',
+    add(n) { d.keys = clamp(d.keys + Math.floor(n), 0, 99999); save(); },
+    spend(n) { if (d.keys < n) return false; d.keys -= n; save(); return true; },
+    addSkin(item, style) { const k = item + ':' + style, isNew = !d.skins[k]; d.skins[k] = (d.skins[k] || 0) + 1; d.opened++; save(); return isNew; },
+    setEquip(item, style) { if (style && d.skins[item + ':' + style]) d.equip[item] = style; else delete d.equip[item]; save(); },
+    dailyInfo() {
+      const t = today(), claimed = d.lastDaily === t, cont = d.lastDaily === yesterday(); const day = claimed || cont ? (d.streak % 7) + 1 : 1;
+      const midnight = new Date(); midnight.setHours(24, 0, 0, 0); return { can: !claimed, day, reward: DAILY[day - 1], done: claimed ? d.streak : cont ? (d.streak % 7 ? d.streak : 0) : 0, msLeft: midnight - Date.now() };
+    },
+    claimDaily() { const i = W.dailyInfo(); if (!i.can) return null; d.lastDaily = today(); d.streak = i.day; d.keys = clamp(d.keys + i.reward, 0, 99999); save(); return { keys: i.reward, day: i.day }; },
+    matchReward(st, won, mult) {                                    // keys for finishing a match, shooting accurately, headshots and winning
+      const acc = st.fired ? st.hit / st.fired : 0, pct = Math.round(acc * 100); if (st.fired < 8) return { keys: 0, parts: ['shoot a bit more to earn keys'], pct };
+      const parts = ['finished the match +1']; let k = 1; const ak = acc >= 0.65 ? 4 : acc >= 0.5 ? 3 : acc >= 0.35 ? 2 : acc >= 0.2 ? 1 : 0; if (ak) { k += ak; parts.push('accuracy ' + pct + '% +' + ak); }
+      const hs = Math.min(2, Math.floor(st.head / 3)); if (hs) { k += hs; parts.push(st.head + ' headshots +' + hs); } if (won) { k += 1; parts.push('win +1'); }
+      if (mult !== 1) parts.push('bot level ×' + mult); k = clamp(Math.round(k * mult), 1, 8);
+      const t = today(); if (d.earnedDay !== t) { d.earnedDay = t; d.earnedToday = 0; } const room = Math.max(0, 60 - d.earnedToday); if (k > room) { k = room; parts.push('daily limit reached'); }
+      d.earnedToday += k; d.keys = clamp(d.keys + k, 0, 99999); save(); return { keys: k, parts, pct };
+    },
+  };
+  return W;
+})();
+// little 3D pictures of skins (drawn once, then remembered)
+const PV = { r: null, scene: null, cam: null, cache: {} };
+function previewFor(itemId, style) {
+  const key = itemId + ':' + (style ? style.id : ''); if (PV.cache[key]) return PV.cache[key]; if (PV.r === false) return null;
+  try {
+    if (!PV.r) {
+      PV.r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); PV.r.setSize(240, 140); PV.r.setPixelRatio(1); PV.r.outputEncoding = THREE.sRGBEncoding; PV.r.toneMapping = THREE.ACESFilmicToneMapping;
+      PV.scene = new THREE.Scene(); PV.scene.add(new THREE.HemisphereLight(0xffffff, 0x556070, 1.1)); const dl = new THREE.DirectionalLight(0xffffff, 1.8); dl.position.set(2, 3, 4); PV.scene.add(dl); PV.cam = new THREE.PerspectiveCamera(28, 240 / 140, 0.05, 50);
+    }
+    const g = buildItemModel(itemId, style); g.traverse(o => { if (o.isMesh && o.material === GLOVE) o.visible = false; }); g.rotation.set(0.12, -Math.PI / 2 + 0.5, 0); g.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(g), c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3()); g.position.sub(c); PV.scene.add(g);
+    const dist = Math.max(sz.x / (240 / 140), sz.y) / (2 * Math.tan(14 * Math.PI / 180)) * 1.2 + sz.z * 0.5; PV.cam.position.set(0, 0, dist); PV.cam.lookAt(0, 0, 0);
+    PV.r.render(PV.scene, PV.cam); const url = PV.r.domElement.toDataURL('image/png'); PV.scene.remove(g); g.traverse(o => { if (o.geometry) o.geometry.dispose(); }); return (PV.cache[key] = url);
+  } catch (e) { PV.r = false; return null; }
+}
+
+function rewardHtml(st, won, mult) { const rw = Wallet.matchReward(st, won, mult); return '<br><span style="color:#ffd24a;font-size:20px;font-weight:800">🔑 +' + rw.keys + ' keys</span><br><small>' + rw.parts.join(' · ') + '</small>'; }
 
 // ---------- player ----------
 const newSt = () => ({ burn: 0, slow: 0, slowK: 1, freeze: 0, blind: 0, paint: 0, frost: 0 });
@@ -681,7 +799,7 @@ VM.root.scale.setScalar(0.78);
 vmScene.add(VM.root);
 function buildViewmodel() {
   if (VM.gun) VM.root.remove(VM.gun);
-  VM.gun = buildItemModel(P.inv[P.cur].id); VM.root.add(VM.gun); VM.swingT = 0;
+  VM.gun = buildItemModel(P.inv[P.cur].id, mySkin(P.inv[P.cur].id)); VM.root.add(VM.gun); VM.swingT = 0;
 }
 function updateViewmodel(dt, moving) {
   const d = curWeapon(), id = d.id, adsK = P.ads, sniperAds = id === 'sniper' && adsK > 0.6;
@@ -1006,7 +1124,7 @@ class Bot {
   setSlot(s) {
     if (this.slot === s) return; this.slot = s; const d = this.d; this.reloadT = 0; this.burstLeft = 0; this.cd = 0.35;
     if (this.gun) this.mesh.userData.aimG.remove(this.gun);
-    this.gun = buildItemModel(d.id); this.gun.position.set(0.1, -0.03, -0.35); this.mesh.userData.aimG.add(this.gun); this.gun.traverse(c => { c.castShadow = false; });
+    this.sk = this.sk || {}; if (!(d.id in this.sk)) this.sk[d.id] = Math.random() < 0.3 ? rollStyle([60, 28, 9, 2.5, 0.45, 0.05]) : null; this.gun = buildItemModel(d.id, this.sk[d.id]); this.gun.position.set(0.1, -0.03, -0.35); this.mesh.userData.aimG.add(this.gun); this.gun.traverse(c => { c.castShadow = false; });
     this.flashSprite = this.gun.userData.flash; this.flashSprite.visible = false; this.spd = 3.7 * d.spd * this.lv.speed;
   }
   get target() { return { x: this.x, z: this.z, y: this.y, r: 0.34, h: 1.72, headR: 0.17, ref: this }; }
@@ -1177,8 +1295,8 @@ function showMatchOver() {
   const wt = won ? 0 : (G.score.b2 > G.score.bot ? 2 : 1), wb = BOTS.find(b => b.team === wt), scoreTxt = G.ffa ? G.score.you + ' : ' + G.score.bot + ' : ' + G.score.b2 : G.score.you + ' : ' + G.score.bot;
   $('overTitle').innerHTML = won ? '<span style="color:#7fd0ff">YOU WIN!</span>' : '<span style="color:#ff8a8a">YOU LOSE</span>'; $('overScore').textContent = scoreTxt;
   const s = G.stats, acc = s.fired ? Math.round(s.hit / s.fired * 100) : 0;
-  $('overStats').innerHTML = 'Kills: <b>' + s.kills + '</b> · Headshots: <b>' + s.head + '</b><br>Accuracy: <b>' + acc + '%</b> · Damage dealt: <b>' + Math.round(s.dmg) + '</b>';
-  $('hud').classList.remove('on'); victoryScene({ won, name: won ? 'YOU' : (wb ? wb.label : G.oppName), cloth: TEAMCOL[wt], gun: won ? P.inv.primary.id : (wb ? wb.L.primary : 'rifle'), score: scoreTxt });
+  $('overStats').innerHTML = 'Kills: <b>' + s.kills + '</b> · Headshots: <b>' + s.head + '</b><br>Accuracy: <b>' + acc + '%</b> · Damage dealt: <b>' + Math.round(s.dmg) + '</b>' + rewardHtml(s, won, ({ easy: 0.5, normal: 1, hard: 1.25 })[CFG.diff] || 1);
+  $('hud').classList.remove('on'); victoryScene({ won, name: won ? 'YOU' : (wb ? wb.label : G.oppName), cloth: TEAMCOL[wt], gun: won ? P.inv.primary.id : (wb ? wb.L.primary : 'rifle'), skin: won ? mySkin(P.inv.primary.id) : (wb && wb.sk ? wb.sk[wb.L.primary] : null), score: scoreTxt });
 }
 function toMenu() { if (G.online && window.Online) Online.cleanup(); G.menuOpen = false; document.body.classList.remove('playing'); G.phase = 'menu'; $('hud').classList.remove('on'); $('over').classList.remove('on'); $('pause').classList.remove('on'); $('menu').classList.add('on'); clearBots(); clearWorld(); victoryEnd(); document.exitPointerLock && document.exitPointerLock(); }
 
@@ -1720,7 +1838,7 @@ function victoryScene(o) {
   const st = new THREE.Mesh(new THREE.CylinderGeometry(4.6, 4.8, 0.4, 40), MAT(0xeef1f6, 0.1, 0.6)); st.position.y = -0.2; g.add(st);
   const ring = new THREE.Mesh(new THREE.TorusGeometry(4.6, 0.07, 8, 60), glowM(0xffc83a)); ring.rotation.x = Math.PI / 2; ring.position.y = 0.02; g.add(ring);
   const m = makeHumanoid(o.cloth); m.userData.sprite.visible = false;
-  const it = ITEMS[o.gun], gunId = it && ['gun', 'stream', 'proj'].includes(it.kind) ? o.gun : 'rifle', gun = buildItemModel(gunId); gun.position.set(0.1, -0.03, -0.35); gun.userData.flash.visible = false; m.userData.aimG.add(gun);
+  const it = ITEMS[o.gun], gunId = it && ['gun', 'stream', 'proj'].includes(it.kind) ? o.gun : 'rifle', gun = buildItemModel(gunId, o.skin); gun.position.set(0.1, -0.03, -0.35); gun.userData.flash.visible = false; m.userData.aimG.add(gun);
   const L = m.userData.legs; L[0].rotation.set(0.75, 0, -0.22); L[1].rotation.set(-0.55, 0, 0.3);          // wide, bent-knee stance
   m.userData.aimG.rotation.set(1.45, 0, -0.22);                                                          // gun held up high
   m.rotation.order = 'YXZ'; m.rotation.set(0, Math.PI + 0.1, 0.14); m.position.y = -0.18; g.add(m); VIC.g = g; VIC.m = m;
@@ -2536,7 +2654,7 @@ const Online = window.Online = {
     this.remotes[m.l] = R; this.setGun(R, 'rifle');
   },
   clearRemotes() { Object.values(this.remotes).forEach(R => { scene.remove(R.mesh); R.mesh.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }); this.remotes = {}; },
-  setGun(R, id) { if (typeof id !== 'string' || !ITEMS[id] || R.gunId === id) return; if (R.gun) R.mesh.userData.aimG.remove(R.gun); R.gun = buildItemModel(id); R.gun.position.set(0.1, -0.03, -0.35); R.gun.traverse(c => { c.castShadow = false; }); R.gun.userData.flash.visible = false; R.mesh.userData.aimG.add(R.gun); R.gunId = id; },
+  setGun(R, id, skin) { if (typeof id !== 'string' || !ITEMS[id]) return; const key = id + ':' + (skin ? skin.id : ''); if (R.gunKey === key) return; if (R.gun) R.mesh.userData.aimG.remove(R.gun); R.gun = buildItemModel(id, skin); R.gun.position.set(0.1, -0.03, -0.35); R.gun.traverse(c => { c.castShadow = false; }); R.gun.userData.flash.visible = false; R.mesh.userData.aimG.add(R.gun); R.gunId = id; R.gunKey = key; R.skin = skin || null; },
   computeSpawns() {                                                  // everyone works out the same starting spots from the same room list
     const taken = [], out = {}, byTeam = {}; this.mem.forEach(m => { (byTeam[m.t] = byTeam[m.t] || []).push(m); }); const teams = Object.keys(byTeam).map(Number).sort((a, b) => a - b);
     teams.forEach((t, k) => { const side = k % 2 === 0 ? -1 : 1, zc = this.ffa ? (Math.floor(k / 2) - (teams.length - 1) / 4) * 8 : 0, pts = spawnPoints(side, byTeam[t].length, zc, taken); byTeam[t].forEach((m, i) => { const pt = pts[i] || { x: side * spawnX(), z: (i - 1) * 2 }; out[m.l] = { x: pt.x, z: pt.z, yaw: side < 0 ? -Math.PI / 2 : Math.PI / 2 }; }); });
@@ -2593,7 +2711,7 @@ const Online = window.Online = {
     }
     const sender = host ? from : (typeof d.f === 'string' ? d.f : from), R = this.remotes[sender]; if (!R) return;
     switch (d.t) {
-      case 'ps': R.tx = fin(d.x, -40, 40); R.ty = fin(d.y, -10, 14); R.tz = fin(d.z, -40, 40); R.tyaw = fin(d.a, -50, 50); R.tpitch = fin(d.p, -1.6, 1.6); R.tcrouch = d.c ? 1 : 0; R.hp = fin(d.hp, 0, MAXHP, R.hp); if (d.d && !R.dead) { R.dead = true; R.deadT = 0; } else if (!d.d && R.dead && G.phase !== 'live') R.dead = false; this.setGun(R, d.w); break;
+      case 'ps': R.tx = fin(d.x, -40, 40); R.ty = fin(d.y, -10, 14); R.tz = fin(d.z, -40, 40); R.tyaw = fin(d.a, -50, 50); R.tpitch = fin(d.p, -1.6, 1.6); R.tcrouch = d.c ? 1 : 0; R.hp = fin(d.hp, 0, MAXHP, R.hp); if (d.d && !R.dead) { R.dead = true; R.deadT = 0; } else if (!d.d && R.dead && G.phase !== 'live') R.dead = false; this.setGun(R, d.w, typeof d.k === 'string' && STYLEBY[d.k] ? STYLEBY[d.k] : null); break;
       case 'sh': { const v3 = (a, lim) => Array.isArray(a) && a.length === 3 ? [fin(a[0], -lim, lim), fin(a[1], -lim, lim), fin(a[2], -lim, lim)] : null; if (typeof d.w === 'string' && ITEMS[d.w]) remoteShotFx(d.w, v3(d.o, 80), v3(d.e, 160), v3(d.v, 200), R); break; }
       case 'wo': { const pp = Array.isArray(d.p) && d.p.length === 3 ? [fin(d.p[0], -40, 40), fin(d.p[1], -2, 14), fin(d.p[2], -40, 40)] : null; if (pp) { if (d.k === 'smoke') addSmoke(pp[0], pp[1], pp[2], 30); else if (d.k === 'fire') addFire(pp[0], pp[1], pp[2], 2.6, 5, 'vis'); else if (d.k === 'pad') addPad(pp[0], pp[1], pp[2], 'vis'); } break; }
       case 'bm': { const pp = Array.isArray(d.p) && d.p.length === 3 ? [fin(d.p[0], -60, 60), fin(d.p[1], -2, 16), fin(d.p[2], -60, 60)] : null; if (pp) explode(pp[0], pp[1], pp[2], fin(d.r, 1, 8, 4), 0, 'vis', { small: !!d.s }); break; }
@@ -2611,18 +2729,18 @@ const Online = window.Online = {
       if (Math.ceil(R.hp) !== R.hpShown) { R.hpShown = Math.ceil(R.hp); m.userData.sprite.material.map = hpSpriteTex(Math.max(0, R.hp), R.ci); m.userData.sprite.material.needsUpdate = true; }
       if (R.flashT > 0) { R.flashT -= dt; if (R.gun && R.flashT <= 0) R.gun.userData.flash.visible = false; }
     }
-    this.sendT -= dt; if (this.sendT <= 0 && this.active && !this.ended) { this.sendT = this.mem.length > 4 ? 0.08 : 0.05; this.gameSend({ t: 'ps', x: r2(P.x), y: r2(P.y), z: r2(P.z), a: r3(P.yaw + P.recoilY), p: r3(P.pitch + P.recoilP), c: P.crouch ? 1 : 0, hp: Math.round(P.hp), w: P.inv ? P.inv[P.cur].id : 'rifle', d: P.dead ? 1 : 0 }); }
+    this.sendT -= dt; if (this.sendT <= 0 && this.active && !this.ended) { this.sendT = this.mem.length > 4 ? 0.08 : 0.05; this.gameSend({ t: 'ps', x: r2(P.x), y: r2(P.y), z: r2(P.z), a: r3(P.yaw + P.recoilY), p: r3(P.pitch + P.recoilP), c: P.crouch ? 1 : 0, hp: Math.round(P.hp), w: P.inv ? P.inv[P.cur].id : 'rifle', k: P.inv ? Wallet.equipOf(P.inv[P.cur].id) : '', d: P.dead ? 1 : 0 }); }
   },
   finish(winTeam, why) {
     if (this.ended) return; this.ended = true; G.phase = 'matchover'; G.over = true; document.body.classList.remove('playing'); document.exitPointerLock && document.exitPointerLock(); $('pause').classList.remove('on');
     const meWon = winTeam >= 0 && winTeam === this.myTeam, s = G.stats, acc = s.fired ? Math.round(s.hit / s.fired * 100) : 0; if (winTeam !== -2) Social.recordMatch(meWon, G.stats); Social.setStatus('menu');
     const sc = t => this.scores[t] || 0, other = this.mem.find(m => m.t !== this.myTeam), scoreTxt = this.ffa ? this.mem.map(m => m.n + ' ' + sc(m.t)).join(' · ') : sc(this.myTeam) + ' : ' + (other ? sc(other.t) : 0);
     $('overTitle').innerHTML = winTeam === -2 ? 'MATCH ENDED<br><small style="font-size:18px;opacity:.85">The host left the room</small>' : (meWon ? '<span style="color:#7fd0ff">YOU WIN!</span>' : '<span style="color:#ff8a8a">YOU LOSE</span>') + (why === 'left' ? '<br><small style="font-size:18px;opacity:.85">The other players left the match</small>' : '');
-    $('overScore').textContent = scoreTxt; $('overStats').innerHTML = 'Kills: <b>' + s.kills + '</b> · Headshots: <b>' + s.head + '</b><br>Accuracy: <b>' + acc + '%</b> · Damage dealt: <b>' + Math.round(s.dmg) + '</b>';
+    $('overScore').textContent = scoreTxt; $('overStats').innerHTML = 'Kills: <b>' + s.kills + '</b> · Headshots: <b>' + s.head + '</b><br>Accuracy: <b>' + acc + '%</b> · Damage dealt: <b>' + Math.round(s.dmg) + '</b>' + (winTeam === -2 ? '' : rewardHtml(s, meWon, 1));
     if (winTeam === -2) this.hostGone = true; this.updateAgain(); $('hud').classList.remove('on');
     if (winTeam < 0) { $('over').classList.add('on'); victoryEnd(); return; }
     const winners = this.mem.filter(m => m.t === winTeam), wm = meWon ? null : (winners.find(m => this.remotes[m.l]) || winners[0]), wr = wm && this.remotes[wm.l];
-    victoryScene({ won: meWon, name: meWon ? 'YOU' : (winners.length > 1 && !this.ffa ? 'THE ENEMY TEAM' : (wm ? wm.n : 'ENEMY')), cloth: meWon ? TEAMCOL[0] : TEAMCOL[1], gun: meWon ? (P.inv ? P.inv.primary.id : 'rifle') : ((wr && wr.gunId) || 'rifle'), score: scoreTxt });
+    victoryScene({ won: meWon, name: meWon ? 'YOU' : (winners.length > 1 && !this.ffa ? 'THE ENEMY TEAM' : (wm ? wm.n : 'ENEMY')), cloth: meWon ? TEAMCOL[0] : TEAMCOL[1], gun: meWon ? (P.inv ? P.inv.primary.id : 'rifle') : ((wr && wr.gunId) || 'rifle'), skin: meWon ? (P.inv ? mySkin(P.inv.primary.id) : null) : (wr && wr.skin), score: scoreTxt });
   },
   cleanup() {
     if (!this.active && !this.inRoom()) return;
@@ -2672,6 +2790,62 @@ $('roomBody').addEventListener('click', e => {
 });
 
 $('btnRoom').onclick = () => { if (!Social) { notify('Friends need the online library, which did not load. Check your internet and reload.'); return; } if (!Social.me()) { openName(); return; } Online.openRoom(); };
+
+// ---------- cases and skins screens ----------
+const skinName = (item, style) => STYLEBY[style].name + ' ' + ITEMS[item].name;
+const sfxReveal = r => snd(t => { const n = [523, 659, 784, 1047, 1319, 1568]; for (let i = 0; i <= Math.min(5, r + 1); i++) blip(t + i * 0.09, n[i], 0.3, 0.14, 'triangle'); if (r >= 4) noiseBurst(t, 1.2, 5000, 0.4, 0.2, 0, 'highpass'); });
+function updateKeyChip() { const el = $('keyN'); if (el) el.textContent = Wallet.keys; const dot = $('dailyDot'); if (dot) dot.hidden = !Wallet.dailyInfo().can; if ($('cases').classList.contains('on')) renderCases(); }
+Wallet.on = updateKeyChip;
+let cTab = 'cases', coBusy = false;
+function openCases(tab) { if (G.phase !== 'menu') return; cTab = tab || 'cases'; show('cases'); renderCases(); }
+const cardHtml = (it, st, extra) => { const r = RARITY[STYLEBY[st].r], img = previewFor(it, STYLEBY[st]); return '<div class="cc" style="--rc:' + r.col + ';' + (img ? '' : 'background:linear-gradient(135deg,' + STYLEBY[st].c1 + ',' + STYLEBY[st].c2 + ');') + '">' + (img ? '<img alt="" src="' + img + '">' : '') + '<small>' + esc(skinName(it, st)) + '</small>' + (extra || '') + '</div>'; };
+function renderCases() {
+  if (!$('cases').classList.contains('on')) return; const b = $('caseBody');
+  $('caseKeys').textContent = '🔑 ' + Wallet.keys; const di = Wallet.dailyInfo();
+  $('caseTabs').innerHTML = [['cases', '📦 Cases'], ['inv', '🎒 My skins'], ['daily', '🎁 Daily reward' + (di.can ? ' <b>!</b>' : '')]].map(([k, t]) => '<button data-tab="' + k + '" class="' + (cTab === k ? 'on' : '') + '">' + t + '</button>').join('');
+  if (cTab === 'cases') {
+    b.innerHTML = '<div class="note" style="margin:0 0 8px">Open a case with keys to win a weapon skin. You get keys by playing, by shooting accurately and from the daily reward.</div><div class="casegrid">' + CASES.map(c => '<div class="ccard" style="--c:' + c.col + '"><div class="cico">' + c.icon + '</div><b>' + c.name + '</b><div class="cprice">🔑 ' + c.cost + '</div><div class="codds">' + RARITY.map((r, i) => c.odds[i] ? '<span style="color:' + r.col + '">' + r.name + ' ' + c.odds[i] + '%</span>' : '').join('') + '</div><small>' + c.items.length + ' weapons</small><button class="go" data-act="copen" data-c="' + c.id + '"' + (Wallet.keys < c.cost || coBusy ? ' disabled' : '') + '>Open · 🔑 ' + c.cost + '</button></div>').join('') + '</div>' +
+      '<div class="note">Skins only change how your weapons look, they do not make you stronger. Your friends see your skin in online matches.</div>';
+  } else if (cTab === 'inv') {
+    const list = Object.keys(Wallet.skins).map(k => { const [it, st] = k.split(':'); return { k, it, st, n: Wallet.skins[k], r: STYLEBY[st].r }; }).sort((a, b) => b.r - a.r || ITEMS[a.it].name.localeCompare(ITEMS[b.it].name));
+    b.innerHTML = list.length ? '<div class="note" style="margin:0 0 8px">Tap a skin to equip it. Tap it again to take it off. You have ' + list.length + ' different skins.</div><div class="invgrid">' + list.map(s => '<div class="invc" data-act="equip" data-it="' + s.it + '" data-st="' + s.st + '">' + cardHtml(s.it, s.st, (s.n > 1 ? '<i class="cn">×' + s.n + '</i>' : '') + (Wallet.equipOf(s.it) === s.st ? '<i class="ceq">EQUIPPED</i>' : '')) + '</div>').join('') + '</div>' : '<div class="empty">You have no skins yet.<br>Open a case in the <b>Cases</b> tab!</div>';
+    const q = [...b.querySelectorAll('.cc')]; void q;
+  } else {
+    const hrs = Math.floor(di.msLeft / 36e5), mins = Math.floor(di.msLeft % 36e5 / 6e4);
+    b.innerHTML = '<div class="note" style="margin:0 0 10px">Come back every day for free keys. Keep your streak going for bigger rewards!</div><div class="dgrid">' + DAILY.map((k, i) => '<div class="dday' + (i < di.done && !(di.can && i + 1 === di.day) ? ' done' : '') + (di.can && i + 1 === di.day ? ' next' : '') + '"><b>Day ' + (i + 1) + '</b><span>🔑 ' + k + '</span>' + (i < di.done ? '<i>✓</i>' : '') + '</div>').join('') + '</div>' +
+      (di.can ? '<button class="play" data-act="dclaim" style="font-size:20px;padding:12px 34px;margin-top:14px">CLAIM 🔑 ' + di.reward + '</button>' : '<div class="empty">✅ You already claimed today.<br>Next reward in <b>' + hrs + 'h ' + mins + 'm</b> (day ' + di.day + ': 🔑 ' + di.reward + ').</div>');
+  }
+}
+$('caseBody').addEventListener('click', e => {
+  const t = e.target.closest('[data-act]'); if (!t || t.disabled) return; const a = t.dataset.act;
+  if (a === 'copen') openCase(t.dataset.c);
+  else if (a === 'equip') { const it = t.dataset.it, st = t.dataset.st; if (Wallet.equipOf(it) === st) { Wallet.setEquip(it, null); notify('Took off <b>' + esc(skinName(it, st)) + '</b>.'); } else { Wallet.setEquip(it, st); notify('✅ Equipped <b>' + esc(skinName(it, st)) + '</b>!'); } renderCases(); }
+  else if (a === 'dclaim') { const r = Wallet.claimDaily(); if (r) { sfxReveal(2); notify('🎁 Daily reward: <b>+' + r.keys + ' 🔑</b> (day ' + r.day + ')'); } renderCases(); }
+});
+$('caseTabs').addEventListener('click', e => { const t = e.target.closest('button[data-tab]'); if (t) { cTab = t.dataset.tab; renderCases(); } });
+$('casesClose').onclick = () => hide('cases');
+function openCase(id) {
+  const c = CASES.find(x => x.id === id); if (!c || coBusy || !Wallet.spend(c.cost)) return; coBusy = true;
+  const style = rollStyle(c.odds), item = c.items[(Math.random() * c.items.length) | 0], isNew = Wallet.addSkin(item, style.id); playCase(c, { item, style, isNew });
+}
+async function playCase(c, res) {
+  audioInit(); show('caseOpen'); $('coReveal').innerHTML = ''; $('coBtns').innerHTML = ''; $('coTitle').textContent = 'Opening ' + c.name + '…'; $('coView').style.display = '';
+  const W = 150, N = 50, win = 42, combos = []; for (let i = 0; i < 14; i++) combos.push({ it: c.items[(Math.random() * c.items.length) | 0], st: rollStyle(c.odds).id });
+  const strip = $('coStrip'); strip.style.transition = 'none'; strip.style.transform = 'translateX(0px)'; strip.innerHTML = '';
+  for (let i = 0; i < N; i++) { const cb = i === win ? { it: res.item, st: res.style.id } : combos[(Math.random() * combos.length) | 0]; strip.insertAdjacentHTML('beforeend', cardHtml(cb.it, cb.st)); }
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); const vw = $('coView').clientWidth, off = (Math.random() - 0.5) * (W - 40), target = -(win * W + W / 2 - vw / 2 + off);
+  strip.style.transition = 'transform 5.6s cubic-bezier(0.1, 0.75, 0.12, 1)'; strip.style.transform = 'translateX(' + target + 'px)';
+  let last = -1; const t0 = performance.now(), iv = setInterval(() => { const tx = new DOMMatrix(getComputedStyle(strip).transform).m41, idx = Math.floor((-tx + vw / 2) / W); if (idx !== last) { last = idx; sfxClick(); } if (performance.now() - t0 > 5800) clearInterval(iv); }, 25);
+  await new Promise(r => setTimeout(r, 5900)); clearInterval(iv); const r = RARITY[res.style.r];
+  $('coTitle').innerHTML = '<span style="color:' + r.col + '">' + r.name.toUpperCase() + '</span>'; sfxReveal(res.style.r);
+  $('coReveal').innerHTML = '<div class="coWin" style="--rc:' + r.col + '">' + (previewFor(res.item, res.style) ? '<img alt="" src="' + previewFor(res.item, res.style) + '">' : '') + '<h2>' + esc(skinName(res.item, res.style.id)) + '</h2>' + (res.isNew ? '<span class="newtag">NEW!</span>' : '<span class="newtag dup">You already had this one (×' + Wallet.skins[res.item + ':' + res.style.id] + ')</span>') + '</div>';
+  $('coBtns').innerHTML = '<button class="go" id="coEquip" style="font-size:16px;padding:10px 18px">Equip it</button> <button class="btn2" id="coAgain"' + (Wallet.keys < c.cost ? ' disabled' : '') + '>Open another · 🔑 ' + c.cost + '</button> <button class="btn2" id="coClose">Close</button>';
+  $('coEquip').onclick = () => { Wallet.setEquip(res.item, res.style.id); notify('✅ Equipped <b>' + esc(skinName(res.item, res.style.id)) + '</b>!'); $('coEquip').disabled = true; };
+  $('coAgain').onclick = () => { coBusy = false; hide('caseOpen'); openCase(c.id); }; $('coClose').onclick = () => { coBusy = false; hide('caseOpen'); renderCases(); };
+}
+$('btnCases').onclick = () => openCases(); $('btnCases2').onclick = () => openCases();
+updateKeyChip();
+setTimeout(() => { if (G.phase === 'menu' && Wallet.dailyInfo().can) notify('🎁 Your <b>daily reward</b> is ready!', [{ label: 'Claim', cls: 'go', fn: () => openCases('daily') }, { label: 'Later' }], 15000); }, 2500);
 
 // ---------- invite links and first start ----------
 function handleAddLink() { const who = qs.get('add'); if (who && Social && Social.me() && !handleAddLink.done) { handleAddLink.done = true; const go = () => openFriends('add', who); if (Social.state() === 'online') go(); else { const t = setInterval(() => { if (Social.state() === 'online') { clearInterval(t); go(); } }, 400); setTimeout(() => clearInterval(t), 15000); } } }
