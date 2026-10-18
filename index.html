@@ -78,6 +78,7 @@
   #vic { position:fixed; left:0; right:0; top:7%; text-align:center; pointer-events:none; opacity:0; transition:opacity .4s; z-index:15; } #vic.on { opacity:1; }
   #vicT { font-size:clamp(38px,9vw,86px); font-weight:900; letter-spacing:4px; background:linear-gradient(#fff6c0,#ffb020); -webkit-background-clip:text; background-clip:text; color:transparent; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.6)); } #vicS { font-size:24px; font-weight:800; text-shadow:0 2px 6px #000; }
   #over { background:linear-gradient(to bottom, rgba(4,8,18,0) 30%, rgba(4,8,18,0.85) 100%); justify-content:flex-end; padding-bottom:26px; }
+  #againBtn:disabled { opacity:0.55; cursor:default; box-shadow:none; font-size:18px; letter-spacing:1px; }
   #over h2 { font-size:clamp(32px, 7vw, 56px); margin:0 0 6px; } #over .stats { margin:12px 0; line-height:1.8; font-size:17px; }
   #pause { background:rgba(4,8,16,0.82); }
 
@@ -1811,7 +1812,7 @@ setSeg('segQ', CFG.quality, v => { CFG.quality = v; applyQuality(); }); setSeg('
 $('rngSens').value = CFG.sens; $('rngSens').oninput = e => { CFG.sens = +e.target.value; saveCfg(); };
 $('rngFov').value = CFG.fov; $('rngFov').oninput = e => { CFG.fov = +e.target.value; saveCfg(); };
 $('playBtn').onclick = () => { if (window.Online && Online.inRoom() && !Online.active) Online.leaveRoom(); startMatch(); if (CFG.look === 'lock') lockPointer(); };
-$('againBtn').onclick = () => { startMatch(); if (CFG.look === 'lock') lockPointer(); }; $('menuBtn').onclick = toMenu;
+$('againBtn').onclick = () => { if (G.online) { Online.playAgain(); return; } startMatch(); if (CFG.look === 'lock') lockPointer(); }; $('menuBtn').onclick = toMenu;
 $('resumeBtn').onclick = () => { G.paused = false; G.menuOpen = false; $('pause').classList.remove('on'); if (CFG.look === 'lock') lockPointer(); }; $('quitBtn').onclick = () => { G.paused = false; G.menuOpen = false; toMenu(); };
 addEventListener('keydown', e => { if (e.code === 'Escape' && TOUCH && G.phase !== 'menu' && !G.over) pauseGame(); });
 
@@ -2495,10 +2496,10 @@ const Online = window.Online = {
     const d = e.d, l = e.lower;
     if (this.pendingJoin && this.pendingJoin.id === d.id && this.pendingJoin.host === l) { this.pendingJoin = null; hide('waitScreen'); notify('That room is full or closed.'); return; }
     if (this.role !== 'guest' || this.roomId !== d.id || this.hostL !== l) return;
-    if (this.active && !this.ended) this.finish(-2, 'hostleft'); else if (!this.active) { this.resetRoom(); hide('room'); hide('waitScreen'); notify('The host closed the room.'); }
+    if (this.active && !this.ended) this.finish(-2, 'hostleft'); else if (this.active) { this.hostGone = true; this.updateAgain(); } else { this.resetRoom(); hide('room'); hide('waitScreen'); notify('The host closed the room.'); }
   },
   onGo(e) {
-    const d = e.d, l = e.lower; if (this.role !== 'guest' || d.id !== this.roomId || l !== this.hostL || this.started) return; const mem = cleanMem(d.mem); if (!mem || !mem.some(m => m.l === meL())) return;
+    const d = e.d, l = e.lower; if (this.role !== 'guest' || d.id !== this.roomId || l !== this.hostL || (this.started && !this.ended)) return; const mem = cleanMem(d.mem); if (!mem || !mem.some(m => m.l === meL())) return;
     this.mem = mem; this.ffa = !!d.ffa; this.rounds = fin(d.rounds, 1, 5, 3) | 0; this.mapId = typeof d.map === 'string' && MAPBY[d.map] ? d.map : 'arena'; this.enterMatch();
   },
   onPeerLeft(e) {
@@ -2511,6 +2512,7 @@ const Online = window.Online = {
     const m = this.memberOf(l); if (!m) return; this.mem = this.mem.filter(x => x.l !== l);
     if (!this.started) { this.syncRoom(); notify('<b>' + esc(m.n) + '</b> left the room.'); return; }
     const R = this.remotes[l]; if (R) { scene.remove(R.mesh); delete this.remotes[l]; } delete this.alive[l]; this.hostBcast({ t: 'rleft', l }); notify('<b>' + esc(m.n) + '</b> left the match.');
+    if (this.ended) { this.updateAgain(); return; }
     if (new Set(this.mem.map(x => x.t)).size < 2) { this.hostBcast({ t: 'rme', w: this.myTeam }); this.finish(this.myTeam, 'left'); return; }
     this.checkRoundEnd();
   },
@@ -2521,7 +2523,7 @@ const Online = window.Online = {
     this.hostBcast({ t: 'rgo', id: this.roomId, map: this.mapId, mem: this.mem, ffa: this.ffa, rounds: this.rounds }); this.enterMatch(); this.later(900, () => this.hostNextRound());
   },
   enterMatch() {
-    ['room', 'friends', 'menu', 'nameScreen', 'waitScreen', 'maps', 'loadout'].forEach(hide); $('over').classList.remove('on'); $('pause').classList.remove('on');
+    ['room', 'friends', 'menu', 'nameScreen', 'waitScreen', 'maps', 'loadout'].forEach(hide); $('over').classList.remove('on'); $('pause').classList.remove('on'); victoryEnd(); this.hostGone = false; $('againBtn').style.display = 'none';
     const me = meL(), mm = this.memberOf(me), n = this.mem.length; this.myTeam = mm ? mm.t : 0; this.started = true; this.active = true; this.ended = false; this.round = 0; this.sendT = 0; this.scores = {}; this.mem.forEach(m => { this.scores[m.t] = 0; });
     G.online = true; G.menuOpen = false; G.paused = false; G.over = false; G.stats = newStats(); G.ffa = false; G.sizes = null; G.roundMax = n > 4 ? 150 : n > 2 ? 100 : 80; G.score = { you: 0, bot: 0, b2: 0 };
     G.oppName = n === 2 ? this.mem.find(m => m.l !== me).n : 'ENEMY'; clearBots(); this.clearRemotes(); this.mem.forEach(m => { if (m.l !== me) this.makeRemote(m); });
@@ -2617,16 +2619,27 @@ const Online = window.Online = {
     const sc = t => this.scores[t] || 0, other = this.mem.find(m => m.t !== this.myTeam), scoreTxt = this.ffa ? this.mem.map(m => m.n + ' ' + sc(m.t)).join(' · ') : sc(this.myTeam) + ' : ' + (other ? sc(other.t) : 0);
     $('overTitle').innerHTML = winTeam === -2 ? 'MATCH ENDED<br><small style="font-size:18px;opacity:.85">The host left the room</small>' : (meWon ? '<span style="color:#7fd0ff">YOU WIN!</span>' : '<span style="color:#ff8a8a">YOU LOSE</span>') + (why === 'left' ? '<br><small style="font-size:18px;opacity:.85">The other players left the match</small>' : '');
     $('overScore').textContent = scoreTxt; $('overStats').innerHTML = 'Kills: <b>' + s.kills + '</b> · Headshots: <b>' + s.head + '</b><br>Accuracy: <b>' + acc + '%</b> · Damage dealt: <b>' + Math.round(s.dmg) + '</b>';
-    $('againBtn').style.display = 'none'; $('hud').classList.remove('on');
+    if (winTeam === -2) this.hostGone = true; this.updateAgain(); $('hud').classList.remove('on');
     if (winTeam < 0) { $('over').classList.add('on'); victoryEnd(); return; }
     const winners = this.mem.filter(m => m.t === winTeam), wm = meWon ? null : (winners.find(m => this.remotes[m.l]) || winners[0]), wr = wm && this.remotes[wm.l];
     victoryScene({ won: meWon, name: meWon ? 'YOU' : (winners.length > 1 && !this.ffa ? 'THE ENEMY TEAM' : (wm ? wm.n : 'ENEMY')), cloth: meWon ? TEAMCOL[0] : TEAMCOL[1], gun: meWon ? (P.inv ? P.inv.primary.id : 'rifle') : ((wr && wr.gunId) || 'rifle'), score: scoreTxt });
   },
   cleanup() {
     if (!this.active && !this.inRoom()) return;
-    if (!this.ended) { if (this.role === 'host') this.hostBcast({ t: 'rclose', id: this.roomId }); else if (this.role === 'guest') this.send(this.hostL, { t: 'rlv', id: this.roomId }); }
+    if (this.role === 'host') this.hostBcast({ t: 'rclose', id: this.roomId }); else if (this.role === 'guest') this.send(this.hostL, { t: 'rlv', id: this.roomId });
     this.active = false; this.ended = true; this.timers.forEach(clearTimeout); this.timers = []; this.cancelInv(); this.clearRemotes(); this.resetRoom(); hide('room'); hide('waitScreen');
-    G.online = false; G.oppName = 'BOT'; $('lblBot').textContent = 'BOT'; $('lblYou').textContent = 'YOU'; $('againBtn').style.display = ''; renderScore(); Social.setStatus('menu');
+    G.online = false; G.oppName = 'BOT'; $('lblBot').textContent = 'BOT'; $('lblYou').textContent = 'YOU'; $('againBtn').style.display = ''; $('againBtn').textContent = 'PLAY AGAIN'; $('againBtn').disabled = false; renderScore(); Social.setStatus('menu');
+  },
+
+  // ----- play again: the host restarts the same room and everybody still here goes straight into the next match -----
+  updateAgain() {
+    const b = $('againBtn'); b.style.display = ''; const host = this.role === 'host';
+    if (this.hostGone) { b.textContent = 'HOST LEFT'; b.disabled = true; }
+    else if (host) { const ok = this.canStart(); b.textContent = ok ? 'PLAY AGAIN' : 'NOT ENOUGH PLAYERS'; b.disabled = !ok; }
+    else { b.textContent = 'WAITING FOR THE HOST…'; b.disabled = true; }
+  },
+  playAgain() {
+    if (this.role !== 'host' || !this.ended || !this.canStart()) return; this.started = false; this.ended = false; this.timers.forEach(clearTimeout); this.timers = []; this.start();
   },
 
   // ----- the room screen -----
