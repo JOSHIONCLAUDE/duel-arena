@@ -1317,7 +1317,8 @@ function showMatchOver() {
   $('overTitle').innerHTML = won ? '<span style="color:#7fd0ff">YOU WIN!</span>' : '<span style="color:#ff8a8a">YOU LOSE</span>'; $('overScore').textContent = scoreTxt;
   const s = G.stats, acc = s.fired ? Math.round(s.hit / s.fired * 100) : 0;
   $('overStats').innerHTML = 'Kills: <b>' + s.kills + '</b> · Headshots: <b>' + s.head + '</b><br>Accuracy: <b>' + acc + '%</b> · Damage dealt: <b>' + Math.round(s.dmg) + '</b>' + rewardHtml(s, won, ({ easy: 0.5, normal: 1, hard: 1.25 })[CFG.diff] || 1);
-  $('hud').classList.remove('on'); victoryScene({ won, name: won ? 'YOU' : (wb ? wb.label : G.oppName), cloth: TEAMCOL[wt], gun: won ? P.inv.primary.id : (wb ? wb.L.primary : 'rifle'), skin: won ? mySkin(P.inv.primary.id) : (wb && wb.sk ? wb.sk[wb.L.primary] : null), score: scoreTxt });
+  const mate = b => ({ cloth: TEAMCOL[b.team], gun: b.L.primary, skin: b.sk ? b.sk[b.L.primary] : null }), crew = (won ? [{ cloth: TEAMCOL[0], gun: P.inv.primary.id, skin: mySkin(P.inv.primary.id) }] : []).concat(BOTS.filter(b => b.team === wt).map(mate));
+  $('hud').classList.remove('on'); victoryScene({ team: crew, won, name: won ? 'YOU' : (wb ? (BOTS.filter(b => b.team === wt).length > 1 ? 'THE ' + (G.sizes && G.sizes[0] + G.sizes[1] > 2 ? 'ENEMY TEAM' : 'BOTS') : wb.label) : G.oppName), cloth: TEAMCOL[wt], gun: won ? P.inv.primary.id : (wb ? wb.L.primary : 'rifle'), skin: won ? mySkin(P.inv.primary.id) : (wb && wb.sk ? wb.sk[wb.L.primary] : null), score: scoreTxt });
 }
 function toMenu() { if (G.online && window.Online) Online.cleanup(); G.menuOpen = false; document.body.classList.remove('playing'); G.phase = 'menu'; $('hud').classList.remove('on'); $('over').classList.remove('on'); $('pause').classList.remove('on'); $('menu').classList.add('on'); clearBots(); clearWorld(); victoryEnd(); document.exitPointerLock && document.exitPointerLock(); }
 
@@ -1854,28 +1855,35 @@ updateMapBtn();
 const VIC = { on: false, t: 0, g: null, m: null, after: null, Y: 80 };
 const finishVictory = () => { if (VIC.after) { const f = VIC.after; VIC.after = null; f(); } };
 function victoryEnd() { VIC.on = false; VIC.after = null; if (VIC.g) { scene.remove(VIC.g); VIC.g.traverse(o => { if (o.geometry) o.geometry.dispose(); }); VIC.g = VIC.m = null; } const v = $('vic'); if (v) v.classList.remove('on'); }
-function victoryScene(o) {
+function victoryScene(o) {                                         // the whole winning team poses together (o.team), the leader in front and the others behind in a V
   victoryEnd(); VIC.on = true; VIC.t = 0; VIC.after = () => { $('over').classList.add('on'); $('vic').classList.remove('on'); };
+  const crew = o.team && o.team.length ? o.team : [{ cloth: o.cloth, gun: o.gun, skin: o.skin }], n = crew.length, slots = [];                                                       // up to 6: a V with the leader in front. More than that: a team photo in rows.
+  if (n <= 6) for (let k = 0; k < n; k++) slots.push({ x: (k % 2 ? -1 : 1) * Math.ceil(k / 2) * 1.45, z: -Math.ceil(k / 2) * 0.85 + (k === 0 ? 0.4 : 0) });
+  else { const cols = n >= 9 ? 5 : 4, nr = Math.ceil(n / cols); for (let rw = 0; rw < nr; rw++) { const cnt = Math.min(cols, n - rw * cols), xs = []; for (let c = 0; c < cnt; c++) xs.push((c - (cnt - 1) / 2) * 1.5); xs.sort((a, b) => Math.abs(a) - Math.abs(b)); xs.forEach(x => slots.push({ x, z: -rw * 1.5 })); } }
+  const hw = Math.max(...slots.map(s => Math.abs(s.x))), dd = Math.max(0, ...slots.map(s => -s.z)), rad = Math.max(4.6, hw + dd * 0.6 + 2.4); VIC.n = n; VIC.hw = hw; VIC.dd = dd;
   const g = new THREE.Group(); g.position.set(0, VIC.Y, 0); scene.add(g);
-  const st = new THREE.Mesh(new THREE.CylinderGeometry(4.6, 4.8, 0.4, 40), MAT(0xeef1f6, 0.1, 0.6)); st.position.y = -0.2; g.add(st);
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(4.6, 0.07, 8, 60), glowM(0xffc83a)); ring.rotation.x = Math.PI / 2; ring.position.y = 0.02; g.add(ring);
-  const m = makeHumanoid(o.cloth); m.userData.sprite.visible = false;
-  const it = ITEMS[o.gun], gunId = it && ['gun', 'stream', 'proj'].includes(it.kind) ? o.gun : 'rifle', gun = buildItemModel(gunId, o.skin); gun.position.set(0.1, -0.03, -0.35); gun.userData.flash.visible = false; m.userData.aimG.add(gun);
-  const L = m.userData.legs; L[0].rotation.set(0.75, 0, -0.22); L[1].rotation.set(-0.55, 0, 0.3);          // wide, bent-knee stance
-  m.userData.aimG.rotation.set(1.45, 0, -0.22);                                                          // gun held up high
-  m.rotation.order = 'YXZ'; m.rotation.set(0, Math.PI + 0.1, 0.14); m.position.y = -0.18; g.add(m); VIC.g = g; VIC.m = m;
+  const st = new THREE.Mesh(new THREE.CylinderGeometry(rad, rad + 0.2, 0.4, 48), MAT(0xeef1f6, 0.1, 0.6)); st.position.y = -0.2; g.add(st);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(rad, 0.07, 8, 72), glowM(0xffc83a)); ring.rotation.x = Math.PI / 2; ring.position.y = 0.02; g.add(ring);
+  VIC.ms = [];
+  crew.forEach((c, k) => {
+    const m = makeHumanoid(c.cloth); m.userData.sprite.visible = false; const it = ITEMS[c.gun], gunId = it && ['gun', 'stream', 'proj'].includes(it.kind) ? c.gun : 'rifle', gun = buildItemModel(gunId, c.skin); gun.position.set(0.1, -0.03, -0.35); gun.userData.flash.visible = false; m.userData.aimG.add(gun);
+    const sl = slots[k], side = sl.x < 0 ? -1 : 1, flip = k % 2 === 1, L = m.userData.legs;
+    if (flip) { L[0].rotation.set(-0.55, 0, 0.3); L[1].rotation.set(0.75, 0, -0.22); } else { L[0].rotation.set(0.75, 0, -0.22); L[1].rotation.set(-0.55, 0, 0.3); }      // wide, bent-knee stance
+    const base = 1.45 + ((k % 3) - 1) * 0.07; m.userData.aimG.rotation.set(base, 0, flip ? 0.22 : -0.22);                                               // gun held up high
+    m.rotation.order = 'YXZ'; m.rotation.set(0, Math.PI + 0.1 - (Math.abs(sl.x) > 0.1 ? side * 0.22 : 0), flip ? -0.14 : 0.14); m.position.set(sl.x, -0.18, sl.z); g.add(m); VIC.ms.push({ m, ph: k * 0.7, base });
+  });
+  VIC.g = g; VIC.m = VIC.ms[0] && VIC.ms[0].m;
   $('vicT').textContent = o.won ? '🏆 YOU WIN!' : o.name + ' WINS!'; $('vicS').textContent = o.score; $('vic').classList.add('on');
   sfxVictory(); setTimeout(finishVictory, 6500);
 }
 function renderVictory(dt) {
-  VIC.t += dt; const t = VIC.t, Y = VIC.Y, a = -0.45 + Math.min(t, 10) * 0.09, r = 3.7 - Math.min(t, 3) * 0.25;
-  cam.fov = 64; cam.updateProjectionMatrix(); cam.position.set(Math.sin(a) * r, Y + 0.3, Math.cos(a) * r); cam.lookAt(0, Y + 1.15, 0); cam.rotateZ(0.2);
-  if (VIC.m) { VIC.m.userData.aimG.rotation.x = 1.45 + Math.sin(t * 3) * 0.04; VIC.m.position.y = -0.18 + Math.sin(t * 4) * 0.012; }
-  if (t < 4.5) for (let i = 0; i < 2; i++) puff(rand(-1.2, 1.2), Y + 2.6, rand(-1.2, 1.2), rand(-4, 4), rand(3, 8), rand(-4, 4), 1.8, 0.3, 0.3, [0xff4455, 0xffb020, 0x4ac96a, 0x3a9bf2, 0xf25aa9, 0xf5e04a][(Math.random() * 6) | 0], 0.95, 7, false);
+  VIC.t += dt; const t = VIC.t, Y = VIC.Y, hw = VIC.hw || 0, dd = VIC.dd || 0, a = -0.45 + Math.min(t, 10) * 0.09, r = 3.6 + hw * 1.15 + dd * 0.45 - Math.min(t, 3) * 0.25;
+  cam.fov = 64 + Math.min(hw, 5) * 1.2; cam.updateProjectionMatrix(); cam.position.set(Math.sin(a) * r, Y + 0.3 + dd * 0.12, Math.cos(a) * r); cam.lookAt(0, Y + 1.15 + dd * 0.05, -dd * 0.5); cam.rotateZ(0.2);
+  for (const e of VIC.ms || []) { e.m.userData.aimG.rotation.x = e.base + Math.sin(t * 3 + e.ph) * 0.04; e.m.position.y = -0.18 + Math.sin(t * 4 + e.ph) * 0.012; }
+  const w = 0.8 + hw; if (t < 4.5) for (let i = 0; i < 2 + Math.round(hw); i++) puff(rand(-w, w), Y + 2.6, rand(-1.2, 1.2) - dd * 0.5, rand(-4, 4), rand(3, 8), rand(-4, 4), 1.8, 0.3, 0.3, [0xff4455, 0xffb020, 0x4ac96a, 0x3a9bf2, 0xf25aa9, 0xf5e04a][(Math.random() * 6) | 0], 0.95, 7, false);
   updateEffects(dt); if (t > 5.2) finishVictory();
   renderer.clear(); renderer.render(scene, cam);
 }
-
 // ---------- graveyard jumpscare ----------
 const SC = { done: true, t: 0, grave: null, busy: false, face: null };
 function scareReset() {                                          // each round of a scary map gets one jumpscare: a creepy grave, or a timer
@@ -2796,7 +2804,8 @@ const Online = window.Online = {
     if (winTeam === -2) this.hostGone = true; this.updateAgain(); $('hud').classList.remove('on');
     if (winTeam < 0) { $('over').classList.add('on'); victoryEnd(); return; }
     const winners = this.mem.filter(m => m.t === winTeam), wm = meWon ? null : (winners.find(m => this.remotes[m.l]) || winners[0]), wr = wm && this.remotes[wm.l];
-    victoryScene({ won: meWon, name: meWon ? 'YOU' : (winners.length > 1 && !this.ffa ? 'THE ENEMY TEAM' : (wm ? wm.n : 'ENEMY')), cloth: meWon ? TEAMCOL[0] : TEAMCOL[1], gun: meWon ? (P.inv ? P.inv.primary.id : 'rifle') : ((wr && wr.gunId) || 'rifle'), skin: meWon ? (P.inv ? mySkin(P.inv.primary.id) : null) : (wr && wr.skin), score: scoreTxt });
+    const crew = (meWon ? [{ cloth: TEAMCOL[0], gun: P.inv ? P.inv.primary.id : 'rifle', skin: P.inv ? mySkin(P.inv.primary.id) : null }] : []).concat(winners.filter(m => m.l !== meL() && this.remotes[m.l]).map(m => ({ cloth: meWon ? TEAMCOL[0] : TEAMCOL[1], gun: this.remotes[m.l].gunId || 'rifle', skin: this.remotes[m.l].skin })));
+    victoryScene({ team: crew, won: meWon, name: meWon ? 'YOU' : (winners.length > 1 && !this.ffa ? 'THE ENEMY TEAM' : (wm ? wm.n : 'ENEMY')), cloth: meWon ? TEAMCOL[0] : TEAMCOL[1], gun: meWon ? (P.inv ? P.inv.primary.id : 'rifle') : ((wr && wr.gunId) || 'rifle'), skin: meWon ? (P.inv ? mySkin(P.inv.primary.id) : null) : (wr && wr.skin), score: scoreTxt });
   },
   cleanup() {
     if (!this.active && !this.inRoom()) return;
